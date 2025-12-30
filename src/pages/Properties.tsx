@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Filter, Grid3X3, List, Building } from "lucide-react";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,6 +23,9 @@ const Properties = () => {
   const [filters, setFilters] = useState<PropertyFilters>(defaultFilters);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const { data: properties, isLoading, error } = useProperties();
+  
+  // Restore scroll position when returning to this page
+  useScrollRestoration();
 
   // Get unique cities from properties
   const cities = useMemo(() => {
