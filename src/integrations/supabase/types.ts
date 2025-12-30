@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      properties: {
+        Row: {
+          asking_price: number
+          bathrooms: number | null
+          bedrooms: number | null
+          cash_roi_percentage: number | null
+          created_at: string
+          current_rental_income: number | null
+          current_status: Database["public"]["Enums"]["property_status"] | null
+          epc_rating: string | null
+          estimated_rental_income: number | null
+          floor_plan_urls: string[] | null
+          gross_yield_percentage: number | null
+          has_eicr: boolean | null
+          has_epc: boolean | null
+          has_floor_plans: boolean | null
+          has_gas_safety: boolean | null
+          id: string
+          leveraged_roi_percentage: number | null
+          listing_status: Database["public"]["Enums"]["listing_status"]
+          photo_urls: string[] | null
+          property_address: string
+          property_city: string
+          property_description: string | null
+          property_postcode: string
+          property_type: Database["public"]["Enums"]["property_type"]
+          square_feet: number | null
+          strategies:
+            | Database["public"]["Enums"]["investment_strategy"][]
+            | null
+          submission_id: string | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          asking_price: number
+          bathrooms?: number | null
+          bedrooms?: number | null
+          cash_roi_percentage?: number | null
+          created_at?: string
+          current_rental_income?: number | null
+          current_status?: Database["public"]["Enums"]["property_status"] | null
+          epc_rating?: string | null
+          estimated_rental_income?: number | null
+          floor_plan_urls?: string[] | null
+          gross_yield_percentage?: number | null
+          has_eicr?: boolean | null
+          has_epc?: boolean | null
+          has_floor_plans?: boolean | null
+          has_gas_safety?: boolean | null
+          id?: string
+          leveraged_roi_percentage?: number | null
+          listing_status?: Database["public"]["Enums"]["listing_status"]
+          photo_urls?: string[] | null
+          property_address: string
+          property_city: string
+          property_description?: string | null
+          property_postcode: string
+          property_type: Database["public"]["Enums"]["property_type"]
+          square_feet?: number | null
+          strategies?:
+            | Database["public"]["Enums"]["investment_strategy"][]
+            | null
+          submission_id?: string | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          asking_price?: number
+          bathrooms?: number | null
+          bedrooms?: number | null
+          cash_roi_percentage?: number | null
+          created_at?: string
+          current_rental_income?: number | null
+          current_status?: Database["public"]["Enums"]["property_status"] | null
+          epc_rating?: string | null
+          estimated_rental_income?: number | null
+          floor_plan_urls?: string[] | null
+          gross_yield_percentage?: number | null
+          has_eicr?: boolean | null
+          has_epc?: boolean | null
+          has_floor_plans?: boolean | null
+          has_gas_safety?: boolean | null
+          id?: string
+          leveraged_roi_percentage?: number | null
+          listing_status?: Database["public"]["Enums"]["listing_status"]
+          photo_urls?: string[] | null
+          property_address?: string
+          property_city?: string
+          property_description?: string | null
+          property_postcode?: string
+          property_type?: Database["public"]["Enums"]["property_type"]
+          square_feet?: number | null
+          strategies?:
+            | Database["public"]["Enums"]["investment_strategy"][]
+            | null
+          submission_id?: string | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "seller_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seller_submissions: {
         Row: {
           additional_notes: string | null
@@ -115,6 +228,16 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      investment_strategy:
+        | "cash_roi"
+        | "brrr"
+        | "leveraged"
+        | "capital_growth"
+        | "hands_on"
+        | "hands_off"
+        | "btl"
+        | "social_housing"
+      listing_status: "available" | "reserved" | "under_offer" | "sold"
       property_status:
         | "vacant"
         | "tenanted"
@@ -279,6 +402,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      investment_strategy: [
+        "cash_roi",
+        "brrr",
+        "leveraged",
+        "capital_growth",
+        "hands_on",
+        "hands_off",
+        "btl",
+        "social_housing",
+      ],
+      listing_status: ["available", "reserved", "under_offer", "sold"],
       property_status: [
         "vacant",
         "tenanted",
