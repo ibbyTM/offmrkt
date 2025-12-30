@@ -8,26 +8,45 @@ import {
   useIsAdmin,
   type ApplicationStatus,
 } from "@/hooks/useAdminApplications";
+import {
+  useSellerSubmissions,
+  useUpdateSubmissionStatus,
+  type SubmissionStatus,
+} from "@/hooks/useSellerSubmissions";
 import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
+import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Clock, CheckCircle, XCircle, ShieldCheck } from "lucide-react";
+import { Loader2, Users, Clock, CheckCircle, XCircle, ShieldCheck, Building, FileText } from "lucide-react";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: isCheckingAdmin } = useIsAdmin();
-  const [statusFilter, setStatusFilter] = useState<ApplicationStatus | undefined>(undefined);
   
-  const { data: applications = [], isLoading } = useAdminApplications(statusFilter);
-  const { mutate: updateStatus, isPending: isUpdating } = useUpdateApplicationStatus();
+  // Investor applications state
+  const [appStatusFilter, setAppStatusFilter] = useState<ApplicationStatus | undefined>(undefined);
+  const { data: applications = [], isLoading: isLoadingApps } = useAdminApplications(appStatusFilter);
+  const { mutate: updateAppStatus, isPending: isUpdatingApp } = useUpdateApplicationStatus();
 
-  const pendingCount = applications.filter((a) => a.status === "pending").length;
-  const approvedCount = applications.filter((a) => a.status === "approved").length;
-  const rejectedCount = applications.filter((a) => a.status === "rejected").length;
+  // Seller submissions state
+  const [subStatusFilter, setSubStatusFilter] = useState<SubmissionStatus | undefined>(undefined);
+  const { data: submissions = [], isLoading: isLoadingSubs } = useSellerSubmissions(subStatusFilter);
+  const { mutate: updateSubStatus, isPending: isUpdatingSub } = useUpdateSubmissionStatus();
 
-  const handleUpdateStatus = (applicationId: string, status: ApplicationStatus, notes?: string) => {
-    updateStatus({ applicationId, status, adminNotes: notes });
+  const pendingApps = applications.filter((a) => a.status === "pending").length;
+  const approvedApps = applications.filter((a) => a.status === "approved").length;
+  const rejectedApps = applications.filter((a) => a.status === "rejected").length;
+
+  const pendingSubs = submissions.filter((s) => s.admin_status === "pending").length;
+  const approvedSubs = submissions.filter((s) => s.admin_status === "approved").length;
+
+  const handleUpdateAppStatus = (applicationId: string, status: ApplicationStatus, notes?: string) => {
+    updateAppStatus({ applicationId, status, adminNotes: notes });
+  };
+
+  const handleUpdateSubStatus = (submissionId: string, status: SubmissionStatus, notes?: string) => {
+    updateSubStatus({ submissionId, status, adminNotes: notes });
   };
 
   // Show loading state while checking auth
@@ -69,15 +88,15 @@ const Admin = () => {
               <ShieldCheck className="h-8 w-8 text-primary" />
               Admin Panel
             </h1>
-            <p className="text-muted-foreground">Manage investor applications and approvals</p>
+            <p className="text-muted-foreground">Manage investor applications and property submissions</p>
           </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+              <CardTitle className="text-sm font-medium">Applications</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -86,107 +105,236 @@ const Admin = () => {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
+              <CardTitle className="text-sm font-medium">Pending Apps</CardTitle>
               <Clock className="h-4 w-4 text-amber-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-amber-500">{pendingCount}</div>
+              <div className="text-2xl font-bold text-amber-500">{pendingApps}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Approved</CardTitle>
+              <CardTitle className="text-sm font-medium">Approved Apps</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">{approvedCount}</div>
+              <div className="text-2xl font-bold text-green-500">{approvedApps}</div>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Rejected</CardTitle>
-              <XCircle className="h-4 w-4 text-destructive" />
+              <CardTitle className="text-sm font-medium">Submissions</CardTitle>
+              <Building className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive">{rejectedCount}</div>
+              <div className="text-2xl font-bold">{submissions.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Subs</CardTitle>
+              <Clock className="h-4 w-4 text-amber-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-500">{pendingSubs}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Approved Subs</CardTitle>
+              <CheckCircle className="h-4 w-4 text-green-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-500">{approvedSubs}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Applications Tabs */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Investor Applications</CardTitle>
-            <CardDescription>Review and manage investor registration requests</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs
-              defaultValue="all"
-              onValueChange={(value) =>
-                setStatusFilter(value === "all" ? undefined : (value as ApplicationStatus))
-              }
-            >
-              <TabsList className="mb-6">
-                <TabsTrigger value="all" className="gap-2">
-                  All
-                  <Badge variant="secondary" className="ml-1">
-                    {applications.length}
-                  </Badge>
-                </TabsTrigger>
-                <TabsTrigger value="pending" className="gap-2">
-                  <Clock className="h-4 w-4" />
-                  Pending
-                  {pendingCount > 0 && (
-                    <Badge variant="secondary" className="ml-1">
-                      {pendingCount}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="approved" className="gap-2">
-                  <CheckCircle className="h-4 w-4" />
-                  Approved
-                </TabsTrigger>
-                <TabsTrigger value="rejected" className="gap-2">
-                  <XCircle className="h-4 w-4" />
-                  Rejected
-                </TabsTrigger>
-              </TabsList>
+        {/* Main Tabs */}
+        <Tabs defaultValue="applications" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="applications" className="gap-2">
+              <Users className="h-4 w-4" />
+              Investor Applications
+              {pendingApps > 0 && (
+                <Badge variant="secondary">{pendingApps}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="submissions" className="gap-2">
+              <Building className="h-4 w-4" />
+              Property Submissions
+              {pendingSubs > 0 && (
+                <Badge variant="secondary">{pendingSubs}</Badge>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-              <TabsContent value="all">
-                <ApplicationsTable
-                  applications={applications}
-                  isLoading={isLoading}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
-                />
-              </TabsContent>
-              <TabsContent value="pending">
-                <ApplicationsTable
-                  applications={applications.filter((a) => a.status === "pending")}
-                  isLoading={isLoading}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
-                />
-              </TabsContent>
-              <TabsContent value="approved">
-                <ApplicationsTable
-                  applications={applications.filter((a) => a.status === "approved")}
-                  isLoading={isLoading}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
-                />
-              </TabsContent>
-              <TabsContent value="rejected">
-                <ApplicationsTable
-                  applications={applications.filter((a) => a.status === "rejected")}
-                  isLoading={isLoading}
-                  onUpdateStatus={handleUpdateStatus}
-                  isUpdating={isUpdating}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+          {/* Investor Applications Tab */}
+          <TabsContent value="applications">
+            <Card>
+              <CardHeader>
+                <CardTitle>Investor Applications</CardTitle>
+                <CardDescription>Review and manage investor registration requests</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs
+                  defaultValue="all"
+                  onValueChange={(value) =>
+                    setAppStatusFilter(value === "all" ? undefined : (value as ApplicationStatus))
+                  }
+                >
+                  <TabsList className="mb-6">
+                    <TabsTrigger value="all" className="gap-2">
+                      All
+                      <Badge variant="secondary" className="ml-1">
+                        {applications.length}
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="pending" className="gap-2">
+                      <Clock className="h-4 w-4" />
+                      Pending
+                      {pendingApps > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {pendingApps}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="approved" className="gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      Approved
+                    </TabsTrigger>
+                    <TabsTrigger value="rejected" className="gap-2">
+                      <XCircle className="h-4 w-4" />
+                      Rejected
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="all">
+                    <ApplicationsTable
+                      applications={applications}
+                      isLoading={isLoadingApps}
+                      onUpdateStatus={handleUpdateAppStatus}
+                      isUpdating={isUpdatingApp}
+                    />
+                  </TabsContent>
+                  <TabsContent value="pending">
+                    <ApplicationsTable
+                      applications={applications.filter((a) => a.status === "pending")}
+                      isLoading={isLoadingApps}
+                      onUpdateStatus={handleUpdateAppStatus}
+                      isUpdating={isUpdatingApp}
+                    />
+                  </TabsContent>
+                  <TabsContent value="approved">
+                    <ApplicationsTable
+                      applications={applications.filter((a) => a.status === "approved")}
+                      isLoading={isLoadingApps}
+                      onUpdateStatus={handleUpdateAppStatus}
+                      isUpdating={isUpdatingApp}
+                    />
+                  </TabsContent>
+                  <TabsContent value="rejected">
+                    <ApplicationsTable
+                      applications={applications.filter((a) => a.status === "rejected")}
+                      isLoading={isLoadingApps}
+                      onUpdateStatus={handleUpdateAppStatus}
+                      isUpdating={isUpdatingApp}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Property Submissions Tab */}
+          <TabsContent value="submissions">
+            <Card>
+              <CardHeader>
+                <CardTitle>Property Submissions</CardTitle>
+                <CardDescription>Review and approve seller property submissions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs
+                  defaultValue="all"
+                  onValueChange={(value) =>
+                    setSubStatusFilter(value === "all" ? undefined : (value as SubmissionStatus))
+                  }
+                >
+                  <TabsList className="mb-6">
+                    <TabsTrigger value="all" className="gap-2">
+                      All
+                      <Badge variant="secondary" className="ml-1">
+                        {submissions.length}
+                      </Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="pending" className="gap-2">
+                      <Clock className="h-4 w-4" />
+                      Pending
+                      {pendingSubs > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {pendingSubs}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                    <TabsTrigger value="approved" className="gap-2">
+                      <CheckCircle className="h-4 w-4" />
+                      Approved
+                    </TabsTrigger>
+                    <TabsTrigger value="rejected" className="gap-2">
+                      <XCircle className="h-4 w-4" />
+                      Rejected
+                    </TabsTrigger>
+                    <TabsTrigger value="listed" className="gap-2">
+                      <FileText className="h-4 w-4" />
+                      Listed
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="all">
+                    <SubmissionsTable
+                      submissions={submissions}
+                      isLoading={isLoadingSubs}
+                      onUpdateStatus={handleUpdateSubStatus}
+                      isUpdating={isUpdatingSub}
+                    />
+                  </TabsContent>
+                  <TabsContent value="pending">
+                    <SubmissionsTable
+                      submissions={submissions.filter((s) => s.admin_status === "pending")}
+                      isLoading={isLoadingSubs}
+                      onUpdateStatus={handleUpdateSubStatus}
+                      isUpdating={isUpdatingSub}
+                    />
+                  </TabsContent>
+                  <TabsContent value="approved">
+                    <SubmissionsTable
+                      submissions={submissions.filter((s) => s.admin_status === "approved")}
+                      isLoading={isLoadingSubs}
+                      onUpdateStatus={handleUpdateSubStatus}
+                      isUpdating={isUpdatingSub}
+                    />
+                  </TabsContent>
+                  <TabsContent value="rejected">
+                    <SubmissionsTable
+                      submissions={submissions.filter((s) => s.admin_status === "rejected")}
+                      isLoading={isLoadingSubs}
+                      onUpdateStatus={handleUpdateSubStatus}
+                      isUpdating={isUpdatingSub}
+                    />
+                  </TabsContent>
+                  <TabsContent value="listed">
+                    <SubmissionsTable
+                      submissions={submissions.filter((s) => s.admin_status === "listed")}
+                      isLoading={isLoadingSubs}
+                      onUpdateStatus={handleUpdateSubStatus}
+                      isUpdating={isUpdatingSub}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

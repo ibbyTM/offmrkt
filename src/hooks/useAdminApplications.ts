@@ -17,26 +17,39 @@ export const useAdminApplications = (statusFilter?: ApplicationStatus) => {
   return useQuery({
     queryKey: ["admin-applications", statusFilter],
     queryFn: async () => {
+      // Fetch applications
       let query = supabase
         .from("investor_applications")
-        .select(`
-          *,
-          profile:profiles!investor_applications_user_id_fkey(full_name, email, phone)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (statusFilter) {
         query = query.eq("status", statusFilter);
       }
 
-      const { data, error } = await query;
+      const { data: applications, error: appError } = await query;
+      if (appError) throw appError;
 
-      if (error) throw error;
+      if (!applications || applications.length === 0) {
+        return [] as InvestorApplication[];
+      }
 
-      // Transform the data to flatten the profile
-      return (data || []).map((app) => ({
+      // Fetch profiles for these users
+      const userIds = applications.map(app => app.user_id);
+      const { data: profiles, error: profileError } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .in("user_id", userIds);
+
+      if (profileError) throw profileError;
+
+      // Create a map for quick lookup
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+
+      // Combine the data
+      return applications.map((app) => ({
         ...app,
-        profile: Array.isArray(app.profile) ? app.profile[0] : app.profile,
+        profile: profileMap.get(app.user_id) || undefined,
       })) as InvestorApplication[];
     },
   });
