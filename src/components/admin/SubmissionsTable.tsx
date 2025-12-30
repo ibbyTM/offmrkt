@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eye, CheckCircle, XCircle, Clock, FileText } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Clock, FileText, Plus } from "lucide-react";
 import type { SellerSubmission, SubmissionStatus } from "@/hooks/useSellerSubmissions";
 import { SubmissionDetailDialog } from "./SubmissionDetailDialog";
 
@@ -39,14 +39,18 @@ interface SubmissionsTableProps {
   submissions: SellerSubmission[];
   isLoading: boolean;
   onUpdateStatus: (submissionId: string, status: SubmissionStatus, notes?: string) => void;
+  onConvertToListing: (submission: SellerSubmission) => void;
   isUpdating: boolean;
+  isConverting: boolean;
 }
 
 export const SubmissionsTable = ({
   submissions,
   isLoading,
   onUpdateStatus,
+  onConvertToListing,
   isUpdating,
+  isConverting,
 }: SubmissionsTableProps) => {
   const [selectedSubmission, setSelectedSubmission] = useState<SellerSubmission | null>(null);
 
@@ -151,6 +155,17 @@ export const SubmissionsTable = ({
                           </Button>
                         </>
                       )}
+                      {submission.admin_status === "approved" && (
+                        <Button
+                          size="sm"
+                          onClick={() => onConvertToListing(submission)}
+                          disabled={isConverting}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          List
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -164,7 +179,9 @@ export const SubmissionsTable = ({
         submission={selectedSubmission}
         onClose={() => setSelectedSubmission(null)}
         onUpdateStatus={onUpdateStatus}
+        onConvertToListing={onConvertToListing}
         isUpdating={isUpdating}
+        isConverting={isConverting}
       />
     </>
   );

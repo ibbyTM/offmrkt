@@ -27,6 +27,7 @@ import {
   Eye,
   FileText,
   User,
+  Plus,
 } from "lucide-react";
 import type { SellerSubmission, SubmissionStatus } from "@/hooks/useSellerSubmissions";
 
@@ -81,14 +82,18 @@ interface SubmissionDetailDialogProps {
   submission: SellerSubmission | null;
   onClose: () => void;
   onUpdateStatus: (submissionId: string, status: SubmissionStatus, notes?: string) => void;
+  onConvertToListing: (submission: SellerSubmission) => void;
   isUpdating: boolean;
+  isConverting: boolean;
 }
 
 export const SubmissionDetailDialog = ({
   submission,
   onClose,
   onUpdateStatus,
+  onConvertToListing,
   isUpdating,
+  isConverting,
 }: SubmissionDetailDialogProps) => {
   const [adminNotes, setAdminNotes] = useState(submission?.admin_notes || "");
 
@@ -323,24 +328,44 @@ export const SubmissionDetailDialog = ({
           <Button variant="outline" onClick={onClose}>
             Close
           </Button>
-          {submission.admin_status !== "rejected" && (
+          {submission.admin_status !== "rejected" && submission.admin_status !== "listed" && (
             <Button
               variant="destructive"
               onClick={() => handleStatusUpdate("rejected")}
-              disabled={isUpdating}
+              disabled={isUpdating || isConverting}
             >
               <XCircle className="h-4 w-4 mr-2" />
               Reject
+            </Button>
+          )}
+          {submission.admin_status === "pending" && (
+            <Button
+              variant="secondary"
+              onClick={() => handleStatusUpdate("reviewing")}
+              disabled={isUpdating || isConverting}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Mark Reviewing
             </Button>
           )}
           {submission.admin_status !== "approved" && submission.admin_status !== "listed" && (
             <Button
               variant="default"
               onClick={() => handleStatusUpdate("approved")}
-              disabled={isUpdating}
+              disabled={isUpdating || isConverting}
             >
               <CheckCircle className="h-4 w-4 mr-2" />
               Approve
+            </Button>
+          )}
+          {submission.admin_status === "approved" && (
+            <Button
+              onClick={() => onConvertToListing(submission)}
+              disabled={isConverting}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {isConverting ? "Creating..." : "Create Listing"}
             </Button>
           )}
         </DialogFooter>

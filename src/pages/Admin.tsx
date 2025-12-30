@@ -11,7 +11,9 @@ import {
 import {
   useSellerSubmissions,
   useUpdateSubmissionStatus,
+  useConvertToListing,
   type SubmissionStatus,
+  type SellerSubmission,
 } from "@/hooks/useSellerSubmissions";
 import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
 import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
@@ -33,6 +35,7 @@ const Admin = () => {
   const [subStatusFilter, setSubStatusFilter] = useState<SubmissionStatus | undefined>(undefined);
   const { data: submissions = [], isLoading: isLoadingSubs } = useSellerSubmissions(subStatusFilter);
   const { mutate: updateSubStatus, isPending: isUpdatingSub } = useUpdateSubmissionStatus();
+  const { mutate: convertToListing, isPending: isConverting } = useConvertToListing();
 
   const pendingApps = applications.filter((a) => a.status === "pending").length;
   const approvedApps = applications.filter((a) => a.status === "approved").length;
@@ -47,6 +50,10 @@ const Admin = () => {
 
   const handleUpdateSubStatus = (submissionId: string, status: SubmissionStatus, notes?: string) => {
     updateSubStatus({ submissionId, status, adminNotes: notes });
+  };
+
+  const handleConvertToListing = (submission: SellerSubmission) => {
+    convertToListing(submission);
   };
 
   // Show loading state while checking auth
@@ -295,7 +302,9 @@ const Admin = () => {
                       submissions={submissions}
                       isLoading={isLoadingSubs}
                       onUpdateStatus={handleUpdateSubStatus}
+                      onConvertToListing={handleConvertToListing}
                       isUpdating={isUpdatingSub}
+                      isConverting={isConverting}
                     />
                   </TabsContent>
                   <TabsContent value="pending">
@@ -303,7 +312,9 @@ const Admin = () => {
                       submissions={submissions.filter((s) => s.admin_status === "pending")}
                       isLoading={isLoadingSubs}
                       onUpdateStatus={handleUpdateSubStatus}
+                      onConvertToListing={handleConvertToListing}
                       isUpdating={isUpdatingSub}
+                      isConverting={isConverting}
                     />
                   </TabsContent>
                   <TabsContent value="approved">
@@ -311,7 +322,9 @@ const Admin = () => {
                       submissions={submissions.filter((s) => s.admin_status === "approved")}
                       isLoading={isLoadingSubs}
                       onUpdateStatus={handleUpdateSubStatus}
+                      onConvertToListing={handleConvertToListing}
                       isUpdating={isUpdatingSub}
+                      isConverting={isConverting}
                     />
                   </TabsContent>
                   <TabsContent value="rejected">
@@ -319,7 +332,9 @@ const Admin = () => {
                       submissions={submissions.filter((s) => s.admin_status === "rejected")}
                       isLoading={isLoadingSubs}
                       onUpdateStatus={handleUpdateSubStatus}
+                      onConvertToListing={handleConvertToListing}
                       isUpdating={isUpdatingSub}
+                      isConverting={isConverting}
                     />
                   </TabsContent>
                   <TabsContent value="listed">
@@ -327,7 +342,9 @@ const Admin = () => {
                       submissions={submissions.filter((s) => s.admin_status === "listed")}
                       isLoading={isLoadingSubs}
                       onUpdateStatus={handleUpdateSubStatus}
+                      onConvertToListing={handleConvertToListing}
                       isUpdating={isUpdatingSub}
+                      isConverting={isConverting}
                     />
                   </TabsContent>
                 </Tabs>
