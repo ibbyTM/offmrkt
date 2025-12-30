@@ -14,6 +14,129 @@ export type Database = {
   }
   public: {
     Tables: {
+      investor_applications: {
+        Row: {
+          admin_notes: string | null
+          agreed_to_terms: boolean
+          cash_available: string
+          created_at: string
+          decision_maker: boolean
+          funding_source: string
+          id: string
+          investment_experience: string
+          max_budget: number
+          min_budget: number
+          mortgage_approved: boolean
+          needs_mortgage_broker: boolean | null
+          needs_property_management: boolean | null
+          needs_refurb_team: boolean | null
+          needs_solicitor: boolean | null
+          preferred_locations: string[]
+          preferred_strategies: string[]
+          properties_owned: number | null
+          properties_to_acquire: number
+          purchase_timeline: string
+          referral_source: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["investor_status"]
+          target_yield: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          agreed_to_terms?: boolean
+          cash_available: string
+          created_at?: string
+          decision_maker: boolean
+          funding_source: string
+          id?: string
+          investment_experience: string
+          max_budget: number
+          min_budget: number
+          mortgage_approved: boolean
+          needs_mortgage_broker?: boolean | null
+          needs_property_management?: boolean | null
+          needs_refurb_team?: boolean | null
+          needs_solicitor?: boolean | null
+          preferred_locations: string[]
+          preferred_strategies: string[]
+          properties_owned?: number | null
+          properties_to_acquire: number
+          purchase_timeline: string
+          referral_source?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["investor_status"]
+          target_yield?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          agreed_to_terms?: boolean
+          cash_available?: string
+          created_at?: string
+          decision_maker?: boolean
+          funding_source?: string
+          id?: string
+          investment_experience?: string
+          max_budget?: number
+          min_budget?: number
+          mortgage_approved?: boolean
+          needs_mortgage_broker?: boolean | null
+          needs_property_management?: boolean | null
+          needs_refurb_team?: boolean | null
+          needs_solicitor?: boolean | null
+          preferred_locations?: string[]
+          preferred_strategies?: string[]
+          properties_owned?: number | null
+          properties_to_acquire?: number
+          purchase_timeline?: string
+          referral_source?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["investor_status"]
+          target_yield?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           asking_price: number
@@ -127,6 +250,76 @@ export type Database = {
           },
         ]
       }
+      property_reservations: {
+        Row: {
+          created_at: string
+          deposit_amount: number | null
+          id: string
+          notes: string | null
+          property_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deposit_amount?: number | null
+          id?: string
+          notes?: string | null
+          property_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deposit_amount?: number | null
+          id?: string
+          notes?: string | null
+          property_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_reservations_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_properties: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_properties_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seller_submissions: {
         Row: {
           additional_notes: string | null
@@ -220,14 +413,46 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_investor_status: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["investor_status"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "investor" | "pending"
       investment_strategy:
         | "cash_roi"
         | "brrr"
@@ -237,6 +462,7 @@ export type Database = {
         | "hands_off"
         | "btl"
         | "social_housing"
+      investor_status: "pending" | "approved" | "rejected"
       listing_status: "available" | "reserved" | "under_offer" | "sold"
       property_status:
         | "vacant"
@@ -402,6 +628,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "investor", "pending"],
       investment_strategy: [
         "cash_roi",
         "brrr",
@@ -412,6 +639,7 @@ export const Constants = {
         "btl",
         "social_housing",
       ],
+      investor_status: ["pending", "approved", "rejected"],
       listing_status: ["available", "reserved", "under_offer", "sold"],
       property_status: [
         "vacant",
