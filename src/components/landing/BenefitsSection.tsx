@@ -6,6 +6,8 @@ import {
   Clock, 
   Handshake 
 } from "lucide-react";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { cn } from "@/lib/utils";
 
 const benefits = [
   {
@@ -41,11 +43,16 @@ const benefits = [
 ];
 
 export function BenefitsSection() {
+  const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.1 });
+
   return (
-    <section className="py-20 md:py-28 bg-background">
+    <section ref={ref} className="py-20 md:py-28 bg-background">
       <div className="container">
         {/* Section Header */}
-        <div className="mx-auto max-w-2xl text-center mb-16">
+        <div className={cn(
+          "mx-auto max-w-2xl text-center mb-16 transition-all duration-700",
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-4">
             Why choose InvestorHub?
           </h2>
@@ -59,10 +66,13 @@ export function BenefitsSection() {
           {benefits.map((benefit, index) => (
             <div
               key={benefit.title}
-              className="group relative rounded-xl border border-border bg-card p-8 transition-all duration-300 hover:border-primary/50 hover:shadow-lg"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className={cn(
+                "group relative rounded-xl border border-border bg-card p-8 transition-all duration-500 hover:border-primary/50 hover:shadow-lg",
+                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              )}
+              style={{ transitionDelay: isVisible ? `${index * 100}ms` : "0ms" }}
             >
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-primary">
+              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-primary transition-transform duration-300 group-hover:scale-110">
                 <benefit.icon className="h-6 w-6" />
               </div>
               <h3 className="mb-2 text-xl font-semibold text-foreground">
