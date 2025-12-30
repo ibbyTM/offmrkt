@@ -67,3 +67,65 @@ export const useUpdateSubmissionStatus = () => {
     },
   });
 };
+
+export const useConvertToListing = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (submission: SellerSubmission) => {
+      // Create the property listing from the submission
+      const { data: property, error: propertyError } = await supabase
+        .from("properties")
+        .insert({
+          title: `${submission.bedrooms || ""} Bed ${submission.property_type.replace("_", " ")} in ${submission.property_city}`.trim(),
+          property_address: submission.property_address,
+          property_city: submission.property_city,
+          property_postcode: submission.property_postcode,
+          property_type: submission.property_type,
+          property_description: submission.property_description,
+          asking_price: submission.asking_price,
+          bedrooms: submission.bedrooms,
+          bathrooms: submission.bathrooms,
+          current_status: submission.current_status,
+          epc_rating: submission.epc_rating,
+          has_epc: submission.has_epc,
+          has_gas_safety: submission.has_gas_safety,
+          has_eicr: submission.has_eicr,
+          has_floor_plans: submission.has_floor_plans,
+          photo_urls: submission.photo_urls,
+          listing_status: "available",
+          submission_id: submission.id,
+        })
+        .select()
+        .single();
+
+      if (propertyError) throw propertyError;
+
+      // Update submission status to listed
+      const { error: updateError } = await supabase
+        .from("seller_submissions")
+        .update({ admin_status: "listed" })
+        .eq("id", submission.id);
+
+      if (updateError) throw updateError;
+
+      return property;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["seller-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      toast({
+        title: "Listing Created",
+        description: "Property has been published and is now live.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create property listing.",
+        variant: "destructive",
+      });
+      console.error("Error converting to listing:", error);
+    },
+  });
+};
