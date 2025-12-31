@@ -10,6 +10,7 @@ interface AuthContextType {
   loading: boolean;
   investorStatus: InvestorStatus;
   hasCompletedQuestionnaire: boolean;
+  isAdmin: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -24,6 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [investorStatus, setInvestorStatus] = useState<InvestorStatus>(null);
   const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchInvestorStatus = async (userId: string) => {
     const { data, error } = await supabase
@@ -46,6 +48,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const fetchAdminStatus = async (userId: string) => {
+    const { data, error } = await supabase.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+
+    if (error) {
+      console.error("Error fetching admin status:", error);
+      setIsAdmin(false);
+      return;
+    }
+
+    setIsAdmin(data === true);
+  };
+
   const refreshInvestorStatus = async () => {
     if (user) {
       await fetchInvestorStatus(user.id);
@@ -64,10 +81,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           setTimeout(() => {
             fetchInvestorStatus(session.user.id);
+            fetchAdminStatus(session.user.id);
           }, 0);
         } else {
           setInvestorStatus(null);
           setHasCompletedQuestionnaire(false);
+          setIsAdmin(false);
         }
       }
     );
@@ -80,6 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (session?.user) {
         fetchInvestorStatus(session.user.id);
+        fetchAdminStatus(session.user.id);
       }
     });
 
@@ -118,6 +138,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
     setInvestorStatus(null);
     setHasCompletedQuestionnaire(false);
+    setIsAdmin(false);
   };
 
   return (
@@ -128,6 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         investorStatus,
         hasCompletedQuestionnaire,
+        isAdmin,
         signUp,
         signIn,
         signOut,
