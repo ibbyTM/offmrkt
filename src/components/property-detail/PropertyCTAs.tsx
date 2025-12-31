@@ -1,24 +1,48 @@
+import { useState } from "react";
 import { Heart, ShieldCheck, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Property, formatPrice, listingStatusLabels } from "@/lib/propertyUtils";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface PropertyCTAsProps {
   property: Property;
 }
 
 export default function PropertyCTAs({ property }: PropertyCTAsProps) {
-  // TODO: Replace with actual auth check
-  const isLoggedIn = false;
+  const { user } = useAuth();
+  const isLoggedIn = !!user;
+  const [isSaving, setIsSaving] = useState(false);
   const isAvailable = property.listing_status === "available";
 
-  const handleSaveToFavorites = () => {
-    if (!isLoggedIn) {
+  const handleSaveToFavorites = async () => {
+    if (!user) {
       toast.info("Please log in to save properties to your favorites");
       return;
     }
-    toast.success("Property saved to favorites!");
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from("saved_properties")
+        .insert({ user_id: user.id, property_id: property.id });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast.info("Property already saved to favorites");
+        } else {
+          toast.error("Failed to save property");
+        }
+      } else {
+        toast.success("Property saved to favorites!");
+      }
+    } catch {
+      toast.error("Failed to save property");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleReserve = () => {
@@ -61,6 +85,7 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
               onClick={handleSaveToFavorites}
               variant="outline"
               className="w-full"
+              disabled={isSaving}
             >
               <Heart className="mr-2 h-4 w-4" />
               Save to Favorites
@@ -83,6 +108,7 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
               onClick={handleSaveToFavorites}
               variant="outline"
               className="w-full"
+              disabled={isSaving}
             >
               <Heart className="mr-2 h-4 w-4" />
               Save to Favorites
@@ -101,7 +127,7 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
             
             <p className="text-xs text-center text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/login" className="text-primary hover:underline">
+              <Link to="/auth" className="text-primary hover:underline">
                 Log in
               </Link>
             </p>
