@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Heart, ShieldCheck, UserPlus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Property, formatPrice, listingStatusLabels } from "@/lib/propertyUtils"
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface PropertyCTAsProps {
   property: Property;
@@ -15,9 +16,31 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
   const { user } = useAuth();
   const isLoggedIn = !!user;
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const isAvailable = property.listing_status === "available";
 
-  const handleSaveToFavorites = async () => {
+  // Check if property is already saved on mount
+  useEffect(() => {
+    if (!user) {
+      setIsSaved(false);
+      return;
+    }
+
+    const checkIfSaved = async () => {
+      const { data } = await supabase
+        .from("saved_properties")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("property_id", property.id)
+        .maybeSingle();
+
+      setIsSaved(!!data);
+    };
+
+    checkIfSaved();
+  }, [user, property.id]);
+
+  const handleToggleFavorite = async () => {
     if (!user) {
       toast.info("Please log in to save properties to your favorites");
       return;
@@ -25,21 +48,35 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
 
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from("saved_properties")
-        .insert({ user_id: user.id, property_id: property.id });
+      if (isSaved) {
+        // Remove from favorites
+        const { error } = await supabase
+          .from("saved_properties")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("property_id", property.id);
 
-      if (error) {
-        if (error.code === "23505") {
-          toast.info("Property already saved to favorites");
+        if (error) {
+          toast.error("Failed to remove from favorites");
         } else {
-          toast.error("Failed to save property");
+          setIsSaved(false);
+          toast.success("Removed from favorites");
         }
       } else {
-        toast.success("Property saved to favorites!");
+        // Add to favorites
+        const { error } = await supabase
+          .from("saved_properties")
+          .insert({ user_id: user.id, property_id: property.id });
+
+        if (error) {
+          toast.error("Failed to save property");
+        } else {
+          setIsSaved(true);
+          toast.success("Saved to favorites!");
+        }
       }
     } catch {
-      toast.error("Failed to save property");
+      toast.error("Something went wrong");
     } finally {
       setIsSaving(false);
     }
@@ -82,13 +119,13 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
         {isLoggedIn ? (
           <>
             <Button
-              onClick={handleSaveToFavorites}
-              variant="outline"
-              className="w-full"
+              onClick={handleToggleFavorite}
+              variant={isSaved ? "default" : "outline"}
+              className={cn("w-full", isSaved && "bg-red-500 hover:bg-red-600 text-white")}
               disabled={isSaving}
             >
-              <Heart className="mr-2 h-4 w-4" />
-              Save to Favorites
+              <Heart className={cn("mr-2 h-4 w-4", isSaved && "fill-current")} />
+              {isSaved ? "Saved to Favorites" : "Save to Favorites"}
             </Button>
             
             {isAvailable && (
@@ -105,13 +142,13 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
         ) : (
           <>
             <Button
-              onClick={handleSaveToFavorites}
-              variant="outline"
-              className="w-full"
+              onClick={handleToggleFavorite}
+              variant={isSaved ? "default" : "outline"}
+              className={cn("w-full", isSaved && "bg-red-500 hover:bg-red-600 text-white")}
               disabled={isSaving}
             >
-              <Heart className="mr-2 h-4 w-4" />
-              Save to Favorites
+              <Heart className={cn("mr-2 h-4 w-4", isSaved && "fill-current")} />
+              {isSaved ? "Saved to Favorites" : "Save to Favorites"}
             </Button>
             
             <Button
