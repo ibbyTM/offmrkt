@@ -34,14 +34,14 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 font-semibold text-xl">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="hidden sm:inline-block">InvestorHub</span>
+          <span className="hidden sm:inline-block text-foreground">InvestorHub</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -53,8 +53,8 @@ export function Header() {
               className={cn(
                 "px-4 py-2 text-sm font-medium rounded-md transition-colors",
                 isActive(link.href)
-                  ? "text-primary bg-accent"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "text-primary bg-primary/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >
               {link.label}
@@ -72,14 +72,14 @@ export function Header() {
                   {user.user_metadata?.full_name || user.email}
                 </span>
               </div>
-              <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-muted-foreground hover:text-foreground">
                 <LogOut className="h-4 w-4 mr-2" />
                 Log out
               </Button>
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
                 <Link to="/login">Log in</Link>
               </Button>
               <Button size="sm" asChild>
@@ -92,7 +92,7 @@ export function Header() {
         {/* Mobile Menu Button */}
         <button
           type="button"
-          className="md:hidden p-2 text-foreground-muted hover:text-foreground"
+          className="md:hidden p-2 text-muted-foreground hover:text-foreground"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -112,8 +112,8 @@ export function Header() {
                 className={cn(
                   "block px-4 py-2 text-sm font-medium rounded-md transition-colors",
                   isActive(link.href)
-                    ? "text-primary bg-accent"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
               >
                 {link.label}

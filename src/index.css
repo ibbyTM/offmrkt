@@ -6,66 +6,66 @@ html {
 @tailwind components;
 @tailwind utilities;
 
-/* InvestorHub Design System - Royal Blue Theme
+/* InvestorHub Design System - Royal Blue Dark Theme (Cryptix-inspired)
    All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Core backgrounds */
-    --background: 0 0% 100%;
-    --background-secondary: 220 30% 97%;
-    --foreground: 220 25% 10%;
-    --foreground-muted: 220 15% 35%;
+    /* Core backgrounds - Dark theme as default */
+    --background: 220 25% 7%;
+    --background-secondary: 220 25% 10%;
+    --foreground: 220 10% 95%;
+    --foreground-muted: 220 10% 70%;
 
     /* Card surfaces */
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card: 220 25% 10%;
+    --card-foreground: 220 10% 95%;
 
     /* Popover surfaces */
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover: 220 25% 10%;
+    --popover-foreground: 220 10% 95%;
 
     /* Primary - Royal Blue */
-    --primary: 220 70% 50%;
+    --primary: 220 70% 55%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 70% 42%;
+    --primary-hover: 220 70% 60%;
 
     /* Secondary */
-    --secondary: 220 25% 95%;
-    --secondary-foreground: 220 25% 10%;
+    --secondary: 220 25% 15%;
+    --secondary-foreground: 220 10% 95%;
 
     /* Muted */
-    --muted: 220 20% 96%;
-    --muted-foreground: 220 15% 45%;
+    --muted: 220 25% 15%;
+    --muted-foreground: 220 10% 60%;
 
     /* Accent */
-    --accent: 220 70% 95%;
-    --accent-foreground: 220 70% 30%;
+    --accent: 220 70% 18%;
+    --accent-foreground: 220 70% 80%;
 
     /* Destructive */
-    --destructive: 0 84% 60%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 220 20% 88%;
-    --input: 220 20% 88%;
-    --ring: 220 70% 50%;
+    --border: 220 25% 20%;
+    --input: 220 25% 20%;
+    --ring: 220 70% 55%;
 
     --radius: 0.625rem;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 15% 35%;
-    --sidebar-primary: 220 70% 50%;
+    --sidebar-background: 220 25% 7%;
+    --sidebar-foreground: 220 10% 70%;
+    --sidebar-primary: 220 70% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 70% 95%;
-    --sidebar-accent-foreground: 220 70% 30%;
-    --sidebar-border: 220 20% 88%;
-    --sidebar-ring: 220 70% 50%;
+    --sidebar-accent: 220 70% 18%;
+    --sidebar-accent-foreground: 220 70% 80%;
+    --sidebar-border: 220 25% 20%;
+    --sidebar-ring: 220 70% 55%;
 
     /* Custom tokens */
-    --success: 160 84% 39%;
+    --success: 160 84% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 45 93% 47%;
     --warning-foreground: 0 0% 10%;
@@ -77,58 +77,11 @@ html {
     --shadow: 0 1px 3px 0 hsl(220 70% 50% / 0.08), 0 1px 2px -1px hsl(220 70% 50% / 0.08);
     --shadow-md: 0 4px 6px -1px hsl(220 70% 50% / 0.08), 0 2px 4px -2px hsl(220 70% 50% / 0.08);
     --shadow-lg: 0 10px 15px -3px hsl(220 70% 50% / 0.1), 0 4px 6px -4px hsl(220 70% 50% / 0.1);
-    --shadow-glow: 0 0 30px hsl(220 70% 50% / 0.15);
+    --shadow-glow: 0 0 30px hsl(220 70% 55% / 0.2);
   }
 
   .dark {
-    --background: 220 25% 7%;
-    --background-secondary: 220 25% 10%;
-    --foreground: 220 10% 95%;
-    --foreground-muted: 220 10% 70%;
-
-    --card: 220 25% 10%;
-    --card-foreground: 220 10% 95%;
-
-    --popover: 220 25% 10%;
-    --popover-foreground: 220 10% 95%;
-
-    --primary: 220 70% 55%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 70% 60%;
-
-    --secondary: 220 25% 15%;
-    --secondary-foreground: 220 10% 95%;
-
-    --muted: 220 25% 15%;
-    --muted-foreground: 220 10% 60%;
-
-    --accent: 220 70% 18%;
-    --accent-foreground: 220 70% 80%;
-
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 25% 20%;
-    --input: 220 25% 20%;
-    --ring: 220 70% 55%;
-
-    --sidebar-background: 220 25% 7%;
-    --sidebar-foreground: 220 10% 70%;
-    --sidebar-primary: 220 70% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 70% 18%;
-    --sidebar-accent-foreground: 220 70% 80%;
-    --sidebar-border: 220 25% 20%;
-    --sidebar-ring: 220 70% 55%;
-
-    --success: 160 84% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 45 93% 47%;
-    --warning-foreground: 0 0% 10%;
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
-
-    --shadow-glow: 0 0 30px hsl(220 70% 55% / 0.2);
+    /* Dark mode is same as default now */
   }
 }
 
