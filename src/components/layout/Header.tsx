@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, Building2, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-
+import { ThemeToggle } from "@/components/ThemeToggle";
 const navLinks = [
   { href: "/properties", label: "Browse Deals" },
   { href: "/submit-property", label: "Submit Property" },
@@ -63,7 +63,8 @@ export function Header() {
         </nav>
 
         {/* Desktop Auth Buttons */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2">
+          <ThemeToggle />
           {user ? (
             <>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
