@@ -8,7 +8,10 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import { useCallback, useEffect, useState } from "react";
 
 const testimonials = [
   {
@@ -66,6 +69,28 @@ function StarRating({ rating }: { rating: number }) {
 
 export function TestimonialsSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.1 });
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
+
+  const onSelect = useCallback(() => {
+    if (!api) return;
+    setCurrent(api.selectedScrollSnap());
+  }, [api]);
+
+  useEffect(() => {
+    if (!api) return;
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap());
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api, onSelect]);
+
+  const scrollTo = useCallback((index: number) => {
+    api?.scrollTo(index);
+  }, [api]);
 
   return (
     <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
@@ -96,10 +121,18 @@ export function TestimonialsSection() {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
         )}>
           <Carousel
+            setApi={setApi}
             opts={{
               align: "start",
               loop: true,
             }}
+            plugins={[
+              Autoplay({
+                delay: 5000,
+                stopOnInteraction: true,
+                stopOnMouseEnter: true,
+              }),
+            ]}
             className="w-full"
           >
             <CarouselContent className="-ml-4">
@@ -135,8 +168,26 @@ export function TestimonialsSection() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="flex justify-center gap-2 mt-8">
+            <div className="flex justify-center items-center gap-4 mt-8">
               <CarouselPrevious className="relative left-0 translate-y-0" />
+              
+              {/* Navigation Dots */}
+              <div className="flex gap-2">
+                {Array.from({ length: count }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => scrollTo(index)}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all duration-300",
+                      current === index 
+                        ? "bg-primary w-6" 
+                        : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    )}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+              
               <CarouselNext className="relative right-0 translate-y-0" />
             </div>
           </Carousel>
