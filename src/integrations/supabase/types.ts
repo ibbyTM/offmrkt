@@ -104,6 +104,38 @@ export type Database = {
         }
         Relationships: []
       }
+      mortgage_referrals: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string | null
+          referrer_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id?: string | null
+          referrer_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string | null
+          referrer_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mortgage_referrals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
