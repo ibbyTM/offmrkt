@@ -68,8 +68,15 @@ export function TestimonialsSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.1 });
 
   return (
-    <section ref={ref} className="py-20 md:py-28">
-      <div className="container">
+    <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
+      {/* Subtle gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/30 to-transparent" />
+      
+      {/* Decorative side glows */}
+      <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="container relative">
         {/* Section Header */}
         <div className={cn(
           "mx-auto max-w-xl text-center mb-12 transition-all duration-700",

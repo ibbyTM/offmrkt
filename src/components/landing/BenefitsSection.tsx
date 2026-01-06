@@ -30,8 +30,14 @@ export function BenefitsSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.1 });
 
   return (
-    <section ref={ref} className="py-20 md:py-28">
-      <div className="container">
+    <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
+      {/* Subtle gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-secondary/40 via-transparent to-secondary/40" />
+      
+      {/* Decorative center glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      
+      <div className="container relative">
         {/* Section Header */}
         <div className={cn(
           "mx-auto max-w-xl text-center mb-16 transition-all duration-700",

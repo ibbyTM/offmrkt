@@ -121,8 +121,11 @@ export function HowItWorksSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.15 });
 
   return (
-    <section id="how-it-works" ref={ref} className="py-20 md:py-28 bg-secondary/30 scroll-mt-20">
-      <div className="container">
+    <section id="how-it-works" ref={ref} className="relative py-20 md:py-28 scroll-mt-20 overflow-hidden">
+      {/* Enhanced gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-secondary/30 to-background" />
+      
+      <div className="container relative">
         {/* Section Header */}
         <div className={cn(
           "mx-auto max-w-xl text-center mb-16 transition-all duration-700",
