@@ -1,4 +1,4 @@
-import { Shield, TrendingUp, FileCheck } from "lucide-react";
+import { Shield, TrendingUp, FileCheck, Clock } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,17 +7,22 @@ const benefits = [
   {
     icon: Shield,
     title: "Verified Investors",
-    description: "Every investor is vetted through our verification process and proof of funds check.",
+    description: "Vetted through our verification process and proof of funds check.",
   },
   {
     icon: TrendingUp,
     title: "Quality Deal Flow",
-    description: "Pre-screened investment opportunities with detailed ROI analysis.",
+    description: "Pre-screened opportunities with detailed ROI analysis.",
   },
   {
     icon: FileCheck,
     title: "Full Documentation",
-    description: "All listings include EPC, gas safety, and EICR documentation where available.",
+    description: "EPC, gas safety, and EICR documentation included.",
+  },
+  {
+    icon: Clock,
+    title: "Fast Transactions",
+    description: "Streamlined process from reservation to completion.",
   },
 ];
 
@@ -41,7 +46,7 @@ export function BenefitsSection() {
         </div>
 
         {/* Benefits Cards */}
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((benefit, index) => (
             <Card
               key={benefit.title}
@@ -54,14 +59,14 @@ export function BenefitsSection() {
               {/* Hover glow effect */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <CardContent className="relative p-8 text-center">
-                <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/20 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/30">
-                  <benefit.icon className="h-8 w-8" />
+              <CardContent className="relative p-6 text-center">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                  <benefit.icon className="h-6 w-6" />
                 </div>
-                <h3 className="mb-3 text-xl font-bold">
+                <h3 className="mb-2 text-lg font-bold">
                   {benefit.title}
                 </h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {benefit.description}
                 </p>
               </CardContent>
