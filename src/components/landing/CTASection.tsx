@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Building2, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 
@@ -8,74 +8,42 @@ export function CTASection() {
   const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.2 });
 
   return (
-    <section ref={ref} className="py-20 md:py-28 bg-background-secondary">
+    <section ref={ref} className="py-20 md:py-24 bg-foreground">
       <div className="container">
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Investor CTA */}
-          <div 
-            className={cn(
-              "relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-8 md:p-12 text-primary-foreground transition-all duration-700",
-              isVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
-            )}
-          >
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 rounded-full bg-white/10 blur-2xl" />
-            
-            <div className="relative">
-              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                <Users className="h-7 w-7" />
-              </div>
-              <h3 className="mb-3 text-2xl font-bold md:text-3xl">
-                Ready to Invest?
-              </h3>
-              <p className="mb-8 text-primary-foreground/90 text-lg">
-                Join our network of verified investors and get access to exclusive off-market property deals.
-              </p>
-              <Button 
-                asChild 
-                size="lg" 
-                variant="secondary"
-                className="group font-semibold"
-              >
-                <Link to="/register">
-                  Create Investor Account
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {/* Seller CTA */}
-          <div 
-            className={cn(
-              "relative overflow-hidden rounded-2xl border border-border bg-card p-8 md:p-12 transition-all duration-700",
-              isVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
-            )}
-            style={{ transitionDelay: isVisible ? "150ms" : "0ms" }}
-          >
-            <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
-            
-            <div className="relative">
-              <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl bg-accent text-primary">
-                <Building2 className="h-7 w-7" />
-              </div>
-              <h3 className="mb-3 text-2xl font-bold text-foreground md:text-3xl">
-                Have a Property to Sell?
-              </h3>
-              <p className="mb-8 text-muted-foreground text-lg">
-                Submit your investment property and connect with our network of qualified, ready-to-buy investors.
-              </p>
-              <Button 
-                asChild 
-                size="lg" 
-                className="group font-semibold"
-              >
-                <Link to="/submit-property">
-                  Submit Your Property
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </div>
+        <div 
+          className={cn(
+            "mx-auto max-w-2xl text-center transition-all duration-700",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
+        >
+          <h2 className="mb-4 text-3xl font-bold text-background sm:text-4xl">
+            Ready to find your next investment?
+          </h2>
+          <p className="mb-8 text-background/70 text-lg">
+            Join our network of verified investors and access exclusive off-market deals.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button 
+              asChild 
+              size="lg" 
+              variant="secondary"
+              className="font-semibold group"
+            >
+              <Link to="/register">
+                Create Investor Account
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button 
+              asChild 
+              size="lg" 
+              variant="outline"
+              className="font-semibold border-background/30 text-background hover:bg-background/10 hover:text-background"
+            >
+              <Link to="/submit-property">
+                Submit a Property
+              </Link>
+            </Button>
           </div>
         </div>
       </div>
