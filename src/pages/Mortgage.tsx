@@ -1,4 +1,5 @@
 import { useSearchParams, Link } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { Phone, Mail, Building2, ArrowLeft, Shield, Award, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { useProperty } from "@/hooks/useProperties";
 import { formatPrice } from "@/lib/propertyUtils";
 import { Layout } from "@/components/layout/Layout";
+import { supabase } from "@/integrations/supabase/client";
 
 // Broker details - easily configurable
 const MORTGAGE_BROKER = {
@@ -20,8 +22,27 @@ const MORTGAGE_BROKER = {
 export default function Mortgage() {
   const [searchParams] = useSearchParams();
   const propertyId = searchParams.get("propertyId");
+  const hasTracked = useRef(false);
   
   const { data: property, isLoading } = useProperty(propertyId || "");
+
+  // Track referral when user visits from a property
+  useEffect(() => {
+    const trackReferral = async () => {
+      if (hasTracked.current) return;
+      hasTracked.current = true;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      await supabase.from("mortgage_referrals").insert({
+        property_id: propertyId || null,
+        user_id: user?.id || null,
+        referrer_url: document.referrer || null,
+      });
+    };
+
+    trackReferral();
+  }, [propertyId]);
 
   const deposit = property ? Math.round(property.asking_price * 0.25) : 0;
   const mortgageNeeded = property ? property.asking_price - deposit : 0;
