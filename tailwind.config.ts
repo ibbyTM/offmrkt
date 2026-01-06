@@ -90,6 +90,7 @@ export default {
         DEFAULT: "var(--shadow)",
         md: "var(--shadow-md)",
         lg: "var(--shadow-lg)",
+        glow: "var(--shadow-glow)",
       },
       keyframes: {
         "accordion-down": {
