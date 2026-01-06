@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, ShieldCheck, UserPlus } from "lucide-react";
+import { Heart, ShieldCheck, UserPlus, Building2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Property, formatPrice, listingStatusLabels } from "@/lib/propertyUtils";
@@ -138,6 +138,17 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
                 Reserve with Deposit
               </Button>
             )}
+            
+            <Button
+              asChild
+              variant="outline"
+              className="w-full border-primary/30 text-primary hover:bg-primary/5"
+            >
+              <Link to={`/mortgage?propertyId=${property.id}`}>
+                <Building2 className="mr-2 h-4 w-4" />
+                Get Mortgage Quote
+              </Link>
+            </Button>
           </>
         ) : (
           <>
@@ -159,6 +170,17 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
               <Link to="/register">
                 <UserPlus className="mr-2 h-5 w-5" />
                 Register to Reserve
+              </Link>
+            </Button>
+            
+            <Button
+              asChild
+              variant="outline"
+              className="w-full border-primary/30 text-primary hover:bg-primary/5"
+            >
+              <Link to={`/mortgage?propertyId=${property.id}`}>
+                <Building2 className="mr-2 h-4 w-4" />
+                Get Mortgage Quote
               </Link>
             </Button>
             
