@@ -33,7 +33,7 @@ export function HowItWorksSection() {
   const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.15 });
 
   return (
-    <section id="how-it-works" ref={ref} className="py-20 md:py-28 bg-gradient-to-b from-background-secondary to-background scroll-mt-20">
+    <section id="how-it-works" ref={ref} className="py-20 md:py-28 bg-secondary/30 scroll-mt-20">
       <div className="container">
         {/* Section Header */}
         <div className={cn(
@@ -43,7 +43,7 @@ export function HowItWorksSection() {
           <span className="inline-block text-primary font-semibold text-sm tracking-wider uppercase mb-3">
             Simple Process
           </span>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             How it works
           </h2>
         </div>
@@ -68,7 +68,7 @@ export function HowItWorksSection() {
               >
                 {/* Step number with icon */}
                 <div className="relative mx-auto mb-6">
-                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-accent border border-primary/20 mx-auto group-hover:border-primary/40 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300">
+                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-card border border-border mx-auto group-hover:border-primary/40 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300">
                     <item.icon className="h-10 w-10 text-primary" />
                   </div>
                   {/* Step number badge */}
@@ -77,7 +77,7 @@ export function HowItWorksSection() {
                   </div>
                 </div>
                 
-                <h3 className="mb-2 text-xl font-bold text-foreground">
+                <h3 className="mb-2 text-xl font-bold">
                   {item.title}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px] mx-auto">
