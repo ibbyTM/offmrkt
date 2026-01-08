@@ -9,6 +9,7 @@ import PropertyDescription from "@/components/property-detail/PropertyDescriptio
 import InvestmentHighlights from "@/components/property-detail/InvestmentHighlights";
 import PropertyAccordions from "@/components/property-detail/PropertyAccordions";
 import ROIBreakdown from "@/components/property-detail/ROIBreakdown";
+import AIPropertyAnalysis from "@/components/property-detail/AIPropertyAnalysis";
 import ComplianceDocuments from "@/components/property-detail/ComplianceDocuments";
 import PropertyCTAs from "@/components/property-detail/PropertyCTAs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -88,6 +89,8 @@ export default function PropertyDetail() {
             <PropertyDescription description={property.property_description} />
             
             <InvestmentHighlights property={property} />
+
+            <AIPropertyAnalysis property={property} />
             
             <PropertyAccordions property={property} />
             
