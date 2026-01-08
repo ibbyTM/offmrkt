@@ -56,3 +56,25 @@ export const formatYield = (percentage: number | null): string => {
   if (percentage === null) return "—";
   return `${(percentage / 100).toFixed(1)}%`;
 };
+
+/**
+ * Calculate monthly mortgage payment using standard amortization formula
+ * M = P × [r(1+r)^n] / [(1+r)^n - 1]
+ */
+export const calculateMonthlyPayment = (
+  principal: number,
+  annualRate: number,
+  years: number
+): number => {
+  const monthlyRate = annualRate / 100 / 12;
+  const numPayments = years * 12;
+
+  if (monthlyRate === 0) return principal / numPayments;
+
+  const payment =
+    principal *
+    ((monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+      (Math.pow(1 + monthlyRate, numPayments) - 1));
+
+  return payment;
+};
