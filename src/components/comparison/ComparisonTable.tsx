@@ -11,6 +11,7 @@ import {
   listingStatusLabels,
 } from "@/lib/propertyUtils";
 import { cn } from "@/lib/utils";
+import { MortgageCalculatorSection } from "./MortgageCalculatorSection";
 
 interface ComparisonTableProps {
   properties: Property[];
@@ -190,6 +191,9 @@ export function ComparisonTable({ properties }: ComparisonTableProps) {
           })}
         </tbody>
       </table>
+
+      {/* Mortgage Calculator Section */}
+      <MortgageCalculatorSection properties={properties} />
     </div>
   );
 }
