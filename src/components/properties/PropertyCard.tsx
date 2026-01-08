@@ -11,12 +11,14 @@ import {
   strategyColors,
   propertyTypeLabels,
 } from "@/lib/propertyUtils";
+import { CompareCheckbox } from "@/components/comparison/CompareCheckbox";
 
 interface PropertyCardProps {
   property: Property;
+  showCompare?: boolean;
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, showCompare = true }: PropertyCardProps) {
   const mainImage = property.photo_urls?.[0];
   const strategies = property.strategies || [];
 
@@ -44,12 +46,19 @@ export function PropertyCard({ property }: PropertyCardProps) {
             </Badge>
           </div>
 
-          {/* Status Badge */}
-          {property.listing_status !== "available" && (
-            <div className="absolute top-3 right-3">
+          {/* Status Badge & Compare Checkbox */}
+          <div className="absolute top-3 right-3 flex items-center gap-2">
+            {property.listing_status !== "available" && (
               <Badge variant="secondary" className="bg-background/90 font-medium">
                 {property.listing_status === "reserved" ? "Reserved" : property.listing_status}
               </Badge>
+            )}
+          </div>
+
+          {/* Compare Checkbox */}
+          {showCompare && (
+            <div className="absolute bottom-3 right-3">
+              <CompareCheckbox propertyId={property.id} />
             </div>
           )}
         </div>

@@ -5,11 +5,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
+import Compare from "./pages/Compare";
 import SubmitProperty from "./pages/SubmitProperty";
 import Auth from "./pages/Auth";
 import Questionnaire from "./pages/Questionnaire";
@@ -25,35 +27,38 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/properties" element={<Properties />} />
-              <Route path="/properties/:id" element={<PropertyDetail />} />
-              <Route path="/submit-property" element={<SubmitProperty />} />
-              <Route path="/login" element={<Auth mode="login" />} />
-              <Route path="/register" element={<Auth mode="register" />} />
-              <Route path="/questionnaire" element={<Questionnaire />} />
-              <Route path="/application-status" element={<ApplicationStatus />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute requireQuestionnaire>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/mortgage" element={<Mortgage />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+        <ComparisonProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ScrollToTop />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/properties" element={<Properties />} />
+                <Route path="/properties/:id" element={<PropertyDetail />} />
+                <Route path="/compare" element={<Compare />} />
+                <Route path="/submit-property" element={<SubmitProperty />} />
+                <Route path="/login" element={<Auth mode="login" />} />
+                <Route path="/register" element={<Auth mode="register" />} />
+                <Route path="/questionnaire" element={<Questionnaire />} />
+                <Route path="/application-status" element={<ApplicationStatus />} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute requireQuestionnaire>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/mortgage" element={<Mortgage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </ComparisonProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
