@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyFiltersPanel, PropertyFilters } from "@/components/properties/PropertyFilters";
+import { ComparisonBar } from "@/components/comparison/ComparisonBar";
 import { useProperties } from "@/hooks/useProperties";
 
 const defaultFilters: PropertyFilters = {
@@ -247,6 +248,9 @@ const Properties = () => {
           </main>
         </div>
       </div>
+
+      {/* Comparison Bar */}
+      <ComparisonBar />
     </Layout>
   );
 };
