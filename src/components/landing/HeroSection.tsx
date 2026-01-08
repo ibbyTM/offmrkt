@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, TrendingUp, Building2, Users, BarChart3, Home, MapPin } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useState } from "react";
 
 // Animated counter hook
@@ -161,33 +161,43 @@ function StatBadge({
 }
 
 export function HeroSection() {
+  const { scrollY } = useScroll();
+  
+  // Parallax transforms - different speeds for depth effect
+  const y1 = useTransform(scrollY, [0, 500], [0, 150]); // Primary orb - slow
+  const y2 = useTransform(scrollY, [0, 500], [0, 250]); // Secondary orb - medium
+  const gridY = useTransform(scrollY, [0, 500], [0, 50]); // Grid - subtle
+
   return (
     <section className="relative overflow-hidden pt-20 pb-16 md:pt-24 md:pb-24 lg:pt-28 lg:pb-32">
-      {/* Animated background elements */}
+      {/* Animated background elements with parallax */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Primary gradient orb - animated */}
+        {/* Primary gradient orb - animated with parallax */}
         <motion.div
+          style={{ y: y1 }}
           animate={{
             x: [0, 30, 0],
-            y: [0, -20, 0],
             scale: [1, 1.1, 1],
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-primary/25 via-primary/10 to-transparent rounded-full blur-3xl"
         />
         
-        {/* Secondary orb - right side */}
+        {/* Secondary orb - right side with parallax */}
         <motion.div
+          style={{ y: y2 }}
           animate={{
             x: [0, -20, 0],
-            y: [0, 30, 0],
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-primary/15 to-transparent rounded-full blur-3xl"
         />
 
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        {/* Subtle grid pattern with parallax */}
+        <motion.div 
+          style={{ y: gridY }}
+          className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" 
+        />
       </div>
 
       <div className="container relative">
