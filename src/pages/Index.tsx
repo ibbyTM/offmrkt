@@ -1,7 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { TrustSection } from "@/components/landing/TrustSection";
-import { DashboardPreview } from "@/components/landing/DashboardPreview";
 import { FeaturedPropertiesSection } from "@/components/landing/FeaturedPropertiesSection";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
@@ -12,7 +11,6 @@ const Index = () => {
   return (
     <Layout>
       <HeroSection />
-      <DashboardPreview />
       <TrustSection />
       <FeaturedPropertiesSection />
       <BenefitsSection />
