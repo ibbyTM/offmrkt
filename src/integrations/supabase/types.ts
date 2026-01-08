@@ -178,6 +178,8 @@ export type Database = {
           created_at: string
           current_rental_income: number | null
           current_status: Database["public"]["Enums"]["property_status"] | null
+          deposit_required: number | null
+          end_value_gdv: number | null
           epc_rating: string | null
           estimated_rental_income: number | null
           floor_plan_urls: string[] | null
@@ -187,19 +189,26 @@ export type Database = {
           has_floor_plans: boolean | null
           has_gas_safety: boolean | null
           id: string
+          investment_highlights: string[] | null
+          is_tenanted: boolean | null
           leveraged_roi_percentage: number | null
           listing_status: Database["public"]["Enums"]["listing_status"]
+          market_discount_percentage: number | null
           photo_urls: string[] | null
           property_address: string
           property_city: string
           property_description: string | null
           property_postcode: string
+          property_reference: string | null
           property_type: Database["public"]["Enums"]["property_type"]
+          refurb_cost: number | null
+          roce_percentage: number | null
           square_feet: number | null
           strategies:
             | Database["public"]["Enums"]["investment_strategy"][]
             | null
           submission_id: string | null
+          tenure: string | null
           title: string
           updated_at: string
           view_count: number | null
@@ -212,6 +221,8 @@ export type Database = {
           created_at?: string
           current_rental_income?: number | null
           current_status?: Database["public"]["Enums"]["property_status"] | null
+          deposit_required?: number | null
+          end_value_gdv?: number | null
           epc_rating?: string | null
           estimated_rental_income?: number | null
           floor_plan_urls?: string[] | null
@@ -221,19 +232,26 @@ export type Database = {
           has_floor_plans?: boolean | null
           has_gas_safety?: boolean | null
           id?: string
+          investment_highlights?: string[] | null
+          is_tenanted?: boolean | null
           leveraged_roi_percentage?: number | null
           listing_status?: Database["public"]["Enums"]["listing_status"]
+          market_discount_percentage?: number | null
           photo_urls?: string[] | null
           property_address: string
           property_city: string
           property_description?: string | null
           property_postcode: string
+          property_reference?: string | null
           property_type: Database["public"]["Enums"]["property_type"]
+          refurb_cost?: number | null
+          roce_percentage?: number | null
           square_feet?: number | null
           strategies?:
             | Database["public"]["Enums"]["investment_strategy"][]
             | null
           submission_id?: string | null
+          tenure?: string | null
           title: string
           updated_at?: string
           view_count?: number | null
@@ -246,6 +264,8 @@ export type Database = {
           created_at?: string
           current_rental_income?: number | null
           current_status?: Database["public"]["Enums"]["property_status"] | null
+          deposit_required?: number | null
+          end_value_gdv?: number | null
           epc_rating?: string | null
           estimated_rental_income?: number | null
           floor_plan_urls?: string[] | null
@@ -255,19 +275,26 @@ export type Database = {
           has_floor_plans?: boolean | null
           has_gas_safety?: boolean | null
           id?: string
+          investment_highlights?: string[] | null
+          is_tenanted?: boolean | null
           leveraged_roi_percentage?: number | null
           listing_status?: Database["public"]["Enums"]["listing_status"]
+          market_discount_percentage?: number | null
           photo_urls?: string[] | null
           property_address?: string
           property_city?: string
           property_description?: string | null
           property_postcode?: string
+          property_reference?: string | null
           property_type?: Database["public"]["Enums"]["property_type"]
+          refurb_cost?: number | null
+          roce_percentage?: number | null
           square_feet?: number | null
           strategies?:
             | Database["public"]["Enums"]["investment_strategy"][]
             | null
           submission_id?: string | null
+          tenure?: string | null
           title?: string
           updated_at?: string
           view_count?: number | null

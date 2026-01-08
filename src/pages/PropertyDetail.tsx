@@ -3,10 +3,13 @@ import { useProperty } from "@/hooks/useProperties";
 import { Layout } from "@/components/layout/Layout";
 import PropertyGallery from "@/components/property-detail/PropertyGallery";
 import PropertyHeader from "@/components/property-detail/PropertyHeader";
+import PropertyQuickSpecs from "@/components/property-detail/PropertyQuickSpecs";
+import FinancialStatsGrid from "@/components/property-detail/FinancialStatsGrid";
 import PropertyDescription from "@/components/property-detail/PropertyDescription";
+import InvestmentHighlights from "@/components/property-detail/InvestmentHighlights";
+import PropertyAccordions from "@/components/property-detail/PropertyAccordions";
 import ROIBreakdown from "@/components/property-detail/ROIBreakdown";
 import ComplianceDocuments from "@/components/property-detail/ComplianceDocuments";
-import FloorPlans from "@/components/property-detail/FloorPlans";
 import PropertyCTAs from "@/components/property-detail/PropertyCTAs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -72,16 +75,23 @@ export default function PropertyDetail() {
           <div className="lg:col-span-2 space-y-8">
             <PropertyGallery
               photos={property.photo_urls || []}
+              floorPlanUrls={property.floor_plan_urls || []}
               title={property.title}
             />
             
             <PropertyHeader property={property} />
             
+            <PropertyQuickSpecs property={property} />
+            
+            <FinancialStatsGrid property={property} />
+            
             <PropertyDescription description={property.property_description} />
             
-            <ROIBreakdown property={property} />
+            <InvestmentHighlights property={property} />
             
-            <FloorPlans floorPlanUrls={property.floor_plan_urls || []} />
+            <PropertyAccordions property={property} />
+            
+            <ROIBreakdown property={property} />
           </div>
 
           {/* Sidebar */}

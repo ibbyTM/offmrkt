@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Heart, ShieldCheck, UserPlus, Building2 } from "lucide-react";
+import { Heart, ShieldCheck, UserPlus, Building2, Mail, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Property, formatPrice, listingStatusLabels } from "@/lib/propertyUtils";
@@ -192,6 +192,34 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
             </p>
           </>
         )}
+      </div>
+
+      {/* Contact Icons */}
+      <div className="flex justify-center gap-4 pt-4 border-t border-border">
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full h-10 w-10"
+          onClick={() => window.location.href = "mailto:info@example.com"}
+        >
+          <Mail className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full h-10 w-10"
+          onClick={() => window.location.href = "tel:+44123456789"}
+        >
+          <Phone className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full h-10 w-10 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+          onClick={() => window.open("https://wa.me/44123456789", "_blank")}
+        >
+          <MessageCircle className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Trust indicators */}
