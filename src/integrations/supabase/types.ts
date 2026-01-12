@@ -20,10 +20,12 @@ export type Database = {
           agreed_to_terms: boolean
           cash_available: string
           created_at: string
+          crm_notes: string | null
           decision_maker: boolean
           funding_source: string
           id: string
           investment_experience: string
+          last_contacted_at: string | null
           max_budget: number
           min_budget: number
           mortgage_approved: boolean
@@ -33,14 +35,18 @@ export type Database = {
           needs_solicitor: boolean | null
           preferred_locations: string[]
           preferred_strategies: string[]
+          priority_level: string | null
           properties_owned: number | null
           properties_to_acquire: number
           purchase_timeline: string
           referral_source: string | null
+          rental_preference: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          specific_locations: string[] | null
           status: Database["public"]["Enums"]["investor_status"]
           target_yield: number | null
+          tenure_preferences: string[] | null
           updated_at: string
           user_id: string
         }
@@ -49,10 +55,12 @@ export type Database = {
           agreed_to_terms?: boolean
           cash_available: string
           created_at?: string
+          crm_notes?: string | null
           decision_maker: boolean
           funding_source: string
           id?: string
           investment_experience: string
+          last_contacted_at?: string | null
           max_budget: number
           min_budget: number
           mortgage_approved: boolean
@@ -62,14 +70,18 @@ export type Database = {
           needs_solicitor?: boolean | null
           preferred_locations: string[]
           preferred_strategies: string[]
+          priority_level?: string | null
           properties_owned?: number | null
           properties_to_acquire: number
           purchase_timeline: string
           referral_source?: string | null
+          rental_preference?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          specific_locations?: string[] | null
           status?: Database["public"]["Enums"]["investor_status"]
           target_yield?: number | null
+          tenure_preferences?: string[] | null
           updated_at?: string
           user_id: string
         }
@@ -78,10 +90,12 @@ export type Database = {
           agreed_to_terms?: boolean
           cash_available?: string
           created_at?: string
+          crm_notes?: string | null
           decision_maker?: boolean
           funding_source?: string
           id?: string
           investment_experience?: string
+          last_contacted_at?: string | null
           max_budget?: number
           min_budget?: number
           mortgage_approved?: boolean
@@ -91,16 +105,83 @@ export type Database = {
           needs_solicitor?: boolean | null
           preferred_locations?: string[]
           preferred_strategies?: string[]
+          priority_level?: string | null
           properties_owned?: number | null
           properties_to_acquire?: number
           purchase_timeline?: string
           referral_source?: string | null
+          rental_preference?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          specific_locations?: string[] | null
           status?: Database["public"]["Enums"]["investor_status"]
           target_yield?: number | null
+          tenure_preferences?: string[] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      investor_tag_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          id: string
+          investor_id: string
+          tag_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          investor_id: string
+          tag_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          id?: string
+          investor_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "investor_tag_assignments_investor_id_fkey"
+            columns: ["investor_id"]
+            isOneToOne: false
+            referencedRelation: "investor_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "investor_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "investor_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      investor_tags: {
+        Row: {
+          category: Database["public"]["Enums"]["tag_category"]
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["tag_category"]
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["tag_category"]
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
         }
         Relationships: []
       }
@@ -560,6 +641,13 @@ export type Database = {
         | "approved"
         | "rejected"
         | "listed"
+      tag_category:
+        | "funding_type"
+        | "strategy"
+        | "rental_type"
+        | "location"
+        | "budget"
+        | "preference"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -741,6 +829,14 @@ export const Constants = {
         "approved",
         "rejected",
         "listed",
+      ],
+      tag_category: [
+        "funding_type",
+        "strategy",
+        "rental_type",
+        "location",
+        "budget",
+        "preference",
       ],
     },
   },

@@ -17,10 +17,11 @@ import {
 } from "@/hooks/useSellerSubmissions";
 import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
 import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
+import { InvestorCRMTab } from "@/components/crm/InvestorCRMTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Clock, CheckCircle, XCircle, ShieldCheck, Building, FileText } from "lucide-react";
+import { Loader2, Users, Clock, CheckCircle, XCircle, ShieldCheck, Building, FileText, UserCog } from "lucide-react";
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -167,6 +168,10 @@ const Admin = () => {
                 <Badge variant="secondary">{pendingApps}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="crm" className="gap-2">
+              <UserCog className="h-4 w-4" />
+              Investor CRM
+            </TabsTrigger>
             <TabsTrigger value="submissions" className="gap-2">
               <Building className="h-4 w-4" />
               Property Submissions
@@ -251,6 +256,11 @@ const Admin = () => {
                 </Tabs>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Investor CRM Tab */}
+          <TabsContent value="crm">
+            <InvestorCRMTab />
           </TabsContent>
 
           {/* Property Submissions Tab */}
