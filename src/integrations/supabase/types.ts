@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      crm_contacts: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          company: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          full_name: string
+          id: string
+          last_contacted_at: string | null
+          notes: string | null
+          phone: string | null
+          preferred_locations: string[] | null
+          priority_level: string
+          source: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          last_contacted_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          preferred_locations?: string[] | null
+          priority_level?: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          company?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          last_contacted_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          preferred_locations?: string[] | null
+          priority_level?: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       investor_applications: {
         Row: {
           admin_notes: string | null
@@ -126,25 +183,35 @@ export type Database = {
         Row: {
           assigned_at: string
           assigned_by: string | null
+          crm_contact_id: string | null
           id: string
-          investor_id: string
+          investor_id: string | null
           tag_id: string
         }
         Insert: {
           assigned_at?: string
           assigned_by?: string | null
+          crm_contact_id?: string | null
           id?: string
-          investor_id: string
+          investor_id?: string | null
           tag_id: string
         }
         Update: {
           assigned_at?: string
           assigned_by?: string | null
+          crm_contact_id?: string | null
           id?: string
-          investor_id?: string
+          investor_id?: string | null
           tag_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "investor_tag_assignments_crm_contact_id_fkey"
+            columns: ["crm_contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "investor_tag_assignments_investor_id_fkey"
             columns: ["investor_id"]
