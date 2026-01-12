@@ -11,10 +11,12 @@ import {
   AlertTriangle, 
   User, 
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 interface AIPropertyAnalysisProps {
   property: Property;
 }
@@ -45,19 +47,37 @@ export default function AIPropertyAnalysis({ property }: AIPropertyAnalysisProps
   const [error, setError] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchAnalysis = async () => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to use AI analysis",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
+      // Get the current session token for authenticated request
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
+      if (!accessToken) {
+        throw new Error("Please log in to use AI analysis");
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-property`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ property }),
         }
@@ -65,6 +85,9 @@ export default function AIPropertyAnalysis({ property }: AIPropertyAnalysisProps
 
       if (!response.ok) {
         const errorData = await response.json();
+        if (response.status === 401) {
+          throw new Error("Please log in to use AI analysis");
+        }
         if (response.status === 429) {
           throw new Error("Rate limit exceeded. Please try again later.");
         }
@@ -97,7 +120,7 @@ export default function AIPropertyAnalysis({ property }: AIPropertyAnalysisProps
     return "bg-muted";
   };
 
-  // Initial state - show button to generate analysis
+  // Initial state - show button to generate analysis (or login prompt if not authenticated)
   if (!hasLoaded && !isLoading && !error) {
     return (
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
@@ -108,10 +131,22 @@ export default function AIPropertyAnalysis({ property }: AIPropertyAnalysisProps
             Get AI-powered insights including strengths, risks, ideal investor profile, 
             and strategy recommendations.
           </p>
-          <Button onClick={fetchAnalysis} className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            Generate Analysis
-          </Button>
+          {user ? (
+            <Button onClick={fetchAnalysis} className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              Generate Analysis
+            </Button>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <Button disabled variant="secondary" className="gap-2">
+                <Lock className="h-4 w-4" />
+                Login Required
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Please log in to access AI analysis
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
