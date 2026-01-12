@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Mail, Phone, Building2, MapPin, Calendar, X, Star, StarOff } from 'lucide-react';
+import { ChevronDown, ChevronUp, Mail, Phone, Building2, MapPin, Calendar, Star, StarOff } from 'lucide-react';
 import { CRMContact, useUpdateCRMContact, useRemoveTagFromContact } from '@/hooks/useCRMContacts';
 import { TagBadge } from './TagBadge';
 import { ContactQuickTagPopover } from './ContactQuickTagPopover';
@@ -14,9 +14,9 @@ interface ContactCardProps {
 }
 
 const PRIORITY_COLORS: Record<string, string> = {
-  high: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  normal: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-  low: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  high: 'bg-red-100 text-red-800 border-red-300 dark:bg-red-900 dark:text-red-200',
+  normal: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-200',
+  low: 'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-300',
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -55,50 +55,62 @@ export const ContactCard = ({ contact, onViewDetails }: ContactCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
+    <Card className="hover:shadow-md transition-shadow border-2">
+      <CardContent className="p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-lg truncate">{contact.full_name}</h3>
-              <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
-                MANUAL
+            <div className="flex items-center gap-3 flex-wrap mb-2">
+              <h3 className="text-xl font-bold">{contact.full_name}</h3>
+              <Badge variant="outline" className="text-sm bg-amber-50 text-amber-700 border-amber-300 px-3 py-1">
+                Manual
               </Badge>
-              <Badge className={STATUS_COLORS[contact.status] || STATUS_COLORS.lead}>
+              <Badge className={`text-sm px-3 py-1 ${STATUS_COLORS[contact.status] || STATUS_COLORS.lead}`}>
                 {contact.status.replace('_', ' ').toUpperCase()}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={`text-sm cursor-pointer px-3 py-1 ${PRIORITY_COLORS[contact.priority_level] || PRIORITY_COLORS.normal}`}
+                onClick={handleTogglePriority}
+              >
+                {contact.priority_level === 'high' ? (
+                  <StarOff className="h-4 w-4 mr-1" />
+                ) : (
+                  <Star className="h-4 w-4 mr-1" />
+                )}
+                {contact.priority_level}
               </Badge>
             </div>
             
-            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground flex-wrap">
+            <div className="flex items-center gap-5 mt-3 text-base text-muted-foreground flex-wrap">
               {contact.email && (
-                <span className="flex items-center gap-1">
-                  <Mail className="h-3 w-3" />
+                <span className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
                   {contact.email}
                 </span>
               )}
               {contact.phone && (
-                <span className="flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
+                <span className="flex items-center gap-2">
+                  <Phone className="h-5 w-5" />
                   {contact.phone}
                 </span>
               )}
               {contact.company && (
-                <span className="flex items-center gap-1">
-                  <Building2 className="h-3 w-3" />
+                <span className="flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
                   {contact.company}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-4 mt-2 text-sm">
+            <div className="flex items-center gap-5 mt-3 text-base">
               {formatBudget() && (
-                <span className="font-medium text-primary">
+                <span className="font-semibold text-primary text-lg">
                   Budget: {formatBudget()}
                 </span>
               )}
-              {contact.preferred_locations?.length > 0 && (
-                <span className="flex items-center gap-1 text-muted-foreground">
-                  <MapPin className="h-3 w-3" />
+              {contact.preferred_locations && contact.preferred_locations.length > 0 && (
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <MapPin className="h-5 w-5" />
                   {contact.preferred_locations.join(', ')}
                 </span>
               )}
@@ -106,7 +118,7 @@ export const ContactCard = ({ contact, onViewDetails }: ContactCardProps) => {
 
             {/* Tags */}
             {contact.tags && contact.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-3">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {contact.tags.map(tag => (
                   <TagBadge
                     key={tag.id}
@@ -118,81 +130,60 @@ export const ContactCard = ({ contact, onViewDetails }: ContactCardProps) => {
             )}
           </div>
 
-          <div className="flex flex-col items-end gap-2">
-            <Badge className={PRIORITY_COLORS[contact.priority_level] || PRIORITY_COLORS.normal}>
-              {contact.priority_level.toUpperCase()}
-            </Badge>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={handleTogglePriority}
-                title={contact.priority_level === 'high' ? 'Remove priority' : 'Mark as high priority'}
-              >
-                {contact.priority_level === 'high' ? (
-                  <StarOff className="h-4 w-4" />
-                ) : (
-                  <Star className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <ContactQuickTagPopover
+              contactId={contact.id}
+              assignedTags={contact.tags || []}
+            />
+            <Button size="lg" variant="outline" className="text-base" onClick={() => onViewDetails(contact)}>
+              View Details
+            </Button>
           </div>
         </div>
 
         {/* Expandable section */}
-        <div className="mt-3 pt-3 border-t">
+        <div className="mt-4 pt-4 border-t">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ContactQuickTagPopover
-                contactId={contact.id}
-                assignedTags={contact.tags || []}
-              />
-              <Button variant="outline" size="sm" onClick={() => onViewDetails(contact)}>
-                View Details
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleMarkContacted}>
-                <Calendar className="h-3 w-3 mr-1" />
-                Mark Contacted
-              </Button>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
+            <Button size="lg" variant="ghost" className="text-base" onClick={handleMarkContacted}>
+              <Calendar className="h-5 w-5 mr-2" />
+              Mark as Contacted
+            </Button>
+            <button
               onClick={() => setExpanded(!expanded)}
+              className="flex items-center gap-2 text-base text-muted-foreground hover:text-foreground"
             >
               {expanded ? (
                 <>
-                  Less <ChevronUp className="h-4 w-4 ml-1" />
+                  Show less <ChevronUp className="h-5 w-5" />
                 </>
               ) : (
                 <>
-                  More <ChevronDown className="h-4 w-4 ml-1" />
+                  Show more <ChevronDown className="h-5 w-5" />
                 </>
               )}
-            </Button>
+            </button>
           </div>
 
           {expanded && (
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 space-y-4 text-base">
               {contact.source && (
                 <div>
-                  <span className="text-sm font-medium">Source: </span>
-                  <span className="text-sm text-muted-foreground capitalize">{contact.source.replace('_', ' ')}</span>
+                  <span className="font-semibold">Source: </span>
+                  <span className="text-muted-foreground capitalize">{contact.source.replace('_', ' ')}</span>
                 </div>
               )}
               {contact.notes && (
-                <div>
-                  <span className="text-sm font-medium">Notes:</span>
-                  <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">{contact.notes}</p>
+                <div className="p-4 bg-muted/50 rounded-lg">
+                  <span className="font-semibold">Notes:</span>
+                  <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{contact.notes}</p>
                 </div>
               )}
               {contact.last_contacted_at && (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground">
                   Last contacted: {formatDistanceToNow(new Date(contact.last_contacted_at), { addSuffix: true })}
                 </div>
               )}
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground">
                 Added: {formatDistanceToNow(new Date(contact.created_at), { addSuffix: true })}
               </div>
             </div>

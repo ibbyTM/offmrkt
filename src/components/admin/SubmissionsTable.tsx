@@ -1,27 +1,14 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eye, CheckCircle, XCircle, Clock, FileText, Plus } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Eye, CheckCircle, XCircle, Clock, FileText, Plus, MapPin, Banknote, Home, Loader2 } from "lucide-react";
 import type { SellerSubmission, SubmissionStatus } from "@/hooks/useSellerSubmissions";
 import { SubmissionDetailDialog } from "./SubmissionDetailDialog";
-
-const statusConfig: Record<SubmissionStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: React.ReactNode }> = {
-  pending: { label: "Pending", variant: "secondary", icon: <Clock className="h-3 w-3" /> },
-  reviewing: { label: "Reviewing", variant: "outline", icon: <Eye className="h-3 w-3" /> },
-  approved: { label: "Approved", variant: "default", icon: <CheckCircle className="h-3 w-3" /> },
-  rejected: { label: "Rejected", variant: "destructive", icon: <XCircle className="h-3 w-3" /> },
-  listed: { label: "Listed", variant: "default", icon: <FileText className="h-3 w-3" /> },
-};
 
 const propertyTypeLabels: Record<string, string> = {
   terraced: "Terraced",
@@ -53,12 +40,24 @@ export const SubmissionsTable = ({
   isConverting,
 }: SubmissionsTableProps) => {
   const [selectedSubmission, setSelectedSubmission] = useState<SellerSubmission | null>(null);
+  const [showProcessed, setShowProcessed] = useState(false);
+
+  // Split submissions by status
+  const pendingSubs = submissions.filter(s => s.admin_status === "pending");
+  const processedSubs = submissions.filter(s => s.admin_status !== "pending");
+  
+  // Show pending by default
+  const displaySubs = showProcessed ? submissions : pendingSubs;
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-16 w-full" />
+          <Card key={i}>
+            <CardContent className="p-6">
+              <Skeleton className="h-24 w-full" />
+            </CardContent>
+          </Card>
         ))}
       </div>
     );
@@ -66,11 +65,13 @@ export const SubmissionsTable = ({
 
   if (submissions.length === 0) {
     return (
-      <div className="text-center py-12">
-        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium">No submissions found</h3>
-        <p className="text-muted-foreground">There are no property submissions to review.</p>
-      </div>
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <Home className="h-16 w-16 text-muted-foreground mb-4" />
+          <p className="text-2xl font-semibold mb-2">No property submissions</p>
+          <p className="text-lg text-muted-foreground">Submissions will appear here when sellers submit properties.</p>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -82,98 +83,179 @@ export const SubmissionsTable = ({
     }).format(amount);
   };
 
+  const StatusBadge = ({ status }: { status: SubmissionStatus }) => {
+    switch (status) {
+      case 'pending':
+        return (
+          <Badge className="bg-amber-500 hover:bg-amber-500 text-base px-3 py-1">
+            <Clock className="h-4 w-4 mr-1" />
+            Pending Review
+          </Badge>
+        );
+      case 'approved':
+        return (
+          <Badge className="bg-blue-500 hover:bg-blue-500 text-base px-3 py-1">
+            <CheckCircle className="h-4 w-4 mr-1" />
+            Approved (Ready to List)
+          </Badge>
+        );
+      case 'rejected':
+        return (
+          <Badge variant="destructive" className="text-base px-3 py-1">
+            <XCircle className="h-4 w-4 mr-1" />
+            Rejected
+          </Badge>
+        );
+      case 'listed':
+        return (
+          <Badge className="bg-green-500 hover:bg-green-500 text-base px-3 py-1">
+            <FileText className="h-4 w-4 mr-1" />
+            Listed
+          </Badge>
+        );
+      default:
+        return <Badge>{status}</Badge>;
+    }
+  };
+
   return (
-    <>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Property</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Submitted</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {submissions.map((submission) => {
-              const status = statusConfig[submission.admin_status];
-              return (
-                <TableRow key={submission.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium truncate max-w-[200px]">{submission.property_address}</p>
-                      <p className="text-sm text-muted-foreground">{submission.property_city}, {submission.property_postcode}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{submission.contact_name}</p>
-                      <p className="text-sm text-muted-foreground">{submission.contact_email}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{propertyTypeLabels[submission.property_type] || submission.property_type}</TableCell>
-                  <TableCell className="font-medium">{formatCurrency(submission.asking_price)}</TableCell>
-                  <TableCell>
-                    <Badge variant={status.variant} className="gap-1">
-                      {status.icon}
-                      {status.label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(submission.created_at), "dd MMM yyyy")}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedSubmission(submission)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                      {submission.admin_status === "pending" && (
-                        <>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => onUpdateStatus(submission.id, "approved")}
-                            disabled={isUpdating}
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => onUpdateStatus(submission.id, "rejected")}
-                            disabled={isUpdating}
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
-                      {submission.admin_status === "approved" && (
-                        <Button
-                          size="sm"
-                          onClick={() => onConvertToListing(submission)}
-                          disabled={isConverting}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          <Plus className="h-4 w-4 mr-1" />
-                          List
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+    <div className="space-y-6">
+      {/* Toggle for showing processed */}
+      <div className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
+        <div>
+          <p className="text-lg font-medium">
+            {pendingSubs.length} {pendingSubs.length === 1 ? 'property' : 'properties'} need review
+          </p>
+          {processedSubs.length > 0 && (
+            <p className="text-muted-foreground">
+              {processedSubs.length} already processed
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <Label htmlFor="show-processed-subs" className="text-base cursor-pointer">
+            Show all submissions
+          </Label>
+          <Switch 
+            id="show-processed-subs" 
+            checked={showProcessed} 
+            onCheckedChange={setShowProcessed}
+          />
+        </div>
       </div>
+
+      {/* Submission Cards */}
+      {displaySubs.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+            <p className="text-2xl font-semibold mb-2">All caught up!</p>
+            <p className="text-lg text-muted-foreground">No pending submissions to review.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {displaySubs.map((submission) => (
+            <Card 
+              key={submission.id} 
+              className={`border-2 ${submission.admin_status === 'pending' ? 'border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900' : ''}`}
+            >
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                  {/* Main Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      <h3 className="text-xl font-bold truncate">
+                        {submission.property_address}
+                      </h3>
+                      <StatusBadge status={submission.admin_status} />
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="h-5 w-5" />
+                        {submission.property_city}, {submission.property_postcode}
+                      </span>
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Home className="h-5 w-5" />
+                        {propertyTypeLabels[submission.property_type] || submission.property_type}
+                      </span>
+                      <span className="flex items-center gap-2 font-semibold text-primary text-lg">
+                        <Banknote className="h-5 w-5" />
+                        {formatCurrency(submission.asking_price)}
+                      </span>
+                      <span className="text-muted-foreground">
+                        From: {submission.contact_name}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex flex-wrap items-center gap-3 shrink-0">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="text-base"
+                      onClick={() => setSelectedSubmission(submission)}
+                    >
+                      <Eye className="h-5 w-5 mr-2" />
+                      View Details
+                    </Button>
+                    
+                    {submission.admin_status === "pending" && (
+                      <>
+                        <Button
+                          size="lg"
+                          className="bg-green-600 hover:bg-green-700 text-base px-6"
+                          onClick={() => onUpdateStatus(submission.id, "approved")}
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <>
+                              <CheckCircle className="h-5 w-5 mr-2" />
+                              Approve
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="lg"
+                          className="text-base px-6"
+                          onClick={() => onUpdateStatus(submission.id, "rejected")}
+                          disabled={isUpdating}
+                        >
+                          <XCircle className="h-5 w-5 mr-2" />
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                    
+                    {submission.admin_status === "approved" && (
+                      <Button
+                        size="lg"
+                        className="bg-primary hover:bg-primary/90 text-base px-6"
+                        onClick={() => onConvertToListing(submission)}
+                        disabled={isConverting}
+                      >
+                        {isConverting ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <>
+                            <Plus className="h-5 w-5 mr-2" />
+                            Add to Listings
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <SubmissionDetailDialog
         submission={selectedSubmission}
@@ -183,6 +265,6 @@ export const SubmissionsTable = ({
         isUpdating={isUpdating}
         isConverting={isConverting}
       />
-    </>
+    </div>
   );
 };
