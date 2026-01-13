@@ -31,7 +31,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <img src={logo} alt="OffMrkt" className="h-10 w-auto" />
+              <img src={logo} alt="OffMrkt" className="h-14 w-auto object-cover object-center" />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Connecting verified investors with quality property investment opportunities.
