@@ -15,7 +15,7 @@ import { useCallback, useEffect, useState } from "react";
 
 const testimonials = [
   {
-    quote: "InvestorHub has completely transformed how I source investment properties. The pre-screening saves me countless hours.",
+    quote: "OffMrkt has completely transformed how I source investment properties. The pre-screening saves me countless hours.",
     author: "James Mitchell",
     role: "Property Investor, Manchester",
     rating: 5,

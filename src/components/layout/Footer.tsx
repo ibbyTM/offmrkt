@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building2 } from "lucide-react";
+import logo from "@/assets/offmrkt-logo.png";
 
 const footerLinks = {
   platform: [
@@ -30,11 +30,8 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 font-semibold text-lg mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Building2 className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <span>InvestorHub</span>
+            <Link to="/" className="flex items-center mb-4">
+              <img src={logo} alt="OffMrkt" className="h-10 w-auto" />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Connecting verified investors with quality property investment opportunities.
@@ -96,7 +93,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} InvestorHub. All rights reserved.
+            © {currentYear} OffMrkt. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <a
