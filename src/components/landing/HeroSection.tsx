@@ -237,7 +237,7 @@ export function HeroSection() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0"
             >
-              InvestorHub connects you with vetted off-market property deals. 
+              OffMrkt connects you with vetted off-market property deals. 
               Every buyer verified. Every property screened. Zero hassle.
             </motion.p>
 

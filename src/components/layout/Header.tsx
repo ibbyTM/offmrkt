@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Building2, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import logo from "@/assets/offmrkt-logo.png";
 const navLinks = [
   { href: "/properties", label: "Browse Deals" },
   { href: "/submit-property", label: "Submit Property" },
@@ -37,11 +38,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-semibold text-xl">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-            <Building2 className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="hidden sm:inline-block text-foreground">InvestorHub</span>
+        <Link to="/" className="flex items-center gap-2">
+          <img src={logo} alt="OffMrkt" className="h-10 w-auto" />
         </Link>
 
         {/* Desktop Navigation */}
