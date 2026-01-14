@@ -11,7 +11,7 @@ import { FeaturedPropertiesSection } from "@/components/landing/FeaturedProperti
 import { WhyChooseUsSection } from "@/components/landing/WhyChooseUsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { PricingSection } from "@/components/landing/PricingSection";
+import { AftercareSection } from "@/components/landing/AftercareSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { ContactSection } from "@/components/landing/ContactSection";
 import { useAuth } from "@/contexts/AuthContext";
@@ -139,7 +139,7 @@ const Index = () => {
       <WhyChooseUsSection />
       <HowItWorksSection />
       <TestimonialsSection />
-      <PricingSection />
+      <AftercareSection />
       <FAQSection />
       <ContactSection />
     </Layout>

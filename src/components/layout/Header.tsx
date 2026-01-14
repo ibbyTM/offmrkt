@@ -17,7 +17,7 @@ const landingLinks = [
   { href: "#features", label: "Features" },
   { href: "#properties", label: "Properties" },
   { href: "#how-it-works", label: "How It Works" },
-  { href: "#pricing", label: "Pricing" },
+  { href: "#services", label: "Services" },
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ];
