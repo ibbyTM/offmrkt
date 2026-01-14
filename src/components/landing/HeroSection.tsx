@@ -6,12 +6,12 @@ import { useRef } from "react";
 
 // Laptop mockup with scroll-driven parallax effect
 function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
-  // Map scroll progress: starts flat (28°), rises to upright (5°)
-  const rotateX = useTransform(scrollYProgress, [0, 0.5], [28, 5]);
-  // Slight lift as it rotates upright
-  const translateY = useTransform(scrollYProgress, [0, 0.5], [40, 0]);
-  // Scale up slightly as it rises
-  const scale = useTransform(scrollYProgress, [0, 0.5], [0.9, 1]);
+  // Map scroll progress: starts flat (35°), rises to fully vertical (0°)
+  const rotateX = useTransform(scrollYProgress, [0, 0.5], [35, 0]);
+  // More dramatic lift as it rotates upright
+  const translateY = useTransform(scrollYProgress, [0, 0.5], [60, 0]);
+  // Scale up as it rises
+  const scale = useTransform(scrollYProgress, [0, 0.5], [0.85, 1]);
   // Shadow responds to the lift
   const shadowScale = useTransform(scrollYProgress, [0, 0.5], [1.4, 0.8]);
   const shadowBlur = useTransform(scrollYProgress, [0, 0.5], [40, 20]);
@@ -205,7 +205,7 @@ export function HeroSection() {
         }}
       />
       
-      <div className="container relative py-16 lg:py-24">
+      <div className="container relative py-8 lg:py-12">
         {/* Centered text content */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -262,7 +262,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 max-w-2xl mx-auto"
+          className="mt-10 max-w-2xl mx-auto"
         >
           <LaptopMockup scrollYProgress={scrollYProgress} />
         </motion.div>
