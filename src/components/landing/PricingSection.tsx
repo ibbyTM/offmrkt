@@ -61,7 +61,7 @@ export function PricingSection() {
   const [isYearly, setIsYearly] = useState(false);
 
   return (
-    <section className="py-20 bg-background">
+    <section id="pricing" className="py-20 bg-background">
       <div className="container">
         {/* Header */}
         <motion.div

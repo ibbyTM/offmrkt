@@ -43,7 +43,7 @@ export function ContactSection() {
   };
 
   return (
-    <section className="py-20 bg-background">
+    <section id="contact" className="py-20 bg-background">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {/* Left - Form */}

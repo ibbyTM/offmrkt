@@ -100,7 +100,7 @@ function DashboardMockup() {
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-background">
+    <section id="hero" className="relative overflow-hidden bg-background">
       {/* Subtle dot pattern background */}
       <div
         className="absolute inset-0 opacity-[0.03]"

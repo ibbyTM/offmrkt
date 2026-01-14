@@ -26,7 +26,7 @@ export function FeaturedPropertiesSection() {
   }
 
   return (
-    <section className="py-20 bg-background">
+    <section id="properties" className="py-20 bg-background">
       <div className="container">
         {/* Section Header */}
         <motion.div

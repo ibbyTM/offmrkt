@@ -62,7 +62,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export function TestimonialsSection() {
   return (
-    <section className="py-20 bg-muted/30">
+    <section id="testimonials" className="py-20 bg-muted/30">
       <div className="container">
         {/* Header */}
         <motion.div
