@@ -540,8 +540,10 @@ export type Database = {
           contact_name: string
           contact_phone: string
           created_at: string
+          current_monthly_rent: number | null
           current_status: Database["public"]["Enums"]["property_status"]
           epc_rating: string | null
+          estimated_monthly_rent: number | null
           has_eicr: boolean | null
           has_epc: boolean | null
           has_floor_plans: boolean | null
@@ -570,8 +572,10 @@ export type Database = {
           contact_name: string
           contact_phone: string
           created_at?: string
+          current_monthly_rent?: number | null
           current_status: Database["public"]["Enums"]["property_status"]
           epc_rating?: string | null
+          estimated_monthly_rent?: number | null
           has_eicr?: boolean | null
           has_epc?: boolean | null
           has_floor_plans?: boolean | null
@@ -600,8 +604,10 @@ export type Database = {
           contact_name?: string
           contact_phone?: string
           created_at?: string
+          current_monthly_rent?: number | null
           current_status?: Database["public"]["Enums"]["property_status"]
           epc_rating?: string | null
+          estimated_monthly_rent?: number | null
           has_eicr?: boolean | null
           has_epc?: boolean | null
           has_floor_plans?: boolean | null

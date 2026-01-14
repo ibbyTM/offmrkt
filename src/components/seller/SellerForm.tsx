@@ -152,6 +152,8 @@ export function SellerForm() {
         has_eicr: data.has_eicr,
         has_floor_plans: data.has_floor_plans,
         epc_rating: data.epc_rating || null,
+        current_monthly_rent: data.current_monthly_rent || null,
+        estimated_monthly_rent: data.estimated_monthly_rent || null,
         photo_urls: photos.length > 0 ? photos : null,
         contact_name: data.contact_name,
         contact_email: data.contact_email,
@@ -489,6 +491,53 @@ export function SellerForm() {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Rental Income Fields */}
+              {form.watch("current_status") === "tenanted" && (
+                <FormField
+                  control={form.control}
+                  name="current_monthly_rent"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Current Monthly Rent (£)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="1200"
+                          min="0"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        The actual rent currently being received
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="estimated_monthly_rent"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estimated Monthly Rent (£)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="1500"
+                        min="0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Your estimate of achievable market rent
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
