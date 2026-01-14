@@ -66,7 +66,6 @@ export function MyListingsTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {submissions.map((submission) => {
           const status = statusConfig[submission.admin_status] || statusConfig.pending;
-          const canEdit = submission.admin_status === "pending";
 
           return (
             <Card key={submission.id} className="overflow-hidden">
@@ -120,27 +119,25 @@ export function MyListingsTab() {
                 </div>
 
                 {/* Actions */}
-                {canEdit && (
-                  <div className="flex gap-2 pt-2 border-t">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => setEditSubmission(submission)}
-                    >
-                      <Pencil className="h-4 w-4 mr-1" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => setDeleteSubmission(submission)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-2 pt-2 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setEditSubmission(submission)}
+                  >
+                    <Pencil className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => setDeleteSubmission(submission)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
 
                 {/* Admin notes if rejected */}
                 {submission.admin_status === "rejected" && submission.admin_notes && (
