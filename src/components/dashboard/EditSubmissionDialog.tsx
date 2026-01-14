@@ -125,6 +125,8 @@ export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDial
         property_description: data.property_description || null,
         current_monthly_rent: data.current_monthly_rent || null,
         estimated_monthly_rent: data.estimated_monthly_rent || null,
+        admin_status: "pending",
+        admin_notes: null,
       },
     });
     
@@ -137,7 +139,7 @@ export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDial
         <DialogHeader>
           <DialogTitle>Edit Property Submission</DialogTitle>
           <DialogDescription>
-            Update the details of your property submission. Changes can only be made while the submission is pending review.
+            Update the details of your property submission. Changes will reset your submission to pending status for admin re-review.
           </DialogDescription>
         </DialogHeader>
 
