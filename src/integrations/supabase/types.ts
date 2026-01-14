@@ -559,6 +559,7 @@ export type Database = {
           sale_timeline: Database["public"]["Enums"]["sale_timeline"]
           selling_reason: Database["public"]["Enums"]["selling_reason"]
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           additional_notes?: string | null
@@ -591,6 +592,7 @@ export type Database = {
           sale_timeline: Database["public"]["Enums"]["sale_timeline"]
           selling_reason: Database["public"]["Enums"]["selling_reason"]
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           additional_notes?: string | null
@@ -623,6 +625,7 @@ export type Database = {
           sale_timeline?: Database["public"]["Enums"]["sale_timeline"]
           selling_reason?: Database["public"]["Enums"]["selling_reason"]
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

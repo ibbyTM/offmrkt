@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Heart, Clock, Settings, CheckCircle, Home, Building } from "lucide-react";
+import { Loader2, Heart, Clock, Settings, CheckCircle, Home, Building, Building2 } from "lucide-react";
+import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
+import { useUserSubmissions } from "@/hooks/useUserSubmissions";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Property = Tables<"properties">;
@@ -32,6 +34,7 @@ const Dashboard = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<{ full_name: string; email: string } | null>(null);
+  const { submissions } = useUserSubmissions();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,7 +143,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Saved Properties</CardTitle>
@@ -149,6 +152,16 @@ const Dashboard = () => {
             <CardContent>
               <div className="text-2xl font-bold">{savedProperties.length}</div>
               <p className="text-xs text-muted-foreground">Properties in your watchlist</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">My Listings</CardTitle>
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{submissions.length}</div>
+              <p className="text-xs text-muted-foreground">Properties you've submitted</p>
             </CardContent>
           </Card>
           <Card>
@@ -184,6 +197,10 @@ const Dashboard = () => {
               <Heart className="h-4 w-4" />
               Saved Properties
             </TabsTrigger>
+            <TabsTrigger value="listings" className="gap-2">
+              <Building2 className="h-4 w-4" />
+              My Listings
+            </TabsTrigger>
             <TabsTrigger value="reservations" className="gap-2">
               <Clock className="h-4 w-4" />
               Reservations
@@ -218,6 +235,10 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="listings" className="space-y-6">
+            <MyListingsTab />
           </TabsContent>
 
           <TabsContent value="reservations" className="space-y-6">

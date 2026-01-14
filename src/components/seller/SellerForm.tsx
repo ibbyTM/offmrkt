@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ const steps = [
 ];
 
 export function SellerForm() {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -160,6 +162,7 @@ export function SellerForm() {
         contact_phone: data.contact_phone,
         is_owner: data.is_owner,
         company_name: data.company_name || null,
+        user_id: user?.id || null,
       }]);
 
       if (error) throw error;
