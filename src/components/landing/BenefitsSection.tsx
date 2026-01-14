@@ -1,82 +1,102 @@
-import { Shield, TrendingUp, FileCheck, Clock } from "lucide-react";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { cn } from "@/lib/utils";
-import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { Card } from "@/components/ui/card";
+import { ArrowRight, Building2, PieChart, Bell, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const benefits = [
+const features = [
+  {
+    icon: Building2,
+    title: "Curated Property Deals",
+    description: "Access hand-picked investment properties with verified returns and transparent pricing.",
+    stat: "510+",
+    statLabel: "Active Deals",
+    color: "bg-blue-50 text-blue-600",
+  },
+  {
+    icon: PieChart,
+    title: "Investment Analytics",
+    description: "Detailed ROI calculations, yield projections, and market comparisons for every property.",
+    stat: "£517K",
+    statLabel: "Avg Property Value",
+    color: "bg-green-50 text-green-600",
+  },
+  {
+    icon: Bell,
+    title: "Instant Notifications",
+    description: "Be the first to know about new deals matching your investment criteria.",
+    stat: "24h",
+    statLabel: "Early Access",
+    color: "bg-purple-50 text-purple-600",
+  },
   {
     icon: Shield,
-    title: "Verified Investors",
-    description: "Vetted through our verification process and proof of funds check.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Quality Deal Flow",
-    description: "Pre-screened opportunities with detailed ROI analysis.",
-  },
-  {
-    icon: FileCheck,
-    title: "Full Documentation",
-    description: "EPC, gas safety, and EICR documentation included.",
-  },
-  {
-    icon: Clock,
-    title: "Fast Transactions",
-    description: "Streamlined process from reservation to completion.",
+    title: "Verified Sellers",
+    description: "All sellers are verified and properties undergo thorough due diligence.",
+    stat: "100%",
+    statLabel: "Verified",
+    color: "bg-orange-50 text-orange-600",
   },
 ];
 
 export function BenefitsSection() {
-  const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.1 });
-
   return (
-    <section ref={ref} className="relative py-20 md:py-28 overflow-hidden">
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-secondary/40 via-transparent to-secondary/40" />
-      
-      {/* Decorative center glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      
-      <div className="container relative">
-        {/* Section Header */}
-        <div className={cn(
-          "mx-auto max-w-xl text-center mb-16 transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        )}>
-          <span className="inline-block text-primary font-semibold text-sm tracking-wider uppercase mb-3">
-            Why Choose Us
-          </span>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Built for serious investors
+    <section className="py-20 bg-background">
+      <div className="container">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-14"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            Explore our top features
           </h2>
-        </div>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Simplify your property investment journey with powerful tools designed 
+            to help you find, analyze, and secure the best deals.
+          </p>
+        </motion.div>
 
-        {/* Benefits Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map((benefit, index) => (
-            <Card
-              key={benefit.title}
-              className={cn(
-                "group relative overflow-hidden border-border bg-card hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 transition-all duration-500",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              )}
-              style={{ transitionDelay: isVisible ? `${index * 150}ms` : "0ms" }}
+        {/* Features grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {features.map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
             >
-              {/* Hover glow effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              <CardContent className="relative p-6 text-center">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/15 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                  <benefit.icon className="h-6 w-6" />
+              <Card className="p-6 h-full hover:shadow-lg transition-shadow border-border bg-card group">
+                <div className="flex items-start justify-between mb-4">
+                  <div className={`p-3 rounded-xl ${feature.color}`}>
+                    <feature.icon className="w-6 h-6" />
+                  </div>
+                  
+                  {/* Stat badge */}
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-foreground">{feature.stat}</div>
+                    <div className="text-xs text-muted-foreground">{feature.statLabel}</div>
+                  </div>
                 </div>
-                <h3 className="mb-2 text-lg font-bold">
-                  {benefit.title}
+                
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  {feature.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {benefit.description}
+                <p className="text-muted-foreground mb-4">
+                  {feature.description}
                 </p>
-              </CardContent>
-            </Card>
+                
+                <Link 
+                  to="/properties" 
+                  className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 gap-1 transition-all"
+                >
+                  Learn more
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Card>
+            </motion.div>
           ))}
         </div>
       </div>

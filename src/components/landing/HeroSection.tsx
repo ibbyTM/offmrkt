@@ -1,297 +1,200 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, TrendingUp, Building2, Users, BarChart3, Home, MapPin } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useEffect, useState } from "react";
+import { ArrowRight, Building2, TrendingUp, Users } from "lucide-react";
+import { motion } from "framer-motion";
 
-// Animated counter hook
-function useAnimatedCounter(target: number, duration: number = 2000, startAnimation: boolean = true) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    if (!startAnimation) return;
-    
-    let startTime: number;
-    let animationFrame: number;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      
-      // Easing function for smooth animation
-      const easeOut = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(easeOut * target));
-
-      if (progress < 1) {
-        animationFrame = requestAnimationFrame(animate);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [target, duration, startAnimation]);
-
-  return count;
-}
-
-// Floating dashboard card component
-function FloatingDashboardCard() {
-  const portfolioValue = useAnimatedCounter(847500, 2500);
-  const avgYield = useAnimatedCounter(82, 2000); // 8.2% displayed as 82/10
-  const propertyCount = useAnimatedCounter(4, 1500);
-
+// Dashboard mockup component
+function DashboardMockup() {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 100, rotateY: -15 }}
-      animate={{ opacity: 1, x: 0, rotateY: 0 }}
-      transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-      className="relative"
-    >
-      {/* Glow effect behind card */}
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 blur-3xl scale-110" />
-      
-      {/* Main card */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="relative bg-card border border-border rounded-2xl shadow-lg overflow-hidden backdrop-blur-sm"
-      >
-        {/* Card header */}
-        <div className="bg-muted/50 px-5 py-3 border-b border-border flex items-center gap-2">
+    <div className="relative">
+      {/* Browser frame */}
+      <div className="bg-card rounded-2xl shadow-2xl border border-border overflow-hidden">
+        {/* Browser header */}
+        <div className="bg-muted/50 px-4 py-3 border-b border-border flex items-center gap-2">
           <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-destructive/60" />
-            <div className="w-2.5 h-2.5 rounded-full bg-warning/60" />
-            <div className="w-2.5 h-2.5 rounded-full bg-success/60" />
+            <div className="w-3 h-3 rounded-full bg-red-400" />
+            <div className="w-3 h-3 rounded-full bg-yellow-400" />
+            <div className="w-3 h-3 rounded-full bg-green-400" />
           </div>
-          <span className="text-xs text-muted-foreground ml-2">Dashboard Preview</span>
+          <div className="flex-1 mx-4">
+            <div className="bg-background rounded-md px-3 py-1.5 text-xs text-muted-foreground max-w-xs mx-auto">
+              offmrkt.lovable.app/dashboard
+            </div>
+          </div>
         </div>
-
-        {/* Card content */}
-        <div className="p-5 space-y-5">
+        
+        {/* Dashboard content */}
+        <div className="p-6 bg-background">
           {/* Stats row */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Portfolio</div>
-              <div className="text-lg font-bold text-foreground">
-                £{portfolioValue.toLocaleString()}
-              </div>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-accent/50 rounded-xl p-4">
+              <div className="text-2xl font-bold text-foreground">£2.4M</div>
+              <div className="text-xs text-muted-foreground">Portfolio Value</div>
             </div>
-            <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Avg Yield</div>
-              <div className="text-lg font-bold text-primary">
-                {(avgYield / 10).toFixed(1)}%
-              </div>
+            <div className="bg-accent/50 rounded-xl p-4">
+              <div className="text-2xl font-bold text-primary">8.2%</div>
+              <div className="text-xs text-muted-foreground">Avg Yield</div>
             </div>
-            <div className="text-center p-3 bg-muted/30 rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">Properties</div>
-              <div className="text-lg font-bold text-foreground">{propertyCount}</div>
+            <div className="bg-accent/50 rounded-xl p-4">
+              <div className="text-2xl font-bold text-foreground">12</div>
+              <div className="text-xs text-muted-foreground">Properties</div>
             </div>
           </div>
-
-          {/* Mini property cards */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-primary/5 to-transparent border border-border/50 rounded-lg">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center">
-                <Home className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground truncate">Victorian Terrace</div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="w-3 h-3" />
-                  <span>Manchester</span>
+          
+          {/* Chart placeholder */}
+          <div className="bg-muted/30 rounded-xl p-4 mb-4">
+            <div className="flex items-end justify-between h-24 gap-2">
+              {[40, 65, 45, 80, 55, 90, 70, 85].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 bg-primary/20 rounded-t-sm"
+                  style={{ height: `${h}%` }}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* Recent deals */}
+          <div className="space-y-2">
+            {[
+              { city: "Manchester", price: "£185,000", yield: "7.8%" },
+              { city: "Liverpool", price: "£145,000", yield: "8.5%" },
+            ].map((deal, i) => (
+              <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Building2 className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{deal.city}</span>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-foreground">{deal.price}</div>
+                  <div className="text-xs text-primary">{deal.yield} yield</div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-foreground">£185,000</div>
-                <div className="text-xs text-success font-medium">8.4% yield</div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 p-3 bg-muted/20 border border-border/50 rounded-lg">
-              <div className="w-12 h-12 bg-gradient-to-br from-accent to-accent/50 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground truncate">City Apartment</div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="w-3 h-3" />
-                  <span>Birmingham</span>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-foreground">£125,000</div>
-                <div className="text-xs text-success font-medium">7.8% yield</div>
-              </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Floating badge */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="absolute -bottom-4 -left-4 bg-card rounded-xl shadow-lg border border-border px-4 py-3"
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-green-600" />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-foreground">+23%</div>
+            <div className="text-xs text-muted-foreground">ROI this year</div>
           </div>
         </div>
       </motion.div>
-    </motion.div>
-  );
-}
-
-// Stats badge component
-function StatBadge({ 
-  icon: Icon, 
-  value, 
-  label, 
-  delay 
-}: { 
-  icon: React.ElementType; 
-  value: string; 
-  label: string; 
-  delay: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
-      className="flex items-center gap-3 px-4 py-2 bg-card border border-border rounded-full shadow-sm"
-    >
-      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-        <Icon className="w-4 h-4 text-primary" />
-      </div>
-      <div>
-        <div className="text-sm font-bold text-foreground">{value}</div>
-        <div className="text-xs text-muted-foreground">{label}</div>
-      </div>
-    </motion.div>
+    </div>
   );
 }
 
 export function HeroSection() {
-  const { scrollY } = useScroll();
-  
-  // Parallax transforms - different speeds for depth effect
-  const y1 = useTransform(scrollY, [0, 500], [0, 150]); // Primary orb - slow
-  const y2 = useTransform(scrollY, [0, 500], [0, 250]); // Secondary orb - medium
-  const gridY = useTransform(scrollY, [0, 500], [0, 50]); // Grid - subtle
-
   return (
-    <section className="relative overflow-hidden pt-20 pb-16 md:pt-24 md:pb-24 lg:pt-28 lg:pb-32">
-      {/* Animated background elements with parallax */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Primary gradient orb - animated with parallax */}
-        <motion.div
-          style={{ y: y1 }}
-          animate={{
-            x: [0, 30, 0],
-            scale: [1, 1.1, 1],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-primary/25 via-primary/10 to-transparent rounded-full blur-3xl"
-        />
-        
-        {/* Secondary orb - right side with parallax */}
-        <motion.div
-          style={{ y: y2 }}
-          animate={{
-            x: [0, -20, 0],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-primary/15 to-transparent rounded-full blur-3xl"
-        />
-
-        {/* Subtle grid pattern with parallax */}
-        <motion.div 
-          style={{ y: gridY }}
-          className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" 
-        />
-      </div>
-
-      <div className="container relative">
+    <section className="relative overflow-hidden bg-background">
+      {/* Subtle dot pattern background */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--foreground)) 1px, transparent 0)`,
+          backgroundSize: "24px 24px",
+        }}
+      />
+      
+      <div className="container relative py-20 lg:py-28">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left column - Content */}
-          <div className="text-center lg:text-left">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-4 py-2 mb-6 bg-primary/10 border border-primary/20 rounded-full"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span className="text-sm font-medium text-primary">Off-Market Investment Deals</span>
-            </motion.div>
-
-            {/* Headline */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6"
-            >
-              <span className="text-foreground">Take Control of Your</span>
-              <br />
-              <span className="text-primary">Property Investments</span>
-            </motion.h1>
-
-            {/* Subheadline */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-muted-foreground mb-8 max-w-lg mx-auto lg:mx-0"
-            >
-              OffMrkt connects you with vetted off-market property deals. 
-              Every buyer verified. Every property screened. Zero hassle.
-            </motion.p>
-
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10"
-            >
-              <Button
-                asChild
-                size="lg"
-                className="text-base px-8 py-6 font-semibold group shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
-              >
+          {/* Left content */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+              Find your perfect{" "}
+              <span className="text-primary">investment property</span>{" "}
+              with our easy platform
+            </h1>
+            
+            <p className="text-lg text-muted-foreground mb-8 max-w-lg">
+              Access exclusive off-market property deals across the UK. Our platform connects 
+              verified investors with high-yield opportunities that aren't available anywhere else.
+            </p>
+            
+            {/* CTA buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
+              <Button asChild size="lg" className="font-semibold text-base px-8 group">
                 <Link to="/register">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  Get Started for Free
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="text-base px-8 py-6 font-semibold border-2 hover:bg-muted/50"
-              >
+              <Button asChild size="lg" variant="outline" className="font-semibold text-base px-8">
                 <Link to="/properties">
-                  Browse Deals
+                  Browse Properties
                 </Link>
               </Button>
-            </motion.div>
-
-            {/* Trust stats */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="flex flex-wrap gap-3 justify-center lg:justify-start"
-            >
-              <StatBadge icon={Users} value="1,200+" label="Investors" delay={0.6} />
-              <StatBadge icon={Building2} value="200+" label="Properties" delay={0.7} />
-              <StatBadge icon={TrendingUp} value="8.2%" label="Avg Yield" delay={0.8} />
-            </motion.div>
-          </div>
-
-          {/* Right column - Floating Dashboard */}
-          <div className="hidden lg:block">
-            <FloatingDashboardCard />
-          </div>
+            </div>
+            
+            {/* Trust indicator */}
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex -space-x-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full bg-muted border-2 border-background flex items-center justify-center"
+                  >
+                    <Users className="w-3 h-3 text-muted-foreground" />
+                  </div>
+                ))}
+              </div>
+              <span className="text-sm font-medium">
+                Trusted by <span className="text-foreground font-semibold">1,200+</span> investors
+              </span>
+            </div>
+          </motion.div>
+          
+          {/* Right content - Dashboard mockup */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="hidden lg:block"
+          >
+            <DashboardMockup />
+          </motion.div>
         </div>
-
+        
+        {/* Bottom stats */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="grid grid-cols-3 gap-6 mt-16 pt-10 border-t border-border"
+        >
+          {[
+            { value: "500+", label: "Properties Listed" },
+            { value: "£50M+", label: "Investment Value" },
+            { value: "8.5%", label: "Average Yield" },
+          ].map((stat, i) => (
+            <div key={i} className="text-center">
+              <div className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-sm text-muted-foreground">{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
+        
         {/* Mobile dashboard preview */}
         <div className="lg:hidden mt-12">
-          <FloatingDashboardCard />
+          <DashboardMockup />
         </div>
       </div>
     </section>
