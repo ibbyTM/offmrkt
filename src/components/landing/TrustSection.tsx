@@ -1,53 +1,49 @@
-import { Shield, UserCheck, FileCheck, Award } from "lucide-react";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { Shield, Clock, TrendingUp, Users } from "lucide-react";
 
-const credibilityItems = [
+const trustPoints = [
   {
     icon: Shield,
-    text: "FCA Regulated Partners",
+    title: "Verified Deals",
+    description: "Every property is vetted for quality and investment potential",
   },
   {
-    icon: UserCheck,
-    text: "Verified Investors",
+    icon: Clock,
+    title: "Quick Access",
+    description: "Get notified about new deals before they hit the open market",
   },
   {
-    icon: FileCheck,
-    text: "Screened Properties",
+    icon: TrendingUp,
+    title: "High Yields",
+    description: "Average gross yields of 7-10% across our portfolio",
   },
   {
-    icon: Award,
-    text: "UK Based",
+    icon: Users,
+    title: "Expert Support",
+    description: "Dedicated team to guide you through every step",
   },
 ];
 
 export function TrustSection() {
-  const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.2 });
-
   return (
-    <section 
-      ref={ref}
-      className="py-8 border-y border-border"
-    >
+    <section className="py-16 bg-background">
       <div className="container">
-        <div className={cn(
-          "flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10 transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        )}>
-          {credibilityItems.map((item, index) => (
-            <div
-              key={item.text}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2 rounded-full bg-secondary/50 border border-border transition-all duration-500",
-                isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              )}
-              style={{ transitionDelay: isVisible ? `${index * 80}ms` : "0ms" }}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {trustPoints.map((point, i) => (
+            <motion.div
+              key={point.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+              className="text-center"
             >
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/20">
-                <item.icon className="h-4 w-4 text-primary" />
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 text-primary mb-4">
+                <point.icon className="w-6 h-6" />
               </div>
-              <span className="text-sm font-semibold text-foreground">{item.text}</span>
-            </div>
+              <h3 className="font-semibold text-foreground mb-2">{point.title}</h3>
+              <p className="text-sm text-muted-foreground">{point.description}</p>
+            </motion.div>
           ))}
         </div>
       </div>

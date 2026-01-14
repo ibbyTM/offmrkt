@@ -1,187 +1,112 @@
-import { ClipboardList, Search, Shield, Key, User, Home, CreditCard, Check } from "lucide-react";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { UserPlus, Search, MousePointerClick, Bell } from "lucide-react";
 
 const steps = [
   {
-    icon: ClipboardList,
-    step: "01",
-    title: "Register",
-    description: "Complete our investor questionnaire and upload proof of funds.",
-    mockupType: "registration",
+    number: "01",
+    icon: UserPlus,
+    title: "Create your profile",
+    description: "Sign up in under 2 minutes and tell us about your investment preferences and budget.",
   },
   {
+    number: "02",
     icon: Search,
-    step: "02",
-    title: "Browse",
-    description: "Access pre-screened investment properties with detailed analysis.",
-    mockupType: "browse",
+    title: "Explore listings",
+    description: "Browse our curated selection of off-market properties with detailed analytics.",
   },
   {
-    icon: Shield,
-    step: "03",
-    title: "Reserve",
-    description: "Secure your property with a refundable deposit.",
-    mockupType: "reserve",
+    number: "03",
+    icon: MousePointerClick,
+    title: "Reserve in one click",
+    description: "Found a deal you love? Reserve it instantly before it's gone.",
   },
   {
-    icon: Key,
-    step: "04",
-    title: "Complete",
-    description: "Work with our recommended professionals to close the deal.",
-    mockupType: "complete",
+    number: "04",
+    icon: Bell,
+    title: "Receive updates",
+    description: "Get real-time notifications on your reservations and new matching deals.",
   },
 ];
 
-// Mini UI mockup components
-function RegistrationMockup() {
+// Mini device mockups for each step
+function StepMockup({ step }: { step: typeof steps[0] }) {
   return (
-    <div className="space-y-2 p-3">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-        <User className="h-3 w-3" />
-        <span>Investor Registration</span>
+    <div className="bg-muted/50 rounded-xl p-4 mb-4">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-2 h-2 rounded-full bg-red-400" />
+        <div className="w-2 h-2 rounded-full bg-yellow-400" />
+        <div className="w-2 h-2 rounded-full bg-green-400" />
       </div>
-      <div className="h-2 w-full rounded bg-muted" />
-      <div className="h-2 w-3/4 rounded bg-muted" />
-      <div className="h-6 w-full rounded bg-primary/20 mt-2" />
-      <div className="h-2 w-full rounded bg-muted" />
-      <div className="h-5 w-20 rounded bg-primary mt-2" />
-    </div>
-  );
-}
-
-function BrowseMockup() {
-  return (
-    <div className="p-3">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-        <Home className="h-3 w-3" />
-        <span>Property Listings</span>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="space-y-1">
-            <div className="h-8 rounded bg-muted" />
-            <div className="h-1.5 w-3/4 rounded bg-muted" />
-            <div className="h-1.5 w-1/2 rounded bg-primary/30" />
-          </div>
-        ))}
+      <div className="space-y-2">
+        <div className="h-3 bg-muted rounded w-3/4" />
+        <div className="h-3 bg-muted rounded w-1/2" />
+        <div className="h-8 bg-primary/10 rounded-lg mt-3 flex items-center justify-center">
+          <step.icon className="w-4 h-4 text-primary" />
+        </div>
       </div>
     </div>
-  );
-}
-
-function ReserveMockup() {
-  return (
-    <div className="p-3">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-        <CreditCard className="h-3 w-3" />
-        <span>Reserve Property</span>
-      </div>
-      <div className="h-12 rounded bg-muted mb-2" />
-      <div className="space-y-1 mb-3">
-        <div className="h-1.5 w-full rounded bg-muted" />
-        <div className="h-1.5 w-2/3 rounded bg-muted" />
-      </div>
-      <div className="h-6 w-full rounded bg-primary flex items-center justify-center">
-        <span className="text-[8px] text-primary-foreground font-medium">Reserve Now</span>
-      </div>
-    </div>
-  );
-}
-
-function CompleteMockup() {
-  return (
-    <div className="p-3 flex flex-col items-center justify-center h-full">
-      <div className="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center mb-2">
-        <Check className="h-5 w-5 text-green-500" />
-      </div>
-      <div className="text-[10px] font-medium text-center mb-1">Transaction Complete</div>
-      <div className="h-1.5 w-16 rounded bg-muted" />
-    </div>
-  );
-}
-
-function MockupCard({ type }: { type: string }) {
-  const mockups: Record<string, React.ReactNode> = {
-    registration: <RegistrationMockup />,
-    browse: <BrowseMockup />,
-    reserve: <ReserveMockup />,
-    complete: <CompleteMockup />,
-  };
-
-  return (
-    <Card className="h-32 w-full bg-card/80 border-border/50 overflow-hidden">
-      {mockups[type]}
-    </Card>
   );
 }
 
 export function HowItWorksSection() {
-  const { ref, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.15 });
-
   return (
-    <section id="how-it-works" ref={ref} className="relative py-20 md:py-28 scroll-mt-20 overflow-hidden">
-      {/* Enhanced gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-secondary/30 to-background" />
-      
-      <div className="container relative">
-        {/* Section Header */}
-        <div className={cn(
-          "mx-auto max-w-xl text-center mb-16 transition-all duration-700",
-          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        )}>
-          <span className="inline-block text-primary font-semibold text-sm tracking-wider uppercase mb-3">
-            Simple Process
-          </span>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            How it works
+    <section className="py-20 bg-background">
+      <div className="container">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-14"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            How it works in 4 simple steps
           </h2>
-        </div>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Getting started with OffMrkt is easy. Follow these simple steps to 
+            begin your property investment journey.
+          </p>
+        </motion.div>
 
-        {/* Steps - Horizontal flow */}
-        <div className="relative">
-          {/* Gradient connector line - desktop only */}
-          <div className={cn(
-            "hidden lg:block absolute top-[120px] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-transparent via-primary/40 to-transparent transition-opacity duration-1000",
-            isVisible ? "opacity-100" : "opacity-0"
-          )} />
-
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map((item, index) => (
-              <div 
-                key={item.step} 
-                className={cn(
-                  "relative text-center group transition-all duration-700",
-                  isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-                )}
-                style={{ transitionDelay: isVisible ? `${index * 120}ms` : "0ms" }}
-              >
-                {/* UI Mockup Preview */}
-                <div className="mb-4 group-hover:scale-[1.02] transition-transform duration-300">
-                  <MockupCard type={item.mockupType} />
-                </div>
-
-                {/* Step number with icon */}
-                <div className="relative mx-auto mb-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-card border border-border mx-auto group-hover:border-primary/40 group-hover:shadow-lg group-hover:shadow-primary/10 transition-all duration-300">
-                    <item.icon className="h-7 w-7 text-primary" />
-                  </div>
-                  {/* Step number badge */}
-                  <div className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold shadow-lg shadow-primary/30">
-                    {item.step}
-                  </div>
+        {/* Steps grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.number}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+            >
+              <Card className="p-6 h-full border-border bg-card hover:shadow-lg transition-shadow relative overflow-hidden">
+                {/* Step number watermark */}
+                <div className="absolute -top-4 -right-2 text-8xl font-bold text-muted/30 select-none">
+                  {step.number}
                 </div>
                 
-                <h3 className="mb-2 text-lg font-bold">
-                  {item.title}
+                {/* Mockup */}
+                <StepMockup step={step} />
+                
+                {/* Icon and content */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <step.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                    Step {step.number}
+                  </span>
+                </div>
+                
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  {step.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px] mx-auto">
-                  {item.description}
+                <p className="text-sm text-muted-foreground">
+                  {step.description}
                 </p>
-              </div>
-            ))}
-          </div>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
