@@ -116,10 +116,28 @@ export function SellerForm() {
     }
   }, [form]);
 
-  // Pre-fill user email when logged in
+  // Pre-fill user email and name when logged in
   useEffect(() => {
-    if (user?.email && !form.getValues("contact_email")) {
-      form.setValue("contact_email", user.email);
+    if (user) {
+      // Pre-fill email
+      if (user.email && !form.getValues("contact_email")) {
+        form.setValue("contact_email", user.email);
+      }
+      
+      // Fetch profile to get full name
+      const fetchProfile = async () => {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", user.id)
+          .single();
+        
+        if (profile?.full_name && !form.getValues("contact_name")) {
+          form.setValue("contact_name", profile.full_name);
+        }
+      };
+      
+      fetchProfile();
     }
   }, [user, form]);
 
