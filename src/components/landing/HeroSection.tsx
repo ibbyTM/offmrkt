@@ -1,98 +1,159 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Building2, TrendingUp, Users } from "lucide-react";
+import { ArrowRight, Building2, TrendingUp, Users, Bell } from "lucide-react";
 import { motion } from "framer-motion";
 
-// Dashboard mockup component
-function DashboardMockup() {
+// Laptop mockup with floating dashboard
+function LaptopMockup() {
   return (
-    <div className="relative">
-      {/* Browser frame */}
-      <div className="bg-card rounded-2xl shadow-2xl border border-border overflow-hidden">
-        {/* Browser header */}
-        <div className="bg-muted/50 px-4 py-3 border-b border-border flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-400" />
-            <div className="w-3 h-3 rounded-full bg-yellow-400" />
-            <div className="w-3 h-3 rounded-full bg-green-400" />
-          </div>
-          <div className="flex-1 mx-4">
-            <div className="bg-background rounded-md px-3 py-1.5 text-xs text-muted-foreground max-w-xs mx-auto">
-              offmrkt.lovable.app/dashboard
-            </div>
-          </div>
-        </div>
-        
-        {/* Dashboard content */}
-        <div className="p-6 bg-background">
-          {/* Stats row */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-accent/50 rounded-xl p-4">
-              <div className="text-2xl font-bold text-foreground">£2.4M</div>
-              <div className="text-xs text-muted-foreground">Portfolio Value</div>
-            </div>
-            <div className="bg-accent/50 rounded-xl p-4">
-              <div className="text-2xl font-bold text-primary">8.2%</div>
-              <div className="text-xs text-muted-foreground">Avg Yield</div>
-            </div>
-            <div className="bg-accent/50 rounded-xl p-4">
-              <div className="text-2xl font-bold text-foreground">12</div>
-              <div className="text-xs text-muted-foreground">Properties</div>
-            </div>
-          </div>
-          
-          {/* Chart placeholder */}
-          <div className="bg-muted/30 rounded-xl p-4 mb-4">
-            <div className="flex items-end justify-between h-24 gap-2">
-              {[40, 65, 45, 80, 55, 90, 70, 85].map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-1 bg-primary/20 rounded-t-sm"
-                  style={{ height: `${h}%` }}
-                />
-              ))}
-            </div>
-          </div>
-          
-          {/* Recent deals */}
-          <div className="space-y-2">
-            {[
-              { city: "Manchester", price: "£185,000", yield: "7.8%" },
-              { city: "Liverpool", price: "£145,000", yield: "8.5%" },
-            ].map((deal, i) => (
-              <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg px-4 py-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Building2 className="w-4 h-4 text-primary" />
-                  </div>
-                  <span className="text-sm font-medium text-foreground">{deal.city}</span>
+    <div className="relative" style={{ perspective: "1200px" }}>
+      {/* Glow effect behind laptop */}
+      <div className="absolute inset-0 -z-10 blur-3xl opacity-30 bg-gradient-to-r from-primary/40 via-primary/20 to-primary/40 rounded-full scale-90" />
+      
+      {/* Floating laptop */}
+      <motion.div
+        animate={{ y: [0, -12, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        style={{ transform: "rotateX(8deg)" }}
+        className="relative"
+      >
+        {/* Laptop screen */}
+        <div className="relative">
+          {/* Screen bezel */}
+          <div className="bg-gray-900 rounded-t-2xl p-2 pt-4 shadow-2xl">
+            {/* Camera notch */}
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-700" />
+            
+            {/* Screen content */}
+            <div className="bg-background rounded-lg overflow-hidden">
+              {/* Browser header */}
+              <div className="bg-muted/50 px-3 py-2 border-b border-border flex items-center gap-2">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 rounded-full bg-red-400" />
+                  <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
                 </div>
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-foreground">{deal.price}</div>
-                  <div className="text-xs text-primary">{deal.yield} yield</div>
+                <div className="flex-1 mx-3">
+                  <div className="bg-background rounded px-2 py-0.5 text-[10px] text-muted-foreground max-w-[140px] mx-auto truncate">
+                    offmrkt.com/dashboard
+                  </div>
                 </div>
               </div>
-            ))}
+              
+              {/* Dashboard content */}
+              <div className="p-4 bg-background">
+                {/* Stats row */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="bg-accent/50 rounded-lg p-2">
+                    <div className="text-lg font-bold text-foreground">£2.4M</div>
+                    <div className="text-[9px] text-muted-foreground">Portfolio</div>
+                  </div>
+                  <div className="bg-accent/50 rounded-lg p-2">
+                    <div className="text-lg font-bold text-primary">8.2%</div>
+                    <div className="text-[9px] text-muted-foreground">Avg Yield</div>
+                  </div>
+                  <div className="bg-accent/50 rounded-lg p-2">
+                    <div className="text-lg font-bold text-foreground">12</div>
+                    <div className="text-[9px] text-muted-foreground">Properties</div>
+                  </div>
+                </div>
+                
+                {/* Chart */}
+                <div className="bg-muted/30 rounded-lg p-3 mb-3">
+                  <div className="flex items-end justify-between h-16 gap-1">
+                    {[35, 55, 40, 70, 50, 85, 60, 75, 90, 65].map((h, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ height: 0 }}
+                        animate={{ height: `${h}%` }}
+                        transition={{ delay: 0.5 + i * 0.05, duration: 0.4 }}
+                        className="flex-1 bg-primary/30 hover:bg-primary/50 transition-colors rounded-t"
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Recent deals */}
+                <div className="space-y-1.5">
+                  {[
+                    { city: "Manchester", price: "£185k", yield: "7.8%" },
+                    { city: "Liverpool", price: "£145k", yield: "8.5%" },
+                  ].map((deal, i) => (
+                    <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg px-2 py-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
+                          <Building2 className="w-2.5 h-2.5 text-primary" />
+                        </div>
+                        <span className="text-[10px] font-medium text-foreground">{deal.city}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[10px] font-semibold text-foreground">{deal.price}</div>
+                        <div className="text-[8px] text-primary">{deal.yield}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Laptop base/keyboard */}
+          <div className="relative">
+            <div className="bg-gray-800 h-3 rounded-b-lg" />
+            <div className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 w-16 h-1 bg-gray-700 rounded-b" />
           </div>
         </div>
-      </div>
+      </motion.div>
       
-      {/* Floating badge */}
+      {/* Shadow underneath */}
+      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-black/15 blur-2xl rounded-full" />
+      
+      {/* Floating ROI badge - left */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="absolute -bottom-4 -left-4 bg-card rounded-xl shadow-lg border border-border px-4 py-3"
+        initial={{ opacity: 0, x: -30, y: 20 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.5 }}
+        className="absolute -left-4 md:-left-12 top-1/4 z-10"
       >
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-            <TrendingUp className="w-4 h-4 text-green-600" />
+        <motion.div
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+          className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <TrendingUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <div className="text-sm font-bold text-foreground">+23%</div>
+              <div className="text-[10px] text-muted-foreground">ROI this year</div>
+            </div>
           </div>
-          <div>
-            <div className="text-sm font-semibold text-foreground">+23%</div>
-            <div className="text-xs text-muted-foreground">ROI this year</div>
+        </motion.div>
+      </motion.div>
+      
+      {/* Floating notification - right */}
+      <motion.div
+        initial={{ opacity: 0, x: 30, y: -20 }}
+        animate={{ opacity: 1, x: 0, y: 0 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+        className="absolute -right-4 md:-right-12 top-1/3 z-10"
+      >
+        <motion.div
+          animate={{ y: [0, -8, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+              <Bell className="w-3.5 h-3.5 text-primary" />
+            </div>
+            <div>
+              <div className="text-[10px] font-medium text-foreground">New Deal Alert</div>
+              <div className="text-[9px] text-muted-foreground">Leeds • 9.2% yield</div>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
     </div>
   );
@@ -110,75 +171,74 @@ export function HeroSection() {
         }}
       />
       
-      <div className="container relative py-20 lg:py-28">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-              Find your perfect{" "}
-              <span className="text-primary">investment property</span>{" "}
-              with our easy platform
-            </h1>
-            
-            <p className="text-lg text-muted-foreground mb-8 max-w-lg">
-              Access exclusive off-market property deals across the UK. Our platform connects 
-              verified investors with high-yield opportunities that aren't available anywhere else.
-            </p>
-            
-            {/* CTA buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <Button asChild size="lg" className="font-semibold text-base px-8 group">
-                <Link to="/register">
-                  Get Started for Free
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="font-semibold text-base px-8">
-                <Link to="/properties">
-                  Browse Properties
-                </Link>
-              </Button>
-            </div>
-            
-            {/* Trust indicator */}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <div className="flex -space-x-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full bg-muted border-2 border-background flex items-center justify-center"
-                  >
-                    <Users className="w-3 h-3 text-muted-foreground" />
-                  </div>
-                ))}
-              </div>
-              <span className="text-sm font-medium">
-                Trusted by <span className="text-foreground font-semibold">1,200+</span> investors
-              </span>
-            </div>
-          </motion.div>
+      <div className="container relative py-16 lg:py-24">
+        {/* Centered text content */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-4xl mx-auto"
+        >
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+            Find your perfect{" "}
+            <span className="text-primary">investment property</span>{" "}
+            with our easy platform
+          </h1>
           
-          {/* Right content - Dashboard mockup */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="hidden lg:block"
-          >
-            <DashboardMockup />
-          </motion.div>
-        </div>
+          <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Access exclusive off-market property deals across the UK. Our platform connects 
+            verified investors with high-yield opportunities that aren't available anywhere else.
+          </p>
+          
+          {/* CTA buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <Button asChild size="lg" className="font-semibold text-base px-8 group">
+              <Link to="/register">
+                Get Started for Free
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="font-semibold text-base px-8">
+              <Link to="/properties">
+                Browse Properties
+              </Link>
+            </Button>
+          </div>
+          
+          {/* Trust indicator */}
+          <div className="flex items-center justify-center gap-2 text-muted-foreground">
+            <div className="flex -space-x-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-full bg-muted border-2 border-background flex items-center justify-center"
+                >
+                  <Users className="w-3 h-3 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+            <span className="text-sm font-medium">
+              Trusted by <span className="text-foreground font-semibold">1,200+</span> investors
+            </span>
+          </div>
+        </motion.div>
+        
+        {/* Centered floating laptop mockup */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-16 max-w-2xl mx-auto"
+        >
+          <LaptopMockup />
+        </motion.div>
         
         {/* Bottom stats */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="grid grid-cols-3 gap-6 mt-16 pt-10 border-t border-border"
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="grid grid-cols-3 gap-6 mt-20 pt-10 border-t border-border max-w-3xl mx-auto"
         >
           {[
             { value: "500+", label: "Properties Listed" },
@@ -191,11 +251,6 @@ export function HeroSection() {
             </div>
           ))}
         </motion.div>
-        
-        {/* Mobile dashboard preview */}
-        <div className="lg:hidden mt-12">
-          <DashboardMockup />
-        </div>
       </div>
     </section>
   );
