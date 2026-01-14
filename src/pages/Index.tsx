@@ -35,7 +35,7 @@ const Index = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative flex items-center justify-center"
+          className="relative flex items-center justify-center w-40 h-40"
         >
           {/* Pulsing glow ring */}
           <motion.div
@@ -50,6 +50,60 @@ const Index = () => {
             animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.1, 0.6] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
           />
+
+          {/* Orbiting dots */}
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <motion.div
+              key={i}
+              className="absolute w-2 h-2 rounded-full bg-primary"
+              style={{
+                left: "50%",
+                top: "50%",
+                marginLeft: "-4px",
+                marginTop: "-4px",
+              }}
+              animate={{
+                x: [
+                  Math.cos((i * Math.PI * 2) / 6) * 60,
+                  Math.cos((i * Math.PI * 2) / 6 + Math.PI * 2) * 60,
+                ],
+                y: [
+                  Math.sin((i * Math.PI * 2) / 6) * 60,
+                  Math.sin((i * Math.PI * 2) / 6 + Math.PI * 2) * 60,
+                ],
+                opacity: [0.3, 0.8, 0.3],
+                scale: [0.8, 1.2, 0.8],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "linear",
+                delay: i * 0.15,
+              }}
+            />
+          ))}
+
+          {/* Floating accent dots */}
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={`float-${i}`}
+              className="absolute w-1.5 h-1.5 rounded-full bg-primary/60"
+              style={{
+                left: `${30 + i * 20}%`,
+                top: `${20 + i * 25}%`,
+              }}
+              animate={{
+                y: [0, -15, 0],
+                opacity: [0.4, 0.9, 0.4],
+              }}
+              transition={{
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 0.4,
+              }}
+            />
+          ))}
           
           {/* House icon with breathing animation */}
           <motion.div
