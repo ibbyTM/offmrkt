@@ -1,112 +1,139 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Building2, TrendingUp, Users, Bell } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { useRef } from "react";
 
-// Laptop mockup with floating dashboard
-function LaptopMockup() {
+// Laptop mockup with scroll-driven parallax effect
+function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+  // Map scroll progress: starts flat (28°), rises to upright (5°)
+  const rotateX = useTransform(scrollYProgress, [0, 0.5], [28, 5]);
+  // Slight lift as it rotates upright
+  const translateY = useTransform(scrollYProgress, [0, 0.5], [40, 0]);
+  // Scale up slightly as it rises
+  const scale = useTransform(scrollYProgress, [0, 0.5], [0.9, 1]);
+  // Shadow responds to the lift
+  const shadowScale = useTransform(scrollYProgress, [0, 0.5], [1.4, 0.8]);
+  const shadowBlur = useTransform(scrollYProgress, [0, 0.5], [40, 20]);
+  const shadowOpacity = useTransform(scrollYProgress, [0, 0.5], [0.08, 0.18]);
+
   return (
     <div className="relative" style={{ perspective: "1200px" }}>
       {/* Glow effect behind laptop */}
       <div className="absolute inset-0 -z-10 blur-3xl opacity-30 bg-gradient-to-r from-primary/40 via-primary/20 to-primary/40 rounded-full scale-90" />
       
-      {/* Floating laptop */}
+      {/* Floating laptop with scroll-driven rotation */}
       <motion.div
-        animate={{ y: [0, -12, 0] }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        style={{ transform: "rotateX(8deg)" }}
+        style={{ 
+          rotateX, 
+          y: translateY, 
+          scale,
+          transformStyle: "preserve-3d"
+        }}
         className="relative"
       >
-        {/* Laptop screen */}
-        <div className="relative">
-          {/* Screen bezel */}
-          <div className="bg-gray-900 rounded-t-2xl p-2 pt-4 shadow-2xl">
-            {/* Camera notch */}
-            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-700" />
-            
-            {/* Screen content */}
-            <div className="bg-background rounded-lg overflow-hidden">
-              {/* Browser header */}
-              <div className="bg-muted/50 px-3 py-2 border-b border-border flex items-center gap-2">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-red-400" />
-                  <div className="w-2 h-2 rounded-full bg-yellow-400" />
-                  <div className="w-2 h-2 rounded-full bg-green-400" />
-                </div>
-                <div className="flex-1 mx-3">
-                  <div className="bg-background rounded px-2 py-0.5 text-[10px] text-muted-foreground max-w-[140px] mx-auto truncate">
-                    offmrkt.com/dashboard
-                  </div>
-                </div>
-              </div>
+        {/* Subtle floating animation layered on top */}
+        <motion.div
+          animate={{ y: [0, -12, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {/* Laptop screen */}
+          <div className="relative">
+            {/* Screen bezel */}
+            <div className="bg-gray-900 rounded-t-2xl p-2 pt-4 shadow-2xl">
+              {/* Camera notch */}
+              <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-gray-700" />
               
-              {/* Dashboard content */}
-              <div className="p-4 bg-background">
-                {/* Stats row */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="bg-accent/50 rounded-lg p-2">
-                    <div className="text-lg font-bold text-foreground">£2.4M</div>
-                    <div className="text-[9px] text-muted-foreground">Portfolio</div>
+              {/* Screen content */}
+              <div className="bg-background rounded-lg overflow-hidden">
+                {/* Browser header */}
+                <div className="bg-muted/50 px-3 py-2 border-b border-border flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-red-400" />
+                    <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                    <div className="w-2 h-2 rounded-full bg-green-400" />
                   </div>
-                  <div className="bg-accent/50 rounded-lg p-2">
-                    <div className="text-lg font-bold text-primary">8.2%</div>
-                    <div className="text-[9px] text-muted-foreground">Avg Yield</div>
-                  </div>
-                  <div className="bg-accent/50 rounded-lg p-2">
-                    <div className="text-lg font-bold text-foreground">12</div>
-                    <div className="text-[9px] text-muted-foreground">Properties</div>
+                  <div className="flex-1 mx-3">
+                    <div className="bg-background rounded px-2 py-0.5 text-[10px] text-muted-foreground max-w-[140px] mx-auto truncate">
+                      offmrkt.com/dashboard
+                    </div>
                   </div>
                 </div>
                 
-                {/* Chart */}
-                <div className="bg-muted/30 rounded-lg p-3 mb-3">
-                  <div className="flex items-end justify-between h-16 gap-1">
-                    {[35, 55, 40, 70, 50, 85, 60, 75, 90, 65].map((h, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${h}%` }}
-                        transition={{ delay: 0.5 + i * 0.05, duration: 0.4 }}
-                        className="flex-1 bg-primary/30 hover:bg-primary/50 transition-colors rounded-t"
-                      />
+                {/* Dashboard content */}
+                <div className="p-4 bg-background">
+                  {/* Stats row */}
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    <div className="bg-accent/50 rounded-lg p-2">
+                      <div className="text-lg font-bold text-foreground">£2.4M</div>
+                      <div className="text-[9px] text-muted-foreground">Portfolio</div>
+                    </div>
+                    <div className="bg-accent/50 rounded-lg p-2">
+                      <div className="text-lg font-bold text-primary">8.2%</div>
+                      <div className="text-[9px] text-muted-foreground">Avg Yield</div>
+                    </div>
+                    <div className="bg-accent/50 rounded-lg p-2">
+                      <div className="text-lg font-bold text-foreground">12</div>
+                      <div className="text-[9px] text-muted-foreground">Properties</div>
+                    </div>
+                  </div>
+                  
+                  {/* Chart */}
+                  <div className="bg-muted/30 rounded-lg p-3 mb-3">
+                    <div className="flex items-end justify-between h-16 gap-1">
+                      {[35, 55, 40, 70, 50, 85, 60, 75, 90, 65].map((h, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ height: 0 }}
+                          animate={{ height: `${h}%` }}
+                          transition={{ delay: 0.5 + i * 0.05, duration: 0.4 }}
+                          className="flex-1 bg-primary/30 hover:bg-primary/50 transition-colors rounded-t"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Recent deals */}
+                  <div className="space-y-1.5">
+                    {[
+                      { city: "Manchester", price: "£185k", yield: "7.8%" },
+                      { city: "Liverpool", price: "£145k", yield: "8.5%" },
+                    ].map((deal, i) => (
+                      <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg px-2 py-1.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
+                            <Building2 className="w-2.5 h-2.5 text-primary" />
+                          </div>
+                          <span className="text-[10px] font-medium text-foreground">{deal.city}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-[10px] font-semibold text-foreground">{deal.price}</div>
+                          <div className="text-[8px] text-primary">{deal.yield}</div>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
-                
-                {/* Recent deals */}
-                <div className="space-y-1.5">
-                  {[
-                    { city: "Manchester", price: "£185k", yield: "7.8%" },
-                    { city: "Liverpool", price: "£145k", yield: "8.5%" },
-                  ].map((deal, i) => (
-                    <div key={i} className="flex items-center justify-between bg-muted/30 rounded-lg px-2 py-1.5">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded bg-primary/10 flex items-center justify-center">
-                          <Building2 className="w-2.5 h-2.5 text-primary" />
-                        </div>
-                        <span className="text-[10px] font-medium text-foreground">{deal.city}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-[10px] font-semibold text-foreground">{deal.price}</div>
-                        <div className="text-[8px] text-primary">{deal.yield}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
+            
+            {/* Laptop base/keyboard */}
+            <div className="relative">
+              <div className="bg-gray-800 h-3 rounded-b-lg" />
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 w-16 h-1 bg-gray-700 rounded-b" />
+            </div>
           </div>
-          
-          {/* Laptop base/keyboard */}
-          <div className="relative">
-            <div className="bg-gray-800 h-3 rounded-b-lg" />
-            <div className="absolute left-1/2 -translate-x-1/2 -bottom-0.5 w-16 h-1 bg-gray-700 rounded-b" />
-          </div>
-        </div>
+        </motion.div>
       </motion.div>
       
-      {/* Shadow underneath */}
-      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-black/15 blur-2xl rounded-full" />
+      {/* Responsive shadow underneath */}
+      <motion.div 
+        style={{ 
+          scaleX: shadowScale,
+          opacity: shadowOpacity,
+        }}
+        className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-black blur-2xl rounded-full" 
+      />
       
       {/* Floating ROI badge - left */}
       <motion.div
@@ -158,10 +185,17 @@ function LaptopMockup() {
     </div>
   );
 }
-
 export function HeroSection() {
+  const containerRef = useRef<HTMLElement>(null);
+  
+  // Track scroll progress within the hero section
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
   return (
-    <section id="hero" className="relative overflow-hidden bg-background">
+    <section id="hero" ref={containerRef} className="relative overflow-hidden bg-background">
       {/* Subtle dot pattern background */}
       <div
         className="absolute inset-0 opacity-[0.03]"
@@ -230,7 +264,7 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-16 max-w-2xl mx-auto"
         >
-          <LaptopMockup />
+          <LaptopMockup scrollYProgress={scrollYProgress} />
         </motion.div>
         
         {/* Bottom stats */}
