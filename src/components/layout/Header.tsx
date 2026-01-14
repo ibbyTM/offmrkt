@@ -91,18 +91,24 @@ export function Header() {
 
   // Build dynamic nav links based on auth state and current page
   const getNavLinks = () => {
+    // If user is logged in, always show app navigation (not landing links)
+    if (user) {
+      const links = [...navLinks];
+      if (hasCompletedQuestionnaire) {
+        links.push({ href: "/dashboard", label: "Dashboard" });
+      }
+      if (isAdmin) {
+        links.push({ href: "/admin", label: "Admin" });
+      }
+      return links;
+    }
+
+    // Not logged in - show landing links on landing page, app links elsewhere
     if (isLandingPage) {
       return landingLinks;
     }
 
-    const links = [...navLinks];
-    if (user && hasCompletedQuestionnaire) {
-      links.push({ href: "/dashboard", label: "Dashboard" });
-    }
-    if (user && isAdmin) {
-      links.push({ href: "/admin", label: "Admin" });
-    }
-    return links;
+    return navLinks;
   };
 
   const currentNavLinks = getNavLinks();
