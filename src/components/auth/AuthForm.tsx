@@ -35,9 +35,10 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 interface AuthFormProps {
   mode: "login" | "register";
+  returnTo?: string;
 }
 
-export const AuthForm = ({ mode }: AuthFormProps) => {
+export const AuthForm = ({ mode, returnTo }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, hasCompletedQuestionnaire } = useAuth();
@@ -85,8 +86,10 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
           description: "You have successfully logged in.",
         });
 
-        // Redirect based on questionnaire status
-        if (!hasCompletedQuestionnaire) {
+        // Redirect based on returnTo or questionnaire status
+        if (returnTo) {
+          navigate(returnTo);
+        } else if (!hasCompletedQuestionnaire) {
           navigate("/questionnaire");
         } else {
           navigate(from);
@@ -112,16 +115,25 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
 
         toast({
           title: "Account created!",
-          description: "Please complete your investor questionnaire.",
+          description: returnTo 
+            ? "You can now complete your submission."
+            : "Please complete your investor questionnaire.",
         });
 
-        // Redirect to questionnaire after registration
-        navigate("/questionnaire");
+        // Redirect based on returnTo or to questionnaire
+        if (returnTo) {
+          navigate(returnTo);
+        } else {
+          navigate("/questionnaire");
+        }
       }
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Preserve returnTo state when switching between login/register
+  const authLinkState = returnTo ? { returnTo } : undefined;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -232,14 +244,14 @@ export const AuthForm = ({ mode }: AuthFormProps) => {
         {mode === "login" ? (
           <p className="text-muted-foreground">
             Don't have an account?{" "}
-            <Link to="/register" className="text-primary font-medium hover:underline">
+            <Link to="/register" state={authLinkState} className="text-primary font-medium hover:underline">
               Sign up
             </Link>
           </p>
         ) : (
           <p className="text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            <Link to="/login" state={authLinkState} className="text-primary font-medium hover:underline">
               Sign in
             </Link>
           </p>

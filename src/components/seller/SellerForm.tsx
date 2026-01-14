@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { 
   Building2, 
-  MapPin, 
   FileText, 
   Camera, 
   User, 
   CheckCircle2,
-  Loader2
+  Loader2,
+  LogIn,
+  Trash2
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +49,8 @@ import {
   epcRatings,
 } from "./sellerFormSchema";
 
+const STORAGE_KEY = "seller_form_draft";
+
 const steps = [
   { id: 1, title: "Property Details", icon: Building2 },
   { id: 2, title: "Status & Timeline", icon: FileText },
@@ -56,12 +59,19 @@ const steps = [
   { id: 5, title: "Contact Info", icon: User },
 ];
 
+interface SavedDraft {
+  values: SellerFormValues;
+  photos: string[];
+  currentStep: number;
+}
+
 export function SellerForm() {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [photos, setPhotos] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -88,6 +98,66 @@ export function SellerForm() {
       company_name: "",
     },
   });
+
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(STORAGE_KEY);
+    if (savedDraft) {
+      try {
+        const draft: SavedDraft = JSON.parse(savedDraft);
+        form.reset(draft.values);
+        setPhotos(draft.photos || []);
+        setCurrentStep(draft.currentStep || 1);
+        setHasDraft(true);
+      } catch (e) {
+        console.error("Failed to restore draft:", e);
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, [form]);
+
+  // Pre-fill user email when logged in
+  useEffect(() => {
+    if (user?.email && !form.getValues("contact_email")) {
+      form.setValue("contact_email", user.email);
+    }
+  }, [user, form]);
+
+  // Save draft to localStorage on changes
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      const draft: SavedDraft = {
+        values: values as SellerFormValues,
+        photos,
+        currentStep,
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    });
+    return () => subscription.unsubscribe();
+  }, [form, photos, currentStep]);
+
+  // Also save when photos or step changes
+  useEffect(() => {
+    const values = form.getValues();
+    const draft: SavedDraft = {
+      values,
+      photos,
+      currentStep,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  }, [photos, currentStep, form]);
+
+  const clearDraft = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setHasDraft(false);
+    setCurrentStep(1);
+    setPhotos([]);
+    form.reset();
+    toast({
+      title: "Draft cleared",
+      description: "Your saved progress has been removed.",
+    });
+  };
 
   const validateCurrentStep = async () => {
     let fieldsToValidate: (keyof SellerFormValues)[] = [];
@@ -134,6 +204,16 @@ export function SellerForm() {
   };
 
   const onSubmit = async (data: SellerFormValues) => {
+    if (!user) {
+      // This shouldn't happen as the submit button is hidden for non-logged-in users
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to submit a property.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from("seller_submissions").insert([{
@@ -162,11 +242,13 @@ export function SellerForm() {
         contact_phone: data.contact_phone,
         is_owner: data.is_owner,
         company_name: data.company_name || null,
-        user_id: user?.id || null,
+        user_id: user.id,
       }]);
 
       if (error) throw error;
 
+      // Clear draft on successful submission
+      localStorage.removeItem(STORAGE_KEY);
       setIsSubmitted(true);
       toast({
         title: "Submission successful!",
@@ -216,6 +298,19 @@ export function SellerForm() {
 
   return (
     <div className="max-w-3xl mx-auto">
+      {/* Draft Restored Banner */}
+      {hasDraft && (
+        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            We've restored your saved progress.
+          </p>
+          <Button variant="ghost" size="sm" onClick={clearDraft} className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100">
+            <Trash2 className="h-4 w-4 mr-1" />
+            Start Fresh
+          </Button>
+        </div>
+      )}
+
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -820,6 +915,30 @@ export function SellerForm() {
                   )}
                 />
               )}
+
+              {/* Auth Required Prompt for Non-Logged-In Users */}
+              {!user && (
+                <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-6 text-center mt-8">
+                  <LogIn className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <h3 className="font-semibold text-lg mb-2 text-foreground">Almost there!</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create a free account or log in to submit your property. 
+                    Your details are saved and will be here when you return.
+                  </p>
+                  <div className="flex gap-3 justify-center flex-wrap">
+                    <Button asChild>
+                      <Link to="/register" state={{ returnTo: "/submit-property" }}>
+                        Create Account
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild>
+                      <Link to="/login" state={{ returnTo: "/submit-property" }}>
+                        Log In
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -839,10 +958,13 @@ export function SellerForm() {
                 Continue
               </Button>
             ) : (
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Submit Property
-              </Button>
+              // Only show submit button if user is logged in
+              user && (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Submit Property
+                </Button>
+              )
             )}
           </div>
         </form>

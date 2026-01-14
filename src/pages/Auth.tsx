@@ -8,22 +8,32 @@ interface AuthPageProps {
   mode: "login" | "register";
 }
 
+interface LocationState {
+  from?: { pathname: string };
+  returnTo?: string;
+}
+
 const Auth = ({ mode }: AuthPageProps) => {
   const { user, loading, hasCompletedQuestionnaire } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || "/";
+  const locationState = location.state as LocationState | null;
+  const returnTo = locationState?.returnTo;
+  const from = locationState?.from?.pathname || "/";
 
   useEffect(() => {
     if (!loading && user) {
-      if (!hasCompletedQuestionnaire) {
+      // If returnTo is specified (e.g., from submit-property), go there directly
+      if (returnTo) {
+        navigate(returnTo);
+      } else if (!hasCompletedQuestionnaire) {
         navigate("/questionnaire");
       } else {
         navigate(from);
       }
     }
-  }, [user, loading, hasCompletedQuestionnaire, navigate, from]);
+  }, [user, loading, hasCompletedQuestionnaire, navigate, returnTo, from]);
 
   if (loading) {
     return null;
@@ -32,7 +42,7 @@ const Auth = ({ mode }: AuthPageProps) => {
   return (
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-        <AuthForm mode={mode} />
+        <AuthForm mode={mode} returnTo={returnTo} />
       </div>
     </Layout>
   );
