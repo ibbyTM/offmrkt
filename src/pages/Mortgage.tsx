@@ -1,20 +1,14 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
-import { Phone, Mail, Building2, ArrowLeft, Shield, Award, Clock, Lock, LogIn, UserPlus, Globe, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { Phone, Building2, ArrowLeft, Shield, Award, Clock, Lock, LogIn, UserPlus, Globe, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useProperty } from "@/hooks/useProperties";
 import { formatPrice } from "@/lib/propertyUtils";
 import { Layout } from "@/components/layout/Layout";
-import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import { MortgageEnquiryDialog } from "@/components/mortgage/MortgageEnquiryDialog";
 
 // Broker details - Vickers Young Commercial Finance
 const MORTGAGE_BROKER = {
@@ -28,23 +22,11 @@ const MORTGAGE_BROKER = {
   responseTime: "24 hours",
 };
 
-type InvestorApplication = Tables<"investor_applications">;
-type Profile = Tables<"profiles">;
-
 export default function Mortgage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const propertyId = searchParams.get("propertyId");
-  const hasTracked = useRef(false);
-  const [investorData, setInvestorData] = useState<InvestorApplication | null>(null);
-  const [profileData, setProfileData] = useState<Profile | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Optional qualification fields
-  const [enquiryType, setEnquiryType] = useState<'purchase' | 'remortgage'>('purchase');
-  const [annualIncome, setAnnualIncome] = useState<string>('');
-  const [isUkResident, setIsUkResident] = useState<boolean>(true);
-  const [prefersRemote, setPrefersRemote] = useState<boolean>(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const { user, loading: authLoading } = useAuth();
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId || "");
@@ -52,191 +34,16 @@ export default function Mortgage() {
   const deposit = property ? Math.round(property.asking_price * 0.25) : 0;
   const mortgageNeeded = property ? property.asking_price - deposit : 0;
 
-  const emailSubject = property 
-    ? `Mortgage Enquiry - ${property.title} (${formatPrice(property.asking_price)})`
-    : "Mortgage Enquiry";
-
-  // Build enriched email body with all data points Paul finds valuable
-  const buildEmailBody = () => {
-    const isFirstTimeBtl = (investorData?.properties_owned ?? 0) === 0;
-    const incomeValue = annualIncome ? parseInt(annualIncome.replace(/[^0-9]/g, '')) : null;
-    
-    const sections = [
-      `Hi Paul,`,
-      ``,
-      `I'm interested in getting a ${enquiryType === 'purchase' ? 'purchase' : 'remortgage/refinance'} mortgage.`,
-      ``,
-    ];
-
-    // Property details
-    if (property) {
-      sections.push(
-        `PROPERTY DETAILS`,
-        `- Address: ${property.property_address}, ${property.property_city} ${property.property_postcode}`,
-        `- Value: ${formatPrice(property.asking_price)}`,
-        `- Type: ${property.property_type || 'Not specified'}`,
-        `- Deposit (25%): ${formatPrice(deposit)}`,
-        `- Mortgage Needed: ${formatPrice(mortgageNeeded)}`,
-        `- Buy-to-Let: ${property.strategies?.includes('btl') ? 'Yes' : 'Assumed Yes (investment property)'}`,
-        ``
-      );
-    }
-
-    // Contact info
-    if (profileData) {
-      sections.push(
-        `MY CONTACT DETAILS`,
-        `- Name: ${profileData.full_name}`,
-        `- Phone: ${profileData.phone || 'Not provided'}`,
-        `- Email: ${profileData.email}`,
-        ``
-      );
-    }
-
-    // Financial position
-    sections.push(`FINANCIAL POSITION`);
-    if (investorData) {
-      sections.push(
-        `- Budget Range: ${formatPrice(investorData.min_budget)} - ${formatPrice(investorData.max_budget)}`,
-        `- Cash Available: ${investorData.cash_available || 'Not specified'}`,
-        `- Already Have AIP: ${investorData.mortgage_approved ? 'Yes' : 'No'}`,
-        `- Funding Source: ${investorData.funding_source || 'Not specified'}`
-      );
-    }
-    if (incomeValue) {
-      sections.push(`- Approximate Annual Income: ${formatPrice(incomeValue)}`);
-    }
-    sections.push(
-      `- UK Resident: ${isUkResident ? 'Yes' : 'No'}`,
-      ``
-    );
-
-    // Experience
-    sections.push(`EXPERIENCE`);
-    if (investorData) {
-      sections.push(
-        `- Properties Currently Owned: ${investorData.properties_owned ?? 0}`,
-        `- First-Time BTL Buyer: ${isFirstTimeBtl ? 'Yes' : 'No'}`,
-        `- Investment Experience: ${investorData.investment_experience || 'Not specified'}`
-      );
-    } else {
-      sections.push(`- First-Time BTL Buyer: Unknown (no investor profile)`);
-    }
-    sections.push(``);
-
-    // Timing/Urgency
-    sections.push(`TIMING & URGENCY`);
-    if (investorData?.purchase_timeline) {
-      const urgencyMap: Record<string, string> = {
-        'immediate': 'Very urgent - ready to move immediately',
-        '0-3_months': 'Urgent - looking to complete within 3 months',
-        '3-6_months': 'Medium - 3-6 month timeframe',
-        '6-12_months': 'Flexible - 6-12 months',
-        '12+_months': 'Long-term planning - 12+ months'
-      };
-      sections.push(`- Timeline: ${investorData.purchase_timeline}`,
-        `- Urgency: ${urgencyMap[investorData.purchase_timeline] || investorData.purchase_timeline}`
-      );
-    }
-    sections.push(``);
-
-    // Preferences
-    sections.push(
-      `PREFERENCES`,
-      `- Open to Online/Remote Service: ${prefersRemote ? 'Yes' : 'No'}`,
-      ``
-    );
-
-    sections.push(
-      `Please get in touch to discuss my options.`,
-      ``,
-      `Thank you`
-    );
-
-    return sections.join('\n');
-  };
-
-  // Track referral when user initiates contact
-  const trackAndContact = async (method: 'call' | 'email') => {
-    if (!user) return;
-    
-    setIsLoading(true);
-    
-    try {
-      // Fetch fresh data if not already loaded
-      let investor = investorData;
-      let profile = profileData;
-      
-      if (!investor || !profile) {
-        const [investorResult, profileResult] = await Promise.all([
-          supabase.from('investor_applications').select('*').eq('user_id', user.id).single(),
-          supabase.from('profiles').select('*').eq('user_id', user.id).single()
-        ]);
-        
-        investor = investorResult.data;
-        profile = profileResult.data;
-        setInvestorData(investor);
-        setProfileData(profile);
-      }
-
-      // Only track once per session
-      if (!hasTracked.current) {
-        hasTracked.current = true;
-        
-        const incomeValue = annualIncome ? parseInt(annualIncome.replace(/[^0-9]/g, '')) : null;
-        const isFirstTimeBtl = (investor?.properties_owned ?? 0) === 0;
-        
-        await supabase.from("mortgage_referrals").insert({
-          property_id: propertyId || null,
-          user_id: user.id,
-          referrer_url: document.referrer || null,
-          // Investor snapshot
-          min_budget: investor?.min_budget || null,
-          max_budget: investor?.max_budget || null,
-          cash_available: investor?.cash_available || null,
-          mortgage_approved: investor?.mortgage_approved || null,
-          funding_source: investor?.funding_source || null,
-          purchase_timeline: investor?.purchase_timeline || null,
-          investment_experience: investor?.investment_experience || null,
-          properties_owned: investor?.properties_owned || null,
-          needs_mortgage_broker: investor?.needs_mortgage_broker || null,
-          // Contact info
-          investor_name: profile?.full_name || null,
-          investor_email: profile?.email || null,
-          investor_phone: profile?.phone || null,
-          // New enhanced fields
-          enquiry_type: enquiryType,
-          annual_income: incomeValue,
-          is_uk_resident: isUkResident,
-          prefers_remote: prefersRemote,
-          is_first_time_btl: isFirstTimeBtl,
-          property_type: property?.property_type || null,
-          property_value: property?.asking_price || null,
-          property_address: property ? `${property.property_address}, ${property.property_city} ${property.property_postcode}` : null,
-        });
-      }
-
-      // Now initiate contact
-      if (method === 'call') {
-        window.location.href = `tel:${MORTGAGE_BROKER.phone.replace(/\s/g, "")}`;
-      } else {
-        const emailBody = buildEmailBody();
-        window.location.href = `mailto:${MORTGAGE_BROKER.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-      }
-    } catch (error) {
-      console.error("Error tracking referral:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleSignIn = () => {
     navigate(`/login?redirect=/mortgage${propertyId ? `?propertyId=${propertyId}` : ''}`);
   };
 
   const handleSignUp = () => {
     navigate(`/register?redirect=/mortgage${propertyId ? `?propertyId=${propertyId}` : ''}`);
+  };
+
+  const handleCallBroker = () => {
+    window.location.href = `tel:${MORTGAGE_BROKER.phone.replace(/\s/g, "")}`;
   };
 
   return (
@@ -386,90 +193,30 @@ export default function Mortgage() {
                   </a>
 
                   <Separator />
-                  
-                  {/* Quick Qualification Form */}
-                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
-                    <p className="text-sm font-medium flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      Quick details (helps Paul find you the best rates)
-                    </p>
-                    
-                    <div className="space-y-3">
-                      <div className="space-y-2">
-                        <Label className="text-sm">Enquiry Type</Label>
-                        <RadioGroup 
-                          value={enquiryType} 
-                          onValueChange={(v) => setEnquiryType(v as 'purchase' | 'remortgage')}
-                          className="flex gap-4"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="purchase" id="purchase" />
-                            <Label htmlFor="purchase" className="text-sm font-normal cursor-pointer">Purchase</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="remortgage" id="remortgage" />
-                            <Label htmlFor="remortgage" className="text-sm font-normal cursor-pointer">Remortgage</Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="income" className="text-sm">Approximate Annual Income (optional)</Label>
-                        <Input 
-                          id="income"
-                          type="text"
-                          placeholder="e.g. £50,000"
-                          value={annualIncome}
-                          onChange={(e) => setAnnualIncome(e.target.value)}
-                          className="bg-background"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="uk-resident" 
-                          checked={isUkResident}
-                          onCheckedChange={(checked) => setIsUkResident(checked === true)}
-                        />
-                        <Label htmlFor="uk-resident" className="text-sm font-normal cursor-pointer">
-                          I am a UK resident
-                        </Label>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Checkbox 
-                          id="remote" 
-                          checked={prefersRemote}
-                          onCheckedChange={(checked) => setPrefersRemote(checked === true)}
-                        />
-                        <Label htmlFor="remote" className="text-sm font-normal cursor-pointer">
-                          Happy with online/remote service
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
 
+                  {/* CTA Buttons */}
                   <div className="space-y-3">
                     <Button 
-                      onClick={() => trackAndContact('call')} 
+                      onClick={() => setDialogOpen(true)} 
                       className="w-full" 
                       size="lg"
-                      disabled={isLoading}
                     >
-                      <Phone className="mr-2 h-5 w-5" />
-                      Call Now
+                      <Send className="mr-2 h-5 w-5" />
+                      Send Enquiry
                     </Button>
                     
-                    <Button 
-                      onClick={() => trackAndContact('email')} 
-                      variant="outline" 
-                      className="w-full" 
-                      size="lg"
-                      disabled={isLoading}
-                    >
-                      <Mail className="mr-2 h-5 w-5" />
-                      Send Email Enquiry
-                    </Button>
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground mb-2">Need to speak urgently?</p>
+                      <Button 
+                        onClick={handleCallBroker} 
+                        variant="outline" 
+                        className="w-full" 
+                        size="lg"
+                      >
+                        <Phone className="mr-2 h-5 w-5" />
+                        Call Paul Now
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -527,6 +274,17 @@ export default function Mortgage() {
           </p>
         </div>
       </div>
+
+      {/* Enquiry Dialog */}
+      {user && (
+        <MortgageEnquiryDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          property={property || null}
+          userId={user.id}
+          brokerPhone={MORTGAGE_BROKER.phone}
+        />
+      )}
     </Layout>
   );
 }
