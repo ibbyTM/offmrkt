@@ -1,5 +1,5 @@
 import { useSearchParams, Link } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Phone, Mail, Building2, ArrowLeft, Shield, Award, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { useProperty } from "@/hooks/useProperties";
 import { formatPrice } from "@/lib/propertyUtils";
 import { Layout } from "@/components/layout/Layout";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
 
 // Broker details - easily configurable
 const MORTGAGE_BROKER = {
@@ -19,14 +20,19 @@ const MORTGAGE_BROKER = {
   credentials: "FCA Regulated | Whole of Market Access",
 };
 
+type InvestorApplication = Tables<"investor_applications">;
+type Profile = Tables<"profiles">;
+
 export default function Mortgage() {
   const [searchParams] = useSearchParams();
   const propertyId = searchParams.get("propertyId");
   const hasTracked = useRef(false);
+  const [investorData, setInvestorData] = useState<InvestorApplication | null>(null);
+  const [profileData, setProfileData] = useState<Profile | null>(null);
   
   const { data: property, isLoading } = useProperty(propertyId || "");
 
-  // Track referral when user visits from a property
+  // Track referral with enriched investor data
   useEffect(() => {
     const trackReferral = async () => {
       if (hasTracked.current) return;
@@ -34,10 +40,48 @@ export default function Mortgage() {
 
       const { data: { user } } = await supabase.auth.getUser();
       
+      let investor: InvestorApplication | null = null;
+      let profile: Profile | null = null;
+      
+      if (user) {
+        // Fetch investor application data
+        const { data: investorResult } = await supabase
+          .from('investor_applications')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        // Fetch profile data
+        const { data: profileResult } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        
+        investor = investorResult;
+        profile = profileResult;
+        setInvestorData(investor);
+        setProfileData(profile);
+      }
+
       await supabase.from("mortgage_referrals").insert({
         property_id: propertyId || null,
         user_id: user?.id || null,
         referrer_url: document.referrer || null,
+        // Investor snapshot
+        min_budget: investor?.min_budget || null,
+        max_budget: investor?.max_budget || null,
+        cash_available: investor?.cash_available || null,
+        mortgage_approved: investor?.mortgage_approved || null,
+        funding_source: investor?.funding_source || null,
+        purchase_timeline: investor?.purchase_timeline || null,
+        investment_experience: investor?.investment_experience || null,
+        properties_owned: investor?.properties_owned || null,
+        needs_mortgage_broker: investor?.needs_mortgage_broker || null,
+        // Contact info
+        investor_name: profile?.full_name || null,
+        investor_email: profile?.email || null,
+        investor_phone: profile?.phone || null,
       });
     };
 
@@ -51,9 +95,39 @@ export default function Mortgage() {
     ? `Mortgage Enquiry - ${property.title} (${formatPrice(property.asking_price)})`
     : "Mortgage Enquiry";
   
-  const emailBody = property
-    ? `Hi ${MORTGAGE_BROKER.name},\n\nI'm interested in getting a mortgage for the following property:\n\n${property.title}\n${property.property_address}, ${property.property_city} ${property.property_postcode}\nAsking Price: ${formatPrice(property.asking_price)}\n\nPlease get in touch to discuss my options.\n\nThank you`
-    : `Hi ${MORTGAGE_BROKER.name},\n\nI'm interested in getting a mortgage for an investment property. Please get in touch to discuss my options.\n\nThank you`;
+  // Build enriched email body with investor details
+  const buildEmailBody = () => {
+    const propertySection = property
+      ? `Property: ${property.title}
+Address: ${property.property_address}, ${property.property_city} ${property.property_postcode}
+Asking Price: ${formatPrice(property.asking_price)}`
+      : "an investment property";
+
+    const investorSection = investorData
+      ? `
+My Investment Profile:
+- Budget Range: ${formatPrice(investorData.min_budget)} - ${formatPrice(investorData.max_budget)}
+- Cash Available: ${investorData.cash_available || "Not specified"}
+- Already Have AIP: ${investorData.mortgage_approved ? "Yes" : "No"}
+- Funding Source: ${investorData.funding_source || "Not specified"}
+- Purchase Timeline: ${investorData.purchase_timeline || "Not specified"}
+- Investment Experience: ${investorData.investment_experience || "Not specified"}
+- Properties Owned: ${investorData.properties_owned ?? 0}`
+      : "";
+
+    return `Hi ${MORTGAGE_BROKER.name},
+
+I'm interested in getting a mortgage for the following:
+
+${propertySection}
+${investorSection}
+
+Please get in touch to discuss my options.
+
+Thank you`;
+  };
+
+  const emailBody = buildEmailBody();
 
   return (
     <Layout>

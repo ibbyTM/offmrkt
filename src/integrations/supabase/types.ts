@@ -254,23 +254,59 @@ export type Database = {
       }
       mortgage_referrals: {
         Row: {
+          cash_available: string | null
           created_at: string
+          funding_source: string | null
           id: string
+          investment_experience: string | null
+          investor_email: string | null
+          investor_name: string | null
+          investor_phone: string | null
+          max_budget: number | null
+          min_budget: number | null
+          mortgage_approved: boolean | null
+          needs_mortgage_broker: boolean | null
+          properties_owned: number | null
           property_id: string | null
+          purchase_timeline: string | null
           referrer_url: string | null
           user_id: string | null
         }
         Insert: {
+          cash_available?: string | null
           created_at?: string
+          funding_source?: string | null
           id?: string
+          investment_experience?: string | null
+          investor_email?: string | null
+          investor_name?: string | null
+          investor_phone?: string | null
+          max_budget?: number | null
+          min_budget?: number | null
+          mortgage_approved?: boolean | null
+          needs_mortgage_broker?: boolean | null
+          properties_owned?: number | null
           property_id?: string | null
+          purchase_timeline?: string | null
           referrer_url?: string | null
           user_id?: string | null
         }
         Update: {
+          cash_available?: string | null
           created_at?: string
+          funding_source?: string | null
           id?: string
+          investment_experience?: string | null
+          investor_email?: string | null
+          investor_name?: string | null
+          investor_phone?: string | null
+          max_budget?: number | null
+          min_budget?: number | null
+          mortgage_approved?: boolean | null
+          needs_mortgage_broker?: boolean | null
+          properties_owned?: number | null
           property_id?: string | null
+          purchase_timeline?: string | null
           referrer_url?: string | null
           user_id?: string | null
         }
