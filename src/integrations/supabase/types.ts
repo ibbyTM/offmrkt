@@ -254,58 +254,82 @@ export type Database = {
       }
       mortgage_referrals: {
         Row: {
+          annual_income: number | null
           cash_available: string | null
           created_at: string
+          enquiry_type: string | null
           funding_source: string | null
           id: string
           investment_experience: string | null
           investor_email: string | null
           investor_name: string | null
           investor_phone: string | null
+          is_first_time_btl: boolean | null
+          is_uk_resident: boolean | null
           max_budget: number | null
           min_budget: number | null
           mortgage_approved: boolean | null
           needs_mortgage_broker: boolean | null
+          prefers_remote: boolean | null
           properties_owned: number | null
+          property_address: string | null
           property_id: string | null
+          property_type: string | null
+          property_value: number | null
           purchase_timeline: string | null
           referrer_url: string | null
           user_id: string | null
         }
         Insert: {
+          annual_income?: number | null
           cash_available?: string | null
           created_at?: string
+          enquiry_type?: string | null
           funding_source?: string | null
           id?: string
           investment_experience?: string | null
           investor_email?: string | null
           investor_name?: string | null
           investor_phone?: string | null
+          is_first_time_btl?: boolean | null
+          is_uk_resident?: boolean | null
           max_budget?: number | null
           min_budget?: number | null
           mortgage_approved?: boolean | null
           needs_mortgage_broker?: boolean | null
+          prefers_remote?: boolean | null
           properties_owned?: number | null
+          property_address?: string | null
           property_id?: string | null
+          property_type?: string | null
+          property_value?: number | null
           purchase_timeline?: string | null
           referrer_url?: string | null
           user_id?: string | null
         }
         Update: {
+          annual_income?: number | null
           cash_available?: string | null
           created_at?: string
+          enquiry_type?: string | null
           funding_source?: string | null
           id?: string
           investment_experience?: string | null
           investor_email?: string | null
           investor_name?: string | null
           investor_phone?: string | null
+          is_first_time_btl?: boolean | null
+          is_uk_resident?: boolean | null
           max_budget?: number | null
           min_budget?: number | null
           mortgage_approved?: boolean | null
           needs_mortgage_broker?: boolean | null
+          prefers_remote?: boolean | null
           properties_owned?: number | null
+          property_address?: string | null
           property_id?: string | null
+          property_type?: string | null
+          property_value?: number | null
           purchase_timeline?: string | null
           referrer_url?: string | null
           user_id?: string | null

@@ -1,9 +1,13 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
-import { Phone, Mail, Building2, ArrowLeft, Shield, Award, Clock, Lock, LogIn, UserPlus } from "lucide-react";
+import { Phone, Mail, Building2, ArrowLeft, Shield, Award, Clock, Lock, LogIn, UserPlus, Globe, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useProperty } from "@/hooks/useProperties";
 import { formatPrice } from "@/lib/propertyUtils";
 import { Layout } from "@/components/layout/Layout";
@@ -12,14 +16,16 @@ import { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-// Broker details - easily configurable
+// Broker details - Vickers Young Commercial Finance
 const MORTGAGE_BROKER = {
-  name: "John Smith",
-  company: "ABC Mortgages Ltd",
-  phone: "+44 7700 900123",
-  email: "john@abcmortgages.com",
-  bio: "Specialist in buy-to-let and investment property mortgages with 15+ years experience. We help investors secure the best rates for their property portfolio.",
+  name: "Paul Kalé",
+  company: "Vickers Young Commercial Finance",
+  phone: "07983 553780",
+  email: "commercial2@vickersyoung.co.uk",
+  website: "vickersyoungcommercialfinance.co.uk",
+  bio: "Specialist in commercial and buy-to-let mortgages. Expert guidance on investment property finance, helping you secure the best rates for your portfolio.",
   credentials: "FCA Regulated | Whole of Market Access",
+  responseTime: "24 hours",
 };
 
 type InvestorApplication = Tables<"investor_applications">;
@@ -34,6 +40,12 @@ export default function Mortgage() {
   const [profileData, setProfileData] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
+  // Optional qualification fields
+  const [enquiryType, setEnquiryType] = useState<'purchase' | 'remortgage'>('purchase');
+  const [annualIncome, setAnnualIncome] = useState<string>('');
+  const [isUkResident, setIsUkResident] = useState<boolean>(true);
+  const [prefersRemote, setPrefersRemote] = useState<boolean>(true);
+  
   const { user, loading: authLoading } = useAuth();
   const { data: property, isLoading: propertyLoading } = useProperty(propertyId || "");
 
@@ -44,36 +56,104 @@ export default function Mortgage() {
     ? `Mortgage Enquiry - ${property.title} (${formatPrice(property.asking_price)})`
     : "Mortgage Enquiry";
 
-  // Build enriched email body with investor details
+  // Build enriched email body with all data points Paul finds valuable
   const buildEmailBody = () => {
-    const propertySection = property
-      ? `Property: ${property.title}
-Address: ${property.property_address}, ${property.property_city} ${property.property_postcode}
-Asking Price: ${formatPrice(property.asking_price)}`
-      : "an investment property";
+    const isFirstTimeBtl = (investorData?.properties_owned ?? 0) === 0;
+    const incomeValue = annualIncome ? parseInt(annualIncome.replace(/[^0-9]/g, '')) : null;
+    
+    const sections = [
+      `Hi Paul,`,
+      ``,
+      `I'm interested in getting a ${enquiryType === 'purchase' ? 'purchase' : 'remortgage/refinance'} mortgage.`,
+      ``,
+    ];
 
-    const investorSection = investorData
-      ? `
-My Investment Profile:
-- Budget Range: ${formatPrice(investorData.min_budget)} - ${formatPrice(investorData.max_budget)}
-- Cash Available: ${investorData.cash_available || "Not specified"}
-- Already Have AIP: ${investorData.mortgage_approved ? "Yes" : "No"}
-- Funding Source: ${investorData.funding_source || "Not specified"}
-- Purchase Timeline: ${investorData.purchase_timeline || "Not specified"}
-- Investment Experience: ${investorData.investment_experience || "Not specified"}
-- Properties Owned: ${investorData.properties_owned ?? 0}`
-      : "";
+    // Property details
+    if (property) {
+      sections.push(
+        `PROPERTY DETAILS`,
+        `- Address: ${property.property_address}, ${property.property_city} ${property.property_postcode}`,
+        `- Value: ${formatPrice(property.asking_price)}`,
+        `- Type: ${property.property_type || 'Not specified'}`,
+        `- Deposit (25%): ${formatPrice(deposit)}`,
+        `- Mortgage Needed: ${formatPrice(mortgageNeeded)}`,
+        `- Buy-to-Let: ${property.strategies?.includes('btl') ? 'Yes' : 'Assumed Yes (investment property)'}`,
+        ``
+      );
+    }
 
-    return `Hi ${MORTGAGE_BROKER.name},
+    // Contact info
+    if (profileData) {
+      sections.push(
+        `MY CONTACT DETAILS`,
+        `- Name: ${profileData.full_name}`,
+        `- Phone: ${profileData.phone || 'Not provided'}`,
+        `- Email: ${profileData.email}`,
+        ``
+      );
+    }
 
-I'm interested in getting a mortgage for the following:
+    // Financial position
+    sections.push(`FINANCIAL POSITION`);
+    if (investorData) {
+      sections.push(
+        `- Budget Range: ${formatPrice(investorData.min_budget)} - ${formatPrice(investorData.max_budget)}`,
+        `- Cash Available: ${investorData.cash_available || 'Not specified'}`,
+        `- Already Have AIP: ${investorData.mortgage_approved ? 'Yes' : 'No'}`,
+        `- Funding Source: ${investorData.funding_source || 'Not specified'}`
+      );
+    }
+    if (incomeValue) {
+      sections.push(`- Approximate Annual Income: ${formatPrice(incomeValue)}`);
+    }
+    sections.push(
+      `- UK Resident: ${isUkResident ? 'Yes' : 'No'}`,
+      ``
+    );
 
-${propertySection}
-${investorSection}
+    // Experience
+    sections.push(`EXPERIENCE`);
+    if (investorData) {
+      sections.push(
+        `- Properties Currently Owned: ${investorData.properties_owned ?? 0}`,
+        `- First-Time BTL Buyer: ${isFirstTimeBtl ? 'Yes' : 'No'}`,
+        `- Investment Experience: ${investorData.investment_experience || 'Not specified'}`
+      );
+    } else {
+      sections.push(`- First-Time BTL Buyer: Unknown (no investor profile)`);
+    }
+    sections.push(``);
 
-Please get in touch to discuss my options.
+    // Timing/Urgency
+    sections.push(`TIMING & URGENCY`);
+    if (investorData?.purchase_timeline) {
+      const urgencyMap: Record<string, string> = {
+        'immediate': 'Very urgent - ready to move immediately',
+        '0-3_months': 'Urgent - looking to complete within 3 months',
+        '3-6_months': 'Medium - 3-6 month timeframe',
+        '6-12_months': 'Flexible - 6-12 months',
+        '12+_months': 'Long-term planning - 12+ months'
+      };
+      sections.push(`- Timeline: ${investorData.purchase_timeline}`,
+        `- Urgency: ${urgencyMap[investorData.purchase_timeline] || investorData.purchase_timeline}`
+      );
+    }
+    sections.push(``);
 
-Thank you`;
+    // Preferences
+    sections.push(
+      `PREFERENCES`,
+      `- Open to Online/Remote Service: ${prefersRemote ? 'Yes' : 'No'}`,
+      ``
+    );
+
+    sections.push(
+      `Please get in touch to discuss my options.`,
+      ``,
+      `Thank you`
+    );
+
+    return sections.join('\n');
   };
 
   // Track referral when user initiates contact
@@ -103,6 +183,9 @@ Thank you`;
       if (!hasTracked.current) {
         hasTracked.current = true;
         
+        const incomeValue = annualIncome ? parseInt(annualIncome.replace(/[^0-9]/g, '')) : null;
+        const isFirstTimeBtl = (investor?.properties_owned ?? 0) === 0;
+        
         await supabase.from("mortgage_referrals").insert({
           property_id: propertyId || null,
           user_id: user.id,
@@ -121,6 +204,15 @@ Thank you`;
           investor_name: profile?.full_name || null,
           investor_email: profile?.email || null,
           investor_phone: profile?.phone || null,
+          // New enhanced fields
+          enquiry_type: enquiryType,
+          annual_income: incomeValue,
+          is_uk_resident: isUkResident,
+          prefers_remote: prefersRemote,
+          is_first_time_btl: isFirstTimeBtl,
+          property_type: property?.property_type || null,
+          property_value: property?.asking_price || null,
+          property_address: property ? `${property.property_address}, ${property.property_city} ${property.property_postcode}` : null,
         });
       }
 
@@ -272,12 +364,90 @@ Thank you`;
                     <p className="text-sm text-muted-foreground mt-2">{MORTGAGE_BROKER.bio}</p>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="h-4 w-4 text-green-600" />
-                    <span>{MORTGAGE_BROKER.credentials}</span>
+                  <div className="flex flex-wrap gap-3 text-sm">
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <Shield className="h-4 w-4 text-green-600" />
+                      <span>{MORTGAGE_BROKER.credentials}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                      <Clock className="h-4 w-4 text-blue-600" />
+                      <span>Responds within {MORTGAGE_BROKER.responseTime}</span>
+                    </div>
                   </div>
+                  
+                  <a 
+                    href={`https://${MORTGAGE_BROKER.website}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-sm text-primary hover:underline"
+                  >
+                    <Globe className="h-4 w-4" />
+                    {MORTGAGE_BROKER.website}
+                  </a>
 
                   <Separator />
+                  
+                  {/* Quick Qualification Form */}
+                  <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
+                    <p className="text-sm font-medium flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      Quick details (helps Paul find you the best rates)
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm">Enquiry Type</Label>
+                        <RadioGroup 
+                          value={enquiryType} 
+                          onValueChange={(v) => setEnquiryType(v as 'purchase' | 'remortgage')}
+                          className="flex gap-4"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="purchase" id="purchase" />
+                            <Label htmlFor="purchase" className="text-sm font-normal cursor-pointer">Purchase</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="remortgage" id="remortgage" />
+                            <Label htmlFor="remortgage" className="text-sm font-normal cursor-pointer">Remortgage</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="income" className="text-sm">Approximate Annual Income (optional)</Label>
+                        <Input 
+                          id="income"
+                          type="text"
+                          placeholder="e.g. £50,000"
+                          value={annualIncome}
+                          onChange={(e) => setAnnualIncome(e.target.value)}
+                          className="bg-background"
+                        />
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="uk-resident" 
+                          checked={isUkResident}
+                          onCheckedChange={(checked) => setIsUkResident(checked === true)}
+                        />
+                        <Label htmlFor="uk-resident" className="text-sm font-normal cursor-pointer">
+                          I am a UK resident
+                        </Label>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="remote" 
+                          checked={prefersRemote}
+                          onCheckedChange={(checked) => setPrefersRemote(checked === true)}
+                        />
+                        <Label htmlFor="remote" className="text-sm font-normal cursor-pointer">
+                          Happy with online/remote service
+                        </Label>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="space-y-3">
                     <Button 
@@ -353,7 +523,7 @@ Thank you`;
           {/* Trust Footer */}
           <p className="text-center text-xs text-muted-foreground mt-8">
             Your home may be repossessed if you do not keep up repayments on your mortgage.
-            {MORTGAGE_BROKER.company} is authorised and regulated by the Financial Conduct Authority.
+            {' '}{MORTGAGE_BROKER.company} is authorised and regulated by the Financial Conduct Authority.
           </p>
         </div>
       </div>
