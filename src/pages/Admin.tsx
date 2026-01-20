@@ -15,15 +15,17 @@ import {
   type SubmissionStatus,
   type SellerSubmission,
 } from "@/hooks/useSellerSubmissions";
+import { useMortgageReferrals } from "@/hooks/useMortgageReferrals";
 import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
 import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
+import { MortgageReferralsTable } from "@/components/admin/MortgageReferralsTable";
 import { InvestorCRMTab } from "@/components/crm/InvestorCRMTab";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Building, ArrowLeft, Clock, UserCog } from "lucide-react";
+import { Loader2, Users, Building, ArrowLeft, Clock, UserCog, Banknote } from "lucide-react";
 
-type AdminSection = 'home' | 'applications' | 'crm' | 'submissions';
+type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads';
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -38,6 +40,9 @@ const Admin = () => {
   const { data: submissions = [], isLoading: isLoadingSubs } = useSellerSubmissions();
   const { mutate: updateSubStatus, isPending: isUpdatingSub } = useUpdateSubmissionStatus();
   const { mutate: convertToListing, isPending: isConverting } = useConvertToListing();
+
+  // Mortgage referrals state
+  const { data: mortgageReferrals = [], isLoading: isLoadingReferrals } = useMortgageReferrals();
 
   const pendingApps = applications.filter((a) => a.status === "pending").length;
   const pendingSubs = submissions.filter((s) => s.admin_status === "pending").length;
@@ -178,6 +183,29 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Mortgage Leads Card */}
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
+              onClick={() => setCurrentSection('mortgage-leads')}
+            >
+              <CardContent className="p-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="p-4 rounded-2xl bg-blue-500/10">
+                      <Banknote className="h-10 w-10 text-blue-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-1">Mortgage Leads</h2>
+                      <p className="text-lg text-muted-foreground">View broker referrals with investor details</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                    {isLoadingReferrals ? '...' : mortgageReferrals.length} leads
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </Layout>
@@ -272,6 +300,23 @@ const Admin = () => {
               isUpdating={isUpdatingSub}
               isConverting={isConverting}
             />
+          </div>
+        )}
+
+        {/* Mortgage Leads Section */}
+        {currentSection === 'mortgage-leads' && (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold flex items-center gap-3">
+                <Banknote className="h-8 w-8 text-blue-500" />
+                Mortgage Leads
+              </h1>
+              <p className="text-lg text-muted-foreground mt-1">
+                All referrals sent to your mortgage broker
+              </p>
+            </div>
+
+            <MortgageReferralsTable />
           </div>
         )}
       </div>
