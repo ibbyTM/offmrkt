@@ -24,18 +24,32 @@ interface MetricRow {
   highlightBest?: "highest" | "lowest";
 }
 
+// Helper function to calculate gross yield dynamically
+function calculateGrossYield(p: Property): number | null {
+  const monthlyRent = p.estimated_rental_income || p.current_rental_income || 0;
+  const annualRent = monthlyRent * 12;
+  if (p.asking_price > 0 && annualRent > 0) {
+    return (annualRent / p.asking_price) * 100;
+  }
+  return null;
+}
+
 const metricRows: MetricRow[] = [
   { label: "Asking Price", getValue: (p) => p.asking_price, format: "currency", highlightBest: "lowest" },
   { label: "Deposit Required", getValue: (p) => p.deposit_required, format: "currency", highlightBest: "lowest" },
   { label: "Refurb Cost", getValue: (p) => p.refurb_cost, format: "currency", highlightBest: "lowest" },
   { label: "End Value (GDV)", getValue: (p) => p.end_value_gdv, format: "currency", highlightBest: "highest" },
-  { label: "Gross Yield", getValue: (p) => p.gross_yield_percentage, format: "percentage", highlightBest: "highest" },
+  { label: "Gross Yield", getValue: (p) => p.gross_yield_percentage || calculateGrossYield(p), format: "percentage", highlightBest: "highest" },
   { label: "ROCE", getValue: (p) => p.roce_percentage, format: "percentage", highlightBest: "highest" },
   { label: "Cash ROI", getValue: (p) => p.cash_roi_percentage, format: "percentage", highlightBest: "highest" },
   { label: "Leveraged ROI", getValue: (p) => p.leveraged_roi_percentage, format: "percentage", highlightBest: "highest" },
   { label: "Market Discount", getValue: (p) => p.market_discount_percentage, format: "percentage", highlightBest: "highest" },
   { label: "Monthly Rent", getValue: (p) => p.estimated_rental_income, format: "currency", highlightBest: "highest" },
-  { label: "Annual Rent", getValue: (p) => p.current_rental_income, format: "currency", highlightBest: "highest" },
+  { label: "Current Monthly Rent", getValue: (p) => p.current_rental_income, format: "currency", highlightBest: "highest" },
+  { label: "Annual Rent", getValue: (p) => {
+    const monthlyRent = p.estimated_rental_income || p.current_rental_income || 0;
+    return monthlyRent > 0 ? monthlyRent * 12 : null;
+  }, format: "currency", highlightBest: "highest" },
   { label: "Bedrooms", getValue: (p) => p.bedrooms, format: "number" },
   { label: "Bathrooms", getValue: (p) => p.bathrooms, format: "number" },
   { label: "Square Feet", getValue: (p) => p.square_feet, format: "number" },

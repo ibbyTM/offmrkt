@@ -35,6 +35,16 @@ export function FeaturedPropertyCard() {
 
   const mainImage = property.photo_urls?.[0];
 
+  // Calculate gross yield dynamically if not stored
+  // Both fields are stored as MONTHLY rent, so always multiply by 12
+  // Prioritize estimated_rental_income as per user preference
+  const monthlyRent = property.estimated_rental_income || property.current_rental_income || 0;
+  const annualRent = monthlyRent * 12;
+  const calculatedGrossYield = property.asking_price > 0 && annualRent > 0
+    ? (annualRent / property.asking_price) * 100
+    : null;
+  const grossYield = property.gross_yield_percentage || calculatedGrossYield;
+
   return (
     <div className="relative max-w-sm">
       {/* Featured label */}
@@ -107,7 +117,7 @@ export function FeaturedPropertyCard() {
                 <div>
                   <span className="text-xs text-muted-foreground block">Gross Yield</span>
                   <span className="font-bold text-primary text-base">
-                    {formatYield(property.gross_yield_percentage)}
+                    {formatYield(grossYield)}
                   </span>
                 </div>
               </div>
