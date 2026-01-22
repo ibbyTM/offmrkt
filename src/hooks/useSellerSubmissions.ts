@@ -103,13 +103,8 @@ export const useConvertToListing = () => {
 
       if (propertyError) throw propertyError;
 
-      // Update submission status to listed
-      const { error: updateError } = await supabase
-        .from("seller_submissions")
-        .update({ admin_status: "listed" })
-        .eq("id", submission.id);
-
-      if (updateError) throw updateError;
+      // Note: The database trigger 'trigger_auto_list_on_property_insert' 
+      // automatically sets admin_status = 'listed' when property is created
 
       return property;
     },
