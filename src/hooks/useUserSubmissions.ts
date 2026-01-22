@@ -41,6 +41,7 @@ export function useUserSubmissions() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user-submissions"] });
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
       toast.success("Property submission updated successfully");
     },
     onError: (error) => {

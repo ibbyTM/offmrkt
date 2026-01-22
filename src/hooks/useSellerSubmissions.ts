@@ -93,6 +93,8 @@ export const useConvertToListing = () => {
           has_eicr: submission.has_eicr,
           has_floor_plans: submission.has_floor_plans,
           photo_urls: submission.photo_urls,
+          current_rental_income: submission.current_monthly_rent,
+          estimated_rental_income: submission.estimated_monthly_rent,
           listing_status: "available",
           submission_id: submission.id,
         })
