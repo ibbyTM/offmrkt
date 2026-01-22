@@ -8,6 +8,22 @@ interface FinancialStatsGridProps {
 export default function FinancialStatsGrid({ property }: FinancialStatsGridProps) {
   const annualRent = (property.estimated_rental_income || property.current_rental_income || 0) * 12;
   
+  // Auto-calculate leveraged ROCE
+  const deposit = property.deposit_required || Math.round(property.asking_price * 0.25);
+  const refurbCost = property.refurb_cost || 0;
+  const totalCashInvested = deposit + refurbCost;
+  
+  // Calculate net cashflow with mortgage assumptions
+  const estimatedCosts = Math.round(annualRent * 0.25); // 25% running costs
+  const mortgageAmount = property.asking_price * 0.75;
+  const mortgageInterest = mortgageAmount * 0.055; // 5.5% interest rate
+  const netCashflow = annualRent - estimatedCosts - mortgageInterest;
+  
+  // Leveraged ROCE: Net cashflow / Total cash invested (deposit + refurb)
+  const calculatedROCE = totalCashInvested > 0 && annualRent > 0
+    ? (netCashflow / totalCashInvested) * 100
+    : 0;
+  
   const stats = [
     {
       icon: PoundSterling,
@@ -44,10 +60,10 @@ export default function FinancialStatsGrid({ property }: FinancialStatsGridProps
       label: "ROCE",
       value: property.roce_percentage 
         ? `${(property.roce_percentage / 100).toFixed(1)}%`
-        : property.leveraged_roi_percentage 
-          ? `${(property.leveraged_roi_percentage / 100).toFixed(1)}%`
+        : calculatedROCE !== 0 
+          ? `${calculatedROCE.toFixed(1)}%`
           : "—",
-      sublabel: "Return on Capital",
+      sublabel: "Leveraged (75% LTV)",
     },
     {
       icon: Percent,
