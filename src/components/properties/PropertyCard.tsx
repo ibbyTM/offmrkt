@@ -23,8 +23,10 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   const strategies = property.strategies || [];
 
   // Calculate gross yield dynamically if not stored
-  const annualRent = property.current_rental_income || 
-    (property.estimated_rental_income ? property.estimated_rental_income * 12 : 0);
+  // Both fields are stored as MONTHLY rent, so always multiply by 12
+  // Prioritize estimated_rental_income as per user preference
+  const monthlyRent = property.estimated_rental_income || property.current_rental_income || 0;
+  const annualRent = monthlyRent * 12;
   const calculatedGrossYield = property.asking_price > 0 && annualRent > 0
     ? (annualRent / property.asking_price) * 100
     : null;
