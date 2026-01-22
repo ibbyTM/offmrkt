@@ -20,10 +20,10 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect logged-in users to dashboard
+  // Redirect logged-in users to properties
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      navigate("/properties");
     }
   }, [user, loading, navigate]);
 
