@@ -22,6 +22,14 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   const mainImage = property.photo_urls?.[0];
   const strategies = property.strategies || [];
 
+  // Calculate gross yield dynamically if not stored
+  const annualRent = property.current_rental_income || 
+    (property.estimated_rental_income ? property.estimated_rental_income * 12 : 0);
+  const calculatedGrossYield = property.asking_price > 0 && annualRent > 0
+    ? (annualRent / property.asking_price) * 100
+    : null;
+  const grossYield = property.gross_yield_percentage || calculatedGrossYield;
+
   return (
     <Link to={`/properties/${property.id}`}>
       <Card className="group overflow-hidden border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300">
@@ -121,7 +129,7 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
               <span>Gross Yield</span>
             </div>
             <span className="font-semibold text-primary">
-              {formatYield(property.gross_yield_percentage)}
+              {formatYield(grossYield)}
             </span>
           </div>
         </CardFooter>
