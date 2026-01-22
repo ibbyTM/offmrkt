@@ -1,5 +1,11 @@
-import { PoundSterling, Hammer, TrendingUp, Home, BarChart3, Percent } from "lucide-react";
+import { PoundSterling, Hammer, TrendingUp, Home, BarChart3, Percent, Info } from "lucide-react";
 import { Property, formatPrice } from "@/lib/propertyUtils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface FinancialStatsGridProps {
   property: Property;
@@ -58,6 +64,7 @@ export default function FinancialStatsGrid({ property }: FinancialStatsGridProps
           ? `${calculatedROCE.toFixed(1)}%`
           : "—",
       sublabel: "Leveraged (75% LTV)",
+      tooltip: "Return on Capital Employed: Annual Rent ÷ (Deposit + Refurb Costs)",
     },
     {
       icon: Percent,
@@ -70,26 +77,38 @@ export default function FinancialStatsGrid({ property }: FinancialStatsGridProps
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {stats.map((stat) => (
-        <div
-          key={stat.label}
-          className="bg-card border border-border rounded-xl p-4 text-center hover:shadow-md transition-shadow"
-        >
-          <div className="flex justify-center mb-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <stat.icon className="h-5 w-5 text-primary" />
+    <TooltipProvider>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className="bg-card border border-border rounded-xl p-4 text-center hover:shadow-md transition-shadow"
+          >
+            <div className="flex justify-center mb-2">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <stat.icon className="h-5 w-5 text-primary" />
+              </div>
             </div>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide flex items-center justify-center gap-1">
+              {stat.label}
+              {stat.tooltip && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3 w-3 cursor-help text-muted-foreground/70 hover:text-primary transition-colors" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-[200px] text-xs">{stat.tooltip}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </p>
+            <p className="text-lg font-bold text-foreground mt-1">{stat.value}</p>
+            {stat.sublabel && (
+              <p className="text-xs text-muted-foreground mt-0.5">{stat.sublabel}</p>
+            )}
           </div>
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-            {stat.label}
-          </p>
-          <p className="text-lg font-bold text-foreground mt-1">{stat.value}</p>
-          {stat.sublabel && (
-            <p className="text-xs text-muted-foreground mt-0.5">{stat.sublabel}</p>
-          )}
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </TooltipProvider>
   );
 }
