@@ -54,7 +54,7 @@ export const formatPrice = (price: number): string => {
 
 export const formatYield = (percentage: number | null): string => {
   if (percentage === null) return "—";
-  return `${(percentage / 100).toFixed(1)}%`;
+  return `${percentage.toFixed(1)}%`;
 };
 
 /**
