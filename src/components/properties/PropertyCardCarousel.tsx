@@ -8,8 +8,35 @@ interface PropertyCardCarouselProps {
 
 export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const hasMultipleImages = images.length > 1;
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && hasMultipleImages) {
+      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+    if (isRightSwipe && hasMultipleImages) {
+      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
+  };
 
   const goToPrevious = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,7 +66,12 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
   }
 
   return (
-    <>
+    <div
+      className="w-full h-full relative"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       {/* Current Image */}
       <img
         src={images[currentIndex]}
@@ -87,6 +119,6 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
           )}
         </div>
       )}
-    </>
+    </div>
   );
 }
