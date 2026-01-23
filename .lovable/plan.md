@@ -1,162 +1,166 @@
 
 
-## Add Functional Dropdown Menu to Property Cards
+## Interactive Image Carousel for Property Cards
 
 ### Overview
-Replace the placeholder 3-dot options button with a fully functional dropdown menu providing quick actions: Save Property, Share, and Report.
+Transform the static carousel dots on property cards into fully interactive controls, allowing users to browse property images directly from the card without navigating to the detail page.
 
-### Menu Actions
+### Current State vs Proposed
 
-| Action | Description | Behavior |
-|--------|-------------|----------|
-| **Save Property** | Add/remove from favorites | Toggle save state, requires login |
-| **Share** | Copy property link | Copy URL to clipboard |
-| **Report** | Flag listing issue | Show toast (placeholder for future) |
+| Current | Proposed |
+|---------|----------|
+| Static dots (always shows first highlighted) | Clickable dots that switch images |
+| Only first image displayed | All images accessible via carousel |
+| No navigation arrows | Hover-reveal prev/next arrows |
+| Click anywhere goes to detail page | Carousel controls don't trigger navigation |
 
 ### Visual Design
 
 ```text
-┌─────────────────────────────────┐
-│ [☐]              [●●●○○]   [⋮] │ ← Click triggers dropdown
-│        [Property Image]        │
-│                                │
-└────────────────────────────────┘
-                              ┌─────────────────┐
-                              │ ♡ Save Property │
-                              │ 🔗 Share        │
-                              │ ⚑ Report        │
-                              └─────────────────┘
+┌─────────────────────────────────────┐
+│ [☐]                            [⋮] │
+│                                     │
+│  [◀]    [Property Image]     [▶]   │  ← Arrows appear on hover
+│                                     │
+│            [●○○○○]                  │  ← Clickable dots
+└─────────────────────────────────────┘
 ```
 
 ### Technical Implementation
 
-#### 1. Create Reusable Hook for Save Functionality
+#### 1. Create PropertyCardCarousel Component
 
-**File:** `src/hooks/useSaveProperty.ts` (NEW)
+**File:** `src/components/properties/PropertyCardCarousel.tsx` (NEW)
 
-Extract the save/unsave logic from PropertyCTAs into a reusable hook so it can be shared between the card dropdown and the detail page.
-
-```typescript
-export function useSaveProperty(propertyId: string) {
-  const { user } = useAuth();
-  const [isSaved, setIsSaved] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Check if saved on mount
-  useEffect(() => { /* query saved_properties */ }, [user, propertyId]);
-
-  const toggleSave = async () => {
-    // Insert or delete from saved_properties
-    // Show appropriate toast
-  };
-
-  return { isSaved, isLoading, toggleSave };
-}
-```
-
-#### 2. Create PropertyCardMenu Component
-
-**File:** `src/components/properties/PropertyCardMenu.tsx` (NEW)
-
-A self-contained dropdown menu component for property cards:
+A self-contained image carousel component for property cards:
 
 ```typescript
-interface PropertyCardMenuProps {
-  property: Property;
+interface PropertyCardCarouselProps {
+  images: string[];
+  alt: string;
 }
 
-export function PropertyCardMenu({ property }: PropertyCardMenuProps) {
-  const { isSaved, isLoading, toggleSave } = useSaveProperty(property.id);
-
-  const handleShare = () => {
-    const url = `${window.location.origin}/properties/${property.id}`;
-    navigator.clipboard.writeText(url);
-    toast.success("Link copied to clipboard!");
+export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
   };
-
-  const handleReport = () => {
-    toast.info("Thank you for your feedback. We'll review this listing.");
+  
+  const goToPrevious = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
-
+  
+  const goToNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+  
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="...">
-          <MoreVertical />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 bg-popover">
-        <DropdownMenuItem onClick={toggleSave}>
-          <Heart className={isSaved ? "fill-current text-red-500" : ""} />
-          {isSaved ? "Remove from Saved" : "Save Property"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleShare}>
-          <Share2 />
-          Share
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleReport}>
-          <Flag />
-          Report Listing
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      {/* Current Image */}
+      <img src={images[currentIndex]} alt={alt} className="..." />
+      
+      {/* Navigation Arrows (visible on hover) */}
+      {images.length > 1 && (
+        <>
+          <button onClick={goToPrevious} className="...">
+            <ChevronLeft />
+          </button>
+          <button onClick={goToNext} className="...">
+            <ChevronRight />
+          </button>
+        </>
+      )}
+      
+      {/* Clickable Dots */}
+      {images.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+          {images.slice(0, 5).map((_, i) => (
+            <button
+              key={i}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                goToSlide(i);
+              }}
+              className={`h-2 w-2 rounded-full ${
+                i === currentIndex ? "bg-white" : "bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 ```
 
-#### 3. Update PropertyCard.tsx
+**Key Features:**
+- `useState` for tracking current image index
+- `e.preventDefault()` and `e.stopPropagation()` on all controls to prevent card navigation
+- Left/right arrows visible on hover (using group-hover)
+- Dots clickable to jump to specific images
+- Loops around at the ends for seamless navigation
+- Limits visible dots to 5 (with +N indicator for more)
 
-Replace the placeholder button with the new `PropertyCardMenu` component:
+#### 2. Update PropertyCard.tsx
+
+Replace the static image and dots with the new carousel component:
 
 ```tsx
-// Before (lines 77-86)
-<button onClick={(e) => { e.preventDefault(); }}>
-  <MoreVertical />
-</button>
-
-// After
-<PropertyCardMenu property={property} />
+// Replace lines 39-74 with:
+<PropertyCardCarousel 
+  images={property.photo_urls || []}
+  alt={property.title}
+/>
 ```
 
-#### 4. Update PropertyCTAs to Use Shared Hook
+The carousel component will handle:
+- Displaying the current image
+- Navigation arrows (hover-reveal)
+- Clickable dots indicator
+- Fallback for no images (Building icon)
 
-Refactor `PropertyCTAs.tsx` to use the new `useSaveProperty` hook instead of inline state management, ensuring consistency across the app.
+#### 3. Update FeaturedPropertiesSection.tsx
+
+Apply the same carousel component to the featured property cards on the landing page for consistency.
 
 ### File Changes Summary
 
 | File | Change |
 |------|--------|
-| `src/hooks/useSaveProperty.ts` | NEW - Reusable hook for save/unsave functionality |
-| `src/components/properties/PropertyCardMenu.tsx` | NEW - Dropdown menu component |
-| `src/components/properties/PropertyCard.tsx` | Import and use PropertyCardMenu |
-| `src/components/property-detail/PropertyCTAs.tsx` | Refactor to use useSaveProperty hook |
+| `src/components/properties/PropertyCardCarousel.tsx` | NEW - Interactive carousel component |
+| `src/components/properties/PropertyCard.tsx` | Use PropertyCardCarousel component |
+| `src/components/landing/FeaturedPropertiesSection.tsx` | Use PropertyCardCarousel component |
 
-### Event Handling
+### User Experience Details
 
-The dropdown must prevent the card's Link navigation when clicked:
-- Use `e.preventDefault()` and `e.stopPropagation()` on menu trigger
-- The Radix DropdownMenu handles this automatically for menu items
+**Navigation Arrows:**
+- Appear on hover (opacity-0 to opacity-100 transition)
+- Positioned at left/right edges of the image
+- Semi-transparent background for visibility over any image
+- Prevent card click when clicked
 
-### Dropdown Styling
+**Clickable Dots:**
+- Active dot: solid white
+- Inactive dots: semi-transparent white (50%)
+- Maximum 5 dots shown, with "+N" text if more images exist
+- Clicking a dot jumps directly to that image
+- Smooth transition between images
 
-Following the existing dropdown pattern from `src/components/ui/dropdown-menu.tsx`:
-- Solid background (`bg-popover`) for visibility
-- High z-index to overlay the card
-- Proper dark mode support with `text-popover-foreground`
-- Smooth animations on open/close
-
-### User Experience
-
-| User State | Save Action |
-|------------|-------------|
-| Logged in | Toggle save state immediately |
-| Not logged in | Show toast prompting to log in |
+**Interaction Boundaries:**
+- Clicking arrows or dots does NOT navigate to property detail
+- Clicking anywhere else on the card still navigates as expected
+- Keyboard navigation not required for cards (available on detail page)
 
 ### Result
 
-- Users can quickly save properties without navigating to the detail page
-- Easy sharing via clipboard copy
-- Report option for flagging issues (placeholder for future moderation system)
-- Consistent save state across cards and detail pages via shared hook
+- Users can preview all property images directly from the grid view
+- Reduces friction for quick property browsing
+- Matches modern property portal UX patterns
+- Consistent behavior across all property cards (main grid + featured)
 
