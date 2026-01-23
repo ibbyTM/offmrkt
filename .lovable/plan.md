@@ -1,75 +1,71 @@
 
-## Reverse Rental Priority: Current Rent First, Then Estimated/Market Rent
+## Streamline Admin Workflow: Approve = Automatically List
 
-### Issue
-Currently, all yield calculations prioritize `estimated_rental_income` over `current_rental_income`. The user wants the opposite:
+### Current Workflow (2 Steps)
+1. Admin clicks "Approve" → Status changes to "approved"
+2. Admin must then click "Add to Listings" → Property is created and status becomes "listed"
 
-1. **Primary**: Use `current_rental_income` (actual rent being collected)
-2. **Fallback**: Use `estimated_rental_income` (market rent estimate) only if current rent is not available
+### New Workflow (1 Step)
+1. Admin clicks "Approve" → Property is created automatically and status becomes "listed"
 
-### Files to Update
+### Implementation Approach
 
-| File | Current Logic | New Logic |
-|------|---------------|-----------|
-| `PropertyCard.tsx` | `estimated \|\| current` | `current \|\| estimated` |
-| `FeaturedPropertyCard.tsx` | `estimated \|\| current` | `current \|\| estimated` |
-| `ComparisonTable.tsx` | `estimated \|\| current` | `current \|\| estimated` |
-| `FinancialStatsGrid.tsx` | `estimated \|\| current` | `current \|\| estimated` |
-| `MortgageCalculatorSection.tsx` | `estimated \|\| 0` (missing fallback) | `current \|\| estimated \|\| 0` |
+There are two options:
+1. **Option A (Client-side)**: Modify the approve button handlers to call the `convertToListing` mutation instead of `updateSubmissionStatus`
+2. **Option B (Database trigger)**: Create a database trigger that automatically creates a listing when status changes to "approved"
 
-### Code Changes
+**Recommended: Option A (Client-side)** - Simpler, easier to maintain, and allows for clearer user feedback.
 
-**1. PropertyCard.tsx (Line 28)**
+---
+
+### Files to Modify
+
+#### 1. `src/components/admin/SubmissionsTable.tsx`
+
+**Current behavior (lines 205-221):**
+The "Approve" button calls `onUpdateStatus(submission.id, "approved")`
+
+**New behavior:**
+The "Approve" button should call `onConvertToListing(submission)` directly, which creates the listing and triggers the database trigger to set status to "listed".
+
 ```typescript
-// Before
-const monthlyRent = property.estimated_rental_income || property.current_rental_income || 0;
+// Change line 210 from:
+onClick={() => onUpdateStatus(submission.id, "approved")}
 
-// After
-const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
+// To:
+onClick={() => onConvertToListing(submission)}
 ```
 
-**2. FeaturedPropertyCard.tsx (Line 41)**
-```typescript
-// Before
-const monthlyRent = property.estimated_rental_income || property.current_rental_income || 0;
+Also update button text and loading state to reflect the combined action.
 
-// After
-const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
-```
+#### 2. `src/components/admin/SubmissionDetailDialog.tsx`
 
-**3. ComparisonTable.tsx (Line 29)**
-```typescript
-// Before
-const monthlyRent = p.estimated_rental_income || p.current_rental_income || 0;
+**Current behavior (lines 351-360):**
+Shows an "Approve" button that sets status to "approved", then separately shows "Create Listing" button for approved submissions.
 
-// After
-const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
-```
+**New behavior:**
+The "Approve" button should directly create the listing. Remove the intermediate "approved" state UI.
 
-**4. FinancialStatsGrid.tsx (Line 15)**
-```typescript
-// Before
-const annualRent = (property.estimated_rental_income || property.current_rental_income || 0) * 12;
+---
 
-// After
-const annualRent = (property.current_rental_income || property.estimated_rental_income || 0) * 12;
-```
+### Summary of Changes
 
-**5. MortgageCalculatorSection.tsx (Line 52)**
-```typescript
-// Before - also missing fallback to current rent
-const monthlyRent = p.estimated_rental_income || 0;
+| File | Change |
+|------|--------|
+| `SubmissionsTable.tsx` | Change "Approve" button to call `onConvertToListing` instead of `onUpdateStatus("approved")` |
+| `SubmissionsTable.tsx` | Update button text from "Approve" to "Approve & List" |
+| `SubmissionsTable.tsx` | Update loading state to use `isConverting` |
+| `SubmissionsTable.tsx` | Remove the separate "Add to Listings" button for approved status |
+| `SubmissionDetailDialog.tsx` | Same changes for the detail dialog approve button |
+| `SubmissionDetailDialog.tsx` | Remove the separate "Create Listing" button |
 
-// After
-const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
-```
+### Expected Result
 
-### Summary
+| Before | After |
+|--------|-------|
+| Pending → Approve → Approved → Add to Listings → Listed | Pending → Approve & List → Listed |
+| 2 clicks to publish | 1 click to publish |
+| "approved" status exists as intermediate state | Submissions go directly from pending to listed |
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| Priority | Estimated (market) rent first | Current (actual) rent first |
-| Fallback | Current rent | Estimated/market rent |
-| Files changed | 5 components | 5 components |
-
-This ensures that if a property has actual tenants paying rent, that real data is used for yield calculations. The estimated market rent is only used for vacant properties or those without current rent data.
+### What About Rejected Submissions?
+The reject flow remains unchanged - admin can still reject submissions that shouldn't be listed.
