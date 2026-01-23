@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, TrendingUp, Building, ArrowRight } from "lucide-react";
+import { MapPin, Bed, Bath, TrendingUp, Building, ArrowRight, Camera } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,9 +19,9 @@ export function FeaturedPropertyCard() {
   if (isLoading) {
     return (
       <Card className="overflow-hidden border-2 border-primary/30 shadow-xl max-w-sm">
-        <Skeleton className="aspect-video w-full" />
+        <Skeleton className="aspect-[4/3] w-full" />
+        <Skeleton className="h-10 w-full" />
         <CardContent className="p-4">
-          <Skeleton className="h-5 w-3/4 mb-2" />
           <Skeleton className="h-4 w-1/2 mb-3" />
           <Skeleton className="h-4 w-full" />
         </CardContent>
@@ -34,6 +34,7 @@ export function FeaturedPropertyCard() {
   }
 
   const mainImage = property.photo_urls?.[0];
+  const photoCount = property.photo_urls?.length || 0;
 
   // Calculate gross yield dynamically if not stored
   // Both fields are stored as MONTHLY rent, so always multiply by 12
@@ -57,7 +58,7 @@ export function FeaturedPropertyCard() {
       <Link to={`/properties/${property.id}`}>
         <Card className="group overflow-hidden border-2 border-primary/25 shadow-xl hover:shadow-[0_20px_40px_-12px_hsl(var(--primary)/0.25)] hover:border-primary/40 transition-all duration-500 bg-card">
           {/* Image */}
-          <div className="relative aspect-video overflow-hidden bg-muted">
+          <div className="relative aspect-[4/3] overflow-hidden bg-muted">
             {mainImage ? (
               <img
                 src={mainImage}
@@ -65,29 +66,32 @@ export function FeaturedPropertyCard() {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent to-accent/50">
+              <div className="w-full h-full flex items-center justify-center bg-accent">
                 <Building className="h-12 w-12 text-primary/40" />
               </div>
             )}
             
-            {/* Price overlay with gradient */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-4">
-              <span className="text-2xl font-bold text-white drop-shadow-lg">
-                {formatPrice(property.asking_price)}
-              </span>
-            </div>
+            {/* Photo count indicator */}
+            {photoCount > 0 && (
+              <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm text-white text-xs font-medium px-2 py-1 rounded-md">
+                <Camera className="h-3.5 w-3.5" />
+                <span>1/{photoCount}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Price bar */}
+          <div className="bg-primary px-4 py-2.5">
+            <span className="text-lg font-bold text-primary-foreground">
+              {formatPrice(property.asking_price)}
+            </span>
           </div>
 
           <CardContent className="p-4">
-            {/* Title */}
-            <h3 className="font-bold text-lg text-foreground mb-1.5 group-hover:text-primary transition-colors line-clamp-1">
-              {property.title}
-            </h3>
-
             {/* Location */}
             <div className="flex items-center gap-1.5 text-muted-foreground mb-3">
               <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/70" />
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium line-clamp-1">
                 {property.property_city}, {property.property_postcode}
               </span>
             </div>
@@ -121,7 +125,7 @@ export function FeaturedPropertyCard() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5 text-primary font-semibold group-hover:gap-2.5 transition-all">
+              <div className="flex items-center gap-1.5 text-primary font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="text-sm">View Deal</span>
                 <ArrowRight className="h-4 w-4" />
               </div>
