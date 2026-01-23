@@ -1,41 +1,80 @@
 
 
-## Clean Up Duplicate Properties
+## Fix React Ref Forwarding Warnings
 
-### Current State
-Found 5 duplicate property entries that need to be removed:
+### Problem
+Two components are causing React console warnings because they don't support ref forwarding:
+1. `Badge` - used extensively throughout the app
+2. `CompareCheckbox` - used in property cards
 
-| Submission | Property to Keep | Duplicates to Delete |
-|------------|-----------------|---------------------|
-| 4 Bed HMO in Thornaby | `db609650...` (Jan 14) | `ecff8308...` (Jan 23), `d70c95a2...` (Jan 23) |
-| 5 Bed Detached in Manchester | `afa2a421...` (Jan 22) | `e7f7f2a4...` (Jan 23) |
+These warnings appear on the Properties page whenever property cards are rendered.
 
-### Action Required
+### Solution
+Update both components to use `React.forwardRef()` so they can properly receive and forward refs.
 
-Since this is a data deletion operation, you'll need to run this SQL in Cloud View:
+---
 
-1. Go to **Cloud View** → **Run SQL**
-2. Execute the following query:
+### Files to Modify
 
-```sql
--- Delete duplicate properties, keeping the oldest one per submission_id
-DELETE FROM properties 
-WHERE id IN (
-  'ecff8308-87e7-461f-a3ec-bd33b2975be2',
-  'd70c95a2-6feb-4313-b961-0724e3cd053b',
-  'e7f7f2a4-ea67-4c93-a5fc-6d1091fd4950'
-);
+#### 1. `src/components/ui/badge.tsx`
+
+**Current code:**
+```typescript
+function Badge({ className, variant, ...props }: BadgeProps) {
+  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
+}
 ```
 
+**Updated code:**
+```typescript
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
+  ({ className, variant, ...props }, ref) => {
+    return <div ref={ref} className={cn(badgeVariants({ variant }), className)} {...props} />;
+  }
+);
+Badge.displayName = "Badge";
+```
+
+#### 2. `src/components/comparison/CompareCheckbox.tsx`
+
+**Current code:**
+```typescript
+export function CompareCheckbox({ propertyId, className }: CompareCheckboxProps) {
+  // ...component logic
+  return (
+    <button onClick={handleClick} disabled={disabled} className={...}>
+      {/* button content */}
+    </button>
+  );
+}
+```
+
+**Updated code:**
+```typescript
+export const CompareCheckbox = React.forwardRef<HTMLButtonElement, CompareCheckboxProps>(
+  ({ propertyId, className }, ref) => {
+    // ...same component logic
+    return (
+      <button ref={ref} onClick={handleClick} disabled={disabled} className={...}>
+        {/* button content */}
+      </button>
+    );
+  }
+);
+CompareCheckbox.displayName = "CompareCheckbox";
+```
+
+---
+
+### Summary of Changes
+
+| File | Change |
+|------|--------|
+| `badge.tsx` | Wrap component in `React.forwardRef` and pass `ref` to the `<div>` |
+| `CompareCheckbox.tsx` | Wrap component in `React.forwardRef` and pass `ref` to the `<button>` |
+
 ### Result
-- **3 duplicate rows will be deleted**
-- **2 original properties will remain** (one per submission)
-- Database integrity restored
-
-### How to Access
-Click the button below to open Cloud View where you can run the SQL:
-
-<lov-actions>
-<lov-open-backend>Open Cloud View</lov-open-backend>
-</lov-actions>
+- Console warnings will be eliminated
+- Components will work correctly with any parent that needs to pass refs
+- No visual or functional changes to the UI
 
