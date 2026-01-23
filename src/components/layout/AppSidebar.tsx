@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, Building2, Users, Settings, HelpCircle 
+  LayoutDashboard, Building2, Scale, Plus, 
+  Settings, HelpCircle, Shield
 } from "lucide-react";
 import {
   Sidebar,
@@ -16,29 +17,27 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { PropertyFiltersPanel, PropertyFilters } from "./PropertyFilters";
+import { Badge } from "@/components/ui/badge";
+import { useComparison } from "@/contexts/ComparisonContext";
+import { useIsAdmin } from "@/hooks/useAdminApplications";
 import logo from "@/assets/offmrkt-logo.png";
 
-const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Properties", url: "/properties", icon: Building2 },
-  { title: "Leads", url: "/admin", icon: Users },
-];
-
-interface PropertiesSidebarProps {
-  filters: PropertyFilters;
-  onFiltersChange: (filters: PropertyFilters) => void;
-  cities: string[];
+interface AppSidebarProps {
+  children?: React.ReactNode;
 }
 
-export function PropertiesSidebar({ 
-  filters, 
-  onFiltersChange, 
-  cities 
-}: PropertiesSidebarProps) {
+export function AppSidebar({ children }: AppSidebarProps) {
   const location = useLocation();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const { selectedProperties } = useComparison();
+  const { data: isAdmin } = useIsAdmin();
+
+  const navItems = [
+    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { title: "Properties", url: "/properties", icon: Building2 },
+    { title: "Submit Property", url: "/submit-property", icon: Plus },
+  ];
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
@@ -54,7 +53,7 @@ export function PropertiesSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        {/* Navigation */}
+        {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
@@ -72,29 +71,58 @@ export function PropertiesSidebar({
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
+
+            {/* Compare - show when there are selections */}
+            {selectedProperties.length > 0 && (
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === "/compare"}
+                  tooltip={`Compare (${selectedProperties.length})`}
+                >
+                  <Link to="/compare">
+                    <Scale className="h-4 w-4" />
+                    <span>Compare</span>
+                    <Badge variant="secondary" className="ml-auto h-5 px-1.5 text-xs">
+                      {selectedProperties.length}
+                    </Badge>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Filters (hidden when collapsed) */}
-        {!isCollapsed && (
+        {/* Admin Section (if admin) */}
+        {isAdmin && (
           <SidebarGroup>
-            <SidebarGroupLabel>Filters</SidebarGroupLabel>
-            <SidebarGroupContent className="px-2">
-              <PropertyFiltersPanel
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-                cities={cities}
-              />
-            </SidebarGroupContent>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname.startsWith("/admin")}
+                  tooltip="Admin Panel"
+                >
+                  <Link to="/admin">
+                    <Shield className="h-4 w-4" />
+                    <span>Admin Panel</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarGroup>
         )}
+
+        {/* Page-specific content (filters, sections, etc.) */}
+        {children}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Settings">
-              <Link to="/dashboard">
+              <Link to="/dashboard?tab=settings">
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
               </Link>

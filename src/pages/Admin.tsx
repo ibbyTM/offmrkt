@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   useAdminApplications,
@@ -22,9 +22,15 @@ import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
 import { MortgageReferralsTable } from "@/components/admin/MortgageReferralsTable";
 import { InvestorCRMTab } from "@/components/crm/InvestorCRMTab";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Users, Building, ArrowLeft, Clock, UserCog, Banknote } from "lucide-react";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
+import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield } from "lucide-react";
 
 type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads';
 
@@ -60,14 +66,76 @@ const Admin = () => {
     convertToListing({ submission, enhancedContent });
   };
 
+  // Admin sidebar navigation
+  const adminSidebarContent = (
+    <SidebarGroup>
+      <SidebarGroupLabel>Sections</SidebarGroupLabel>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            isActive={currentSection === 'applications'}
+            onClick={() => setCurrentSection('applications')}
+            tooltip="Applications"
+          >
+            <Users className="h-4 w-4" />
+            <span>Applications</span>
+            {pendingApps > 0 && (
+              <Badge className="ml-auto h-5 px-1.5 text-xs bg-amber-500">
+                {pendingApps}
+              </Badge>
+            )}
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            isActive={currentSection === 'crm'}
+            onClick={() => setCurrentSection('crm')}
+            tooltip="Investor CRM"
+          >
+            <UserCog className="h-4 w-4" />
+            <span>Investor CRM</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            isActive={currentSection === 'submissions'}
+            onClick={() => setCurrentSection('submissions')}
+            tooltip="Submissions"
+          >
+            <Building className="h-4 w-4" />
+            <span>Submissions</span>
+            {pendingSubs > 0 && (
+              <Badge className="ml-auto h-5 px-1.5 text-xs bg-amber-500">
+                {pendingSubs}
+              </Badge>
+            )}
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            isActive={currentSection === 'mortgage-leads'}
+            onClick={() => setCurrentSection('mortgage-leads')}
+            tooltip="Mortgage Leads"
+          >
+            <Banknote className="h-4 w-4" />
+            <span>Mortgage Leads</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarGroup>
+  );
+
   // Show loading state while checking auth
   if (authLoading || isCheckingAdmin) {
     return (
-      <Layout>
+      <AppLayout 
+        pageTitle="Admin Panel" 
+        pageIcon={<Shield className="h-5 w-5 text-primary" />}
+      >
         <div className="min-h-[80vh] flex items-center justify-center">
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
         </div>
-      </Layout>
+      </AppLayout>
     );
   }
 
@@ -79,28 +147,47 @@ const Admin = () => {
   // Redirect if not admin
   if (!isAdmin) {
     return (
-      <Layout>
+      <AppLayout 
+        pageTitle="Access Denied" 
+        pageIcon={<Shield className="h-5 w-5 text-primary" />}
+      >
         <div className="min-h-[80vh] flex flex-col items-center justify-center">
           <Users className="h-20 w-20 text-muted-foreground mb-6" />
-          <h1 className="text-3xl font-bold mb-3">Access Denied</h1>
+          <h2 className="text-3xl font-bold mb-3">Access Denied</h2>
           <p className="text-xl text-muted-foreground">You don't have permission to access this page.</p>
         </div>
-      </Layout>
+      </AppLayout>
     );
   }
 
-  // Home navigation with large clickable cards
+  // Get section title and subtitle
+  const getSectionInfo = () => {
+    switch (currentSection) {
+      case 'applications':
+        return { title: 'Investor Applications', subtitle: 'Review and approve new investors' };
+      case 'crm':
+        return { title: 'Investor Database', subtitle: 'All your investors in one place' };
+      case 'submissions':
+        return { title: 'Property Submissions', subtitle: 'Properties submitted by sellers' };
+      case 'mortgage-leads':
+        return { title: 'Mortgage Leads', subtitle: 'All referrals sent to your mortgage broker' };
+      default:
+        return { title: 'Admin Panel', subtitle: 'Manage investors, properties, and leads' };
+    }
+  };
+
+  const { title, subtitle } = getSectionInfo();
+
+  // Home view with large clickable cards
   if (currentSection === 'home') {
     return (
-      <Layout>
-        <div className="container py-8 max-w-4xl mx-auto">
-          <div className="mb-10 text-center">
-            <h1 className="text-4xl font-bold mb-3">Admin Panel</h1>
-            <p className="text-xl text-muted-foreground">
-              Welcome! Choose what you'd like to manage.
-            </p>
-          </div>
-
+      <AppLayout
+        pageTitle="Admin Panel"
+        pageSubtitle="Welcome! Choose what you'd like to manage."
+        pageIcon={<Shield className="h-5 w-5 text-primary" />}
+        sidebarContent={adminSidebarContent}
+      >
+        <div className="p-6 max-w-4xl mx-auto">
           <div className="grid gap-6">
             {/* Applications Card */}
             <Card 
@@ -209,45 +296,27 @@ const Admin = () => {
             </Card>
           </div>
         </div>
-      </Layout>
+      </AppLayout>
     );
   }
 
-  // Section views with back button
+  // Section views
   return (
-    <Layout>
-      <div className="container py-8">
-        {/* Back Button */}
-        <Button 
-          variant="ghost" 
-          size="lg" 
-          onClick={() => setCurrentSection('home')}
-          className="mb-6 text-lg gap-2"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          Back to Admin Home
-        </Button>
-
+    <AppLayout
+      pageTitle={title}
+      pageSubtitle={subtitle}
+      pageIcon={<Shield className="h-5 w-5 text-primary" />}
+      sidebarContent={adminSidebarContent}
+    >
+      <div className="p-6">
         {/* Applications Section */}
         {currentSection === 'applications' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold flex items-center gap-3">
-                  <Users className="h-8 w-8 text-primary" />
-                  Investor Applications
-                </h1>
-                <p className="text-lg text-muted-foreground mt-1">
-                  Review people who want to become investors
-                </p>
-              </div>
-              {pendingApps > 0 && (
-                <Badge className="text-xl px-5 py-2 bg-amber-500 hover:bg-amber-500">
-                  {pendingApps} waiting for review
-                </Badge>
-              )}
-            </div>
-
+            {pendingApps > 0 && (
+              <Badge className="text-xl px-5 py-2 bg-amber-500 hover:bg-amber-500">
+                {pendingApps} waiting for review
+              </Badge>
+            )}
             <ApplicationsTable
               applications={applications}
               isLoading={isLoadingApps}
@@ -259,40 +328,17 @@ const Admin = () => {
 
         {/* CRM Section */}
         {currentSection === 'crm' && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold flex items-center gap-3">
-                <UserCog className="h-8 w-8 text-purple-500" />
-                Investor Database
-              </h1>
-              <p className="text-lg text-muted-foreground mt-1">
-                All your investors in one place
-              </p>
-            </div>
-            <InvestorCRMTab />
-          </div>
+          <InvestorCRMTab />
         )}
 
         {/* Submissions Section */}
         {currentSection === 'submissions' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold flex items-center gap-3">
-                  <Building className="h-8 w-8 text-green-500" />
-                  Property Submissions
-                </h1>
-                <p className="text-lg text-muted-foreground mt-1">
-                  Properties submitted by sellers
-                </p>
-              </div>
-              {pendingSubs > 0 && (
-                <Badge className="text-xl px-5 py-2 bg-amber-500 hover:bg-amber-500">
-                  {pendingSubs} waiting for review
-                </Badge>
-              )}
-            </div>
-
+            {pendingSubs > 0 && (
+              <Badge className="text-xl px-5 py-2 bg-amber-500 hover:bg-amber-500">
+                {pendingSubs} waiting for review
+              </Badge>
+            )}
             <SubmissionsTable
               submissions={submissions}
               isLoading={isLoadingSubs}
@@ -306,22 +352,10 @@ const Admin = () => {
 
         {/* Mortgage Leads Section */}
         {currentSection === 'mortgage-leads' && (
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold flex items-center gap-3">
-                <Banknote className="h-8 w-8 text-blue-500" />
-                Mortgage Leads
-              </h1>
-              <p className="text-lg text-muted-foreground mt-1">
-                All referrals sent to your mortgage broker
-              </p>
-            </div>
-
-            <MortgageReferralsTable />
-          </div>
+          <MortgageReferralsTable />
         )}
       </div>
-    </Layout>
+    </AppLayout>
   );
 };
 

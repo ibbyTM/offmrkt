@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Layout } from "@/components/layout/Layout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard } from "@/components/properties/PropertyCard";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Heart, Clock, Settings, CheckCircle, Home, Building, Building2 } from "lucide-react";
+import { Loader2, Heart, Clock, Settings, CheckCircle, Home, Building, Building2, LayoutDashboard } from "lucide-react";
 import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
 import { useUserSubmissions } from "@/hooks/useUserSubmissions";
 import type { Tables } from "@/integrations/supabase/types";
@@ -111,37 +111,34 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Layout>
+      <AppLayout 
+        pageTitle="Dashboard" 
+        pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
+      >
         <div className="min-h-[80vh] flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </Layout>
+      </AppLayout>
     );
   }
 
   return (
-    <Layout>
-      <div className="container py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">
-              Welcome back, {profile?.full_name?.split(" ")[0] || "Investor"}
-            </h1>
-            <p className="text-muted-foreground">Manage your property investments</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1">
-              {investorStatus === "approved" ? (
-                <CheckCircle className="h-3 w-3" />
-              ) : (
-                <Clock className="h-3 w-3" />
-              )}
-              {investorStatus === "approved" ? "Approved Investor" : "Pending Approval"}
-            </Badge>
-          </div>
-        </div>
-
+    <AppLayout
+      pageTitle={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Investor"}`}
+      pageSubtitle="Manage your property investments"
+      pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
+      headerActions={
+        <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1">
+          {investorStatus === "approved" ? (
+            <CheckCircle className="h-3 w-3" />
+          ) : (
+            <Clock className="h-3 w-3" />
+          )}
+          {investorStatus === "approved" ? "Approved Investor" : "Pending Approval"}
+        </Badge>
+      }
+    >
+      <div className="p-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
@@ -334,7 +331,7 @@ const Dashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </Layout>
+    </AppLayout>
   );
 };
 
