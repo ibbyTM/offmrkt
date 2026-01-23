@@ -1,166 +1,123 @@
 
 
-## Interactive Image Carousel for Property Cards
+## Add Swipe Gesture Support to Property Card Carousel
 
 ### Overview
-Transform the static carousel dots on property cards into fully interactive controls, allowing users to browse property images directly from the card without navigating to the detail page.
+Enhance the PropertyCardCarousel component to detect and respond to touch swipe gestures, allowing mobile users to intuitively browse property images by swiping left or right.
 
-### Current State vs Proposed
+### Implementation Approach
 
-| Current | Proposed |
-|---------|----------|
-| Static dots (always shows first highlighted) | Clickable dots that switch images |
-| Only first image displayed | All images accessible via carousel |
-| No navigation arrows | Hover-reveal prev/next arrows |
-| Click anywhere goes to detail page | Carousel controls don't trigger navigation |
+We'll implement native touch event handling (no external libraries needed) to keep the bundle size minimal and provide a responsive, lightweight solution.
 
-### Visual Design
+### Technical Details
+
+#### Touch Gesture Detection Logic
+
+The swipe detection will track:
+- **Touch start position** (X coordinate when finger touches)
+- **Touch end position** (X coordinate when finger lifts)
+- **Swipe threshold** (minimum distance to register as intentional swipe, ~50px)
 
 ```text
-┌─────────────────────────────────────┐
-│ [☐]                            [⋮] │
-│                                     │
-│  [◀]    [Property Image]     [▶]   │  ← Arrows appear on hover
-│                                     │
-│            [●○○○○]                  │  ← Clickable dots
-└─────────────────────────────────────┘
+Swipe Left (→ to ←):  Go to next image
+Swipe Right (← to →): Go to previous image
 ```
 
-### Technical Implementation
+#### State Management
 
-#### 1. Create PropertyCardCarousel Component
+New state to track touch interactions:
+- `touchStart`: X position where touch began (null when not touching)
+- `touchEnd`: X position where touch ended
 
-**File:** `src/components/properties/PropertyCardCarousel.tsx` (NEW)
+#### Event Handlers
 
-A self-contained image carousel component for property cards:
+| Event | Purpose |
+|-------|---------|
+| `onTouchStart` | Capture starting X position |
+| `onTouchMove` | Update current position (for potential visual feedback) |
+| `onTouchEnd` | Calculate swipe direction and navigate |
+
+#### Swipe Threshold
+
+A minimum swipe distance of 50 pixels prevents accidental navigation from small touches while still feeling responsive.
+
+### File Changes
+
+| File | Change |
+|------|--------|
+| `src/components/properties/PropertyCardCarousel.tsx` | Add touch event handlers and swipe detection logic |
+
+### Updated Component Structure
 
 ```typescript
-interface PropertyCardCarouselProps {
-  images: string[];
-  alt: string;
-}
-
 export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum swipe distance (in px) to register as intentional
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
   };
-  
-  const goToPrevious = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
   };
-  
-  const goToNext = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && hasMultipleImages) {
+      // Swiped left → go to next image
+      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }
+    if (isRightSwipe && hasMultipleImages) {
+      // Swiped right → go to previous image
+      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    }
   };
-  
+
+  // Existing navigation functions remain unchanged...
+
   return (
-    <>
-      {/* Current Image */}
-      <img src={images[currentIndex]} alt={alt} className="..." />
-      
-      {/* Navigation Arrows (visible on hover) */}
-      {images.length > 1 && (
-        <>
-          <button onClick={goToPrevious} className="...">
-            <ChevronLeft />
-          </button>
-          <button onClick={goToNext} className="...">
-            <ChevronRight />
-          </button>
-        </>
-      )}
-      
-      {/* Clickable Dots */}
-      {images.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-          {images.slice(0, 5).map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                goToSlide(i);
-              }}
-              className={`h-2 w-2 rounded-full ${
-                i === currentIndex ? "bg-white" : "bg-white/50"
-              }`}
-            />
-          ))}
-        </div>
-      )}
-    </>
+    <div
+      className="w-full h-full"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <img src={images[currentIndex]} alt={alt} ... />
+      {/* Navigation arrows and dots remain unchanged */}
+    </div>
   );
 }
 ```
 
-**Key Features:**
-- `useState` for tracking current image index
-- `e.preventDefault()` and `e.stopPropagation()` on all controls to prevent card navigation
-- Left/right arrows visible on hover (using group-hover)
-- Dots clickable to jump to specific images
-- Loops around at the ends for seamless navigation
-- Limits visible dots to 5 (with +N indicator for more)
+### User Experience
 
-#### 2. Update PropertyCard.tsx
+| Gesture | Result |
+|---------|--------|
+| Swipe left | Next image (loops to first) |
+| Swipe right | Previous image (loops to last) |
+| Short touch/tap | No navigation (below threshold) |
+| Vertical swipe | Ignored (only horizontal detected) |
 
-Replace the static image and dots with the new carousel component:
+### Key Features
 
-```tsx
-// Replace lines 39-74 with:
-<PropertyCardCarousel 
-  images={property.photo_urls || []}
-  alt={property.title}
-/>
-```
-
-The carousel component will handle:
-- Displaying the current image
-- Navigation arrows (hover-reveal)
-- Clickable dots indicator
-- Fallback for no images (Building icon)
-
-#### 3. Update FeaturedPropertiesSection.tsx
-
-Apply the same carousel component to the featured property cards on the landing page for consistency.
-
-### File Changes Summary
-
-| File | Change |
-|------|--------|
-| `src/components/properties/PropertyCardCarousel.tsx` | NEW - Interactive carousel component |
-| `src/components/properties/PropertyCard.tsx` | Use PropertyCardCarousel component |
-| `src/components/landing/FeaturedPropertiesSection.tsx` | Use PropertyCardCarousel component |
-
-### User Experience Details
-
-**Navigation Arrows:**
-- Appear on hover (opacity-0 to opacity-100 transition)
-- Positioned at left/right edges of the image
-- Semi-transparent background for visibility over any image
-- Prevent card click when clicked
-
-**Clickable Dots:**
-- Active dot: solid white
-- Inactive dots: semi-transparent white (50%)
-- Maximum 5 dots shown, with "+N" text if more images exist
-- Clicking a dot jumps directly to that image
-- Smooth transition between images
-
-**Interaction Boundaries:**
-- Clicking arrows or dots does NOT navigate to property detail
-- Clicking anywhere else on the card still navigates as expected
-- Keyboard navigation not required for cards (available on detail page)
+- **No external dependencies**: Uses native touch events
+- **Minimal threshold**: 50px prevents accidental swipes
+- **Horizontal only**: Vertical swipes won't interfere with page scrolling
+- **Looping navigation**: Seamlessly wraps around image array
+- **Works alongside existing controls**: Dots and arrows still function normally
 
 ### Result
 
-- Users can preview all property images directly from the grid view
-- Reduces friction for quick property browsing
-- Matches modern property portal UX patterns
-- Consistent behavior across all property cards (main grid + featured)
+Mobile users can now naturally swipe through property images directly on the card, matching the gesture patterns they expect from modern apps like Airbnb and Rightmove.
 
