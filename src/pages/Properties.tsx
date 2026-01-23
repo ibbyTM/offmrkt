@@ -1,12 +1,14 @@
 import { useState, useMemo } from "react";
-import { Filter, Grid3X3, List, Building } from "lucide-react";
+import { Building } from "lucide-react";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
-import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyFiltersPanel, PropertyFilters } from "@/components/properties/PropertyFilters";
+import { PropertiesSidebar } from "@/components/properties/PropertiesSidebar";
+import { PropertiesToolbar } from "@/components/properties/PropertiesToolbar";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
 import { useProperties } from "@/hooks/useProperties";
 
@@ -23,6 +25,8 @@ const defaultFilters: PropertyFilters = {
 const Properties = () => {
   const [filters, setFilters] = useState<PropertyFilters>(defaultFilters);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState("newest");
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const { data: properties, isLoading, error } = useProperties();
   
   // Restore scroll position when returning to this page
@@ -35,11 +39,11 @@ const Properties = () => {
     return uniqueCities.sort();
   }, [properties]);
 
-  // Filter properties based on current filters
+  // Filter and sort properties
   const filteredProperties = useMemo(() => {
     if (!properties) return [];
 
-    return properties.filter((property) => {
+    let result = properties.filter((property) => {
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
@@ -87,7 +91,29 @@ const Properties = () => {
 
       return true;
     });
-  }, [properties, filters]);
+
+    // Sort properties
+    switch (sortBy) {
+      case "oldest":
+        result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case "price-high":
+        result.sort((a, b) => b.asking_price - a.asking_price);
+        break;
+      case "price-low":
+        result.sort((a, b) => a.asking_price - b.asking_price);
+        break;
+      case "yield-high":
+        result.sort((a, b) => (b.gross_yield_percentage || 0) - (a.gross_yield_percentage || 0));
+        break;
+      case "newest":
+      default:
+        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+    }
+
+    return result;
+  }, [properties, filters, sortBy]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -101,96 +127,70 @@ const Properties = () => {
   }, [filters]);
 
   return (
-    <Layout>
-      {/* Page Header */}
-      <div className="bg-background-secondary border-b border-border">
-        <div className="container py-8 md:py-12">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Building className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground md:text-3xl">
-                Investment Properties
-              </h1>
-              <p className="text-muted-foreground">
-                {isLoading
-                  ? "Loading properties..."
-                  : `${filteredProperties.length} deals available`}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        {/* Sidebar with navigation + filters */}
+        <PropertiesSidebar
+          filters={filters}
+          onFiltersChange={setFilters}
+          cities={cities}
+        />
 
-      <div className="container py-8">
-        <div className="flex gap-8">
-          {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24 rounded-xl border border-border bg-card p-6">
-              <h2 className="font-semibold text-lg text-foreground mb-6">Filters</h2>
-              <PropertyFiltersPanel
-                filters={filters}
-                onFiltersChange={setFilters}
-                cities={cities}
-              />
-            </div>
-          </aside>
-
-          {/* Main Content */}
-          <main className="flex-1 min-w-0">
-            {/* Mobile Filter & View Controls */}
-            <div className="flex items-center justify-between mb-6 gap-4">
-              {/* Mobile Filter Button */}
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Filters
-                    {activeFilterCount > 0 && (
-                      <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
-                        {activeFilterCount}
-                      </span>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-80 overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    <PropertyFiltersPanel
-                      filters={filters}
-                      onFiltersChange={setFilters}
-                      cities={cities}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* View Mode Toggle */}
-              <div className="flex items-center gap-2 ml-auto">
-                <Button
-                  variant={viewMode === "grid" ? "secondary" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewMode("grid")}
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "secondary" : "ghost"}
-                  size="icon"
-                  onClick={() => setViewMode("list")}
-                >
-                  <List className="h-4 w-4" />
-                </Button>
+        <SidebarInset>
+          {/* Page Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger />
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Building className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-foreground">
+                  Properties
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {isLoading
+                    ? "Loading properties..."
+                    : `${filteredProperties.length} deals available`}
+                </p>
               </div>
             </div>
+          </div>
 
+          {/* Toolbar */}
+          <PropertiesToolbar
+            searchValue={filters.search}
+            onSearchChange={(val) => setFilters({ ...filters, search: val })}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            onFilterClick={() => setMobileFiltersOpen(true)}
+            activeFilterCount={activeFilterCount}
+          />
+
+          {/* Mobile Filter Sheet */}
+          <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+            <SheetContent side="left" className="w-80 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <PropertyFiltersPanel
+                  filters={filters}
+                  onFiltersChange={setFilters}
+                  cities={cities}
+                />
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Main Content */}
+          <main className="p-6">
             {/* Loading State */}
             {isLoading && (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {[...Array(6)].map((_, i) => (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {[...Array(8)].map((_, i) => (
                   <div key={i} className="rounded-xl border border-border overflow-hidden">
                     <Skeleton className="aspect-[4/3]" />
                     <div className="p-4 space-y-3">
@@ -231,12 +231,12 @@ const Properties = () => {
               </div>
             )}
 
-            {/* Property Grid */}
+            {/* Property Grid - 4 columns on XL */}
             {!isLoading && !error && filteredProperties.length > 0 && (
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+                    ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                     : "space-y-4"
                 }
               >
@@ -246,12 +246,12 @@ const Properties = () => {
               </div>
             )}
           </main>
-        </div>
+        </SidebarInset>
       </div>
 
       {/* Comparison Bar */}
       <ComparisonBar />
-    </Layout>
+    </SidebarProvider>
   );
 };
 
