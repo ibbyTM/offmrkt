@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { ComparisonBar } from "@/components/comparison/ComparisonBar";
+import { MobileBottomNav } from "./MobileBottomNav";
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -51,8 +52,8 @@ export function AppLayout({
             </div>
           )}
           
-          {/* Main Content */}
-          <main className="flex-1">
+          {/* Main Content - add bottom padding for mobile nav */}
+          <main className="flex-1 pb-16 md:pb-0">
             {children}
           </main>
         </SidebarInset>
@@ -60,6 +61,9 @@ export function AppLayout({
 
       {/* Comparison Bar (optional) */}
       {showComparisonBar && <ComparisonBar />}
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </SidebarProvider>
   );
 }
