@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Building } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface PropertyCardCarouselProps {
   images: string[];
@@ -10,9 +11,23 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
 
   const hasMultipleImages = images.length > 1;
   const minSwipeDistance = 50;
+
+  const animateToSlide = (newIndex: number, direction: 'left' | 'right') => {
+    if (isAnimating) return;
+    setSlideDirection(direction);
+    setIsAnimating(true);
+    
+    setTimeout(() => {
+      setCurrentIndex(newIndex);
+      setIsAnimating(false);
+      setSlideDirection(null);
+    }, 150);
+  };
 
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
@@ -24,36 +39,44 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || !touchEnd || isAnimating) return;
     
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
     
     if (isLeftSwipe && hasMultipleImages) {
-      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+      const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+      animateToSlide(newIndex, 'left');
     }
     if (isRightSwipe && hasMultipleImages) {
-      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+      const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+      animateToSlide(newIndex, 'right');
     }
   };
 
   const goToPrevious = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    if (isAnimating) return;
+    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    animateToSlide(newIndex, 'right');
   };
 
   const goToNext = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    if (isAnimating) return;
+    const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+    animateToSlide(newIndex, 'left');
   };
 
   const goToSlide = (e: React.MouseEvent, index: number) => {
     e.preventDefault();
     e.stopPropagation();
-    setCurrentIndex(index);
+    if (isAnimating || index === currentIndex) return;
+    const direction = index > currentIndex ? 'left' : 'right';
+    animateToSlide(index, direction);
   };
 
   // No images - show placeholder
@@ -76,7 +99,12 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
       <img
         src={images[currentIndex]}
         alt={alt}
-        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        className={cn(
+          "w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-105",
+          isAnimating && slideDirection === 'left' && "opacity-0 -translate-x-2",
+          isAnimating && slideDirection === 'right' && "opacity-0 translate-x-2",
+          !isAnimating && "opacity-100 translate-x-0"
+        )}
       />
 
       {/* Navigation Arrows - visible on hover */}
