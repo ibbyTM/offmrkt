@@ -32,7 +32,7 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
     <Link to={`/properties/${property.id}`}>
       <Card className="group overflow-hidden border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300">
         {/* Clean Image - minimal overlays */}
-        <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {mainImage ? (
             <img
               src={mainImage}
