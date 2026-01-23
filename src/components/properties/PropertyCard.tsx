@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building, Camera } from "lucide-react";
+import { Building, Camera, MapPin, Bed, Bath, TrendingUp, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,8 +30,8 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
 
   return (
     <Link to={`/properties/${property.id}`}>
-      <Card className="group overflow-hidden border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300">
-        {/* Clean Image - minimal overlays */}
+      <Card className="group overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300">
+        {/* Image section */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {mainImage ? (
             <img
@@ -55,7 +55,7 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
 
           {/* Compare - subtle top-right */}
           {showCompare && (
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 transition-opacity">
               <CompareCheckbox propertyId={property.id} />
             </div>
           )}
@@ -73,17 +73,50 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
           )}
         </div>
 
-        {/* Content - simplified */}
+        {/* Content - enhanced with icons */}
         <CardContent className="p-4">
-          <p className="text-primary font-semibold">
-            {property.bedrooms || "—"} bed {propertyTypeLabels[property.property_type]}
-          </p>
-          <p className="text-muted-foreground text-sm mt-1 line-clamp-1">
-            {property.title}, {property.property_city}
-          </p>
-          <p className="text-sm text-muted-foreground mt-3">
-            Gross Yield: <span className="font-semibold text-foreground">{formatYield(grossYield)}</span>
-          </p>
+          {/* Location with icon */}
+          <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/70" />
+            <span className="text-sm font-medium line-clamp-1">
+              {property.title}, {property.property_city}
+            </span>
+          </div>
+
+          {/* Property specs with icons */}
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+            <div className="flex items-center gap-1">
+              <Bed className="h-3.5 w-3.5 text-primary/70" />
+              <span className="font-medium">{property.bedrooms || "—"} beds</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Bath className="h-3.5 w-3.5 text-primary/70" />
+              <span className="font-medium">{property.bathrooms || "—"} baths</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Building className="h-3.5 w-3.5 text-primary/70" />
+              <span className="font-medium">{propertyTypeLabels[property.property_type]}</span>
+            </div>
+          </div>
+
+          {/* Yield and CTA row */}
+          <div className="flex items-center justify-between pt-3 border-t border-border/60">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div>
+                <span className="text-xs text-muted-foreground block">Gross Yield</span>
+                <span className="font-bold text-primary text-sm">
+                  {formatYield(grossYield)}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+              <span>View Deal</span>
+              <ArrowRight className="h-4 w-4" />
+            </div>
+          </div>
         </CardContent>
       </Card>
     </Link>
