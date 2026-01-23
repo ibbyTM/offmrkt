@@ -97,6 +97,7 @@ serve(async (req) => {
 
 Rules:
 - Title: Maximum 60 characters. Include the key selling point and location. Make it attention-grabbing.
+- Title: DO NOT include yield percentages in the title - yield is displayed separately on the listing card.
 - Description: 100-150 words. Focus on investment potential, rental yield, location benefits, and property features. Use professional UK English. Structure it well with clear benefits.
 - Highlights: 3-5 concise bullet points about investment potential. Each should be impactful and factual.
 
