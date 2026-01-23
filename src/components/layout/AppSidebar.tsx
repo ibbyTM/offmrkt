@@ -52,9 +52,9 @@ export function AppSidebar({ children }: AppSidebarProps) {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
-        {/* Main Navigation */}
-        <SidebarGroup>
+      <SidebarContent className="flex flex-col">
+        {/* Main Navigation - Fixed, never scrolls away */}
+        <SidebarGroup className="flex-shrink-0">
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
             {navItems.map((item) => (
@@ -93,9 +93,9 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Admin Section (if admin) */}
+        {/* Admin Section - Fixed, never scrolls away */}
         {isAdmin && (
-          <SidebarGroup>
+          <SidebarGroup className="flex-shrink-0">
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -114,8 +114,12 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarGroup>
         )}
 
-        {/* Page-specific content (filters, sections, etc.) */}
-        {children}
+        {/* Page-specific content (filters, sections, etc.) - Scrollable */}
+        {children && (
+          <div className="flex-1 overflow-y-auto min-h-0">
+            {children}
+          </div>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
