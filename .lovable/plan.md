@@ -1,176 +1,162 @@
 
 
-## Property Card Design Refresh
+## Add Functional Dropdown Menu to Property Cards
 
 ### Overview
-Apply design elements from the reference to create a more polished, modern property card design while keeping the functionality that makes sense for your investment property platform.
+Replace the placeholder 3-dot options button with a fully functional dropdown menu providing quick actions: Save Property, Share, and Report.
 
-### Key Design Elements to Adopt
+### Menu Actions
 
-From the reference, here are the improvements we'll implement:
+| Action | Description | Behavior |
+|--------|-------------|----------|
+| **Save Property** | Add/remove from favorites | Toggle save state, requires login |
+| **Share** | Copy property link | Copy URL to clipboard |
+| **Report** | Flag listing issue | Show toast (placeholder for future) |
 
-| Element | Current | Proposed |
-|---------|---------|----------|
-| **Image** | 4:3 aspect ratio | Keep 4:3 (good for property photos) |
-| **Image carousel dots** | Photo count badge only | Add navigation dots at bottom of image |
-| **Checkbox position** | Text-based "Compare" button | Clean checkbox icon in top-left corner |
-| **Options menu** | None | Add 3-dot menu for quick actions (top-right) |
-| **Price display** | Blue bar below image | Large, bold price directly in content area (cleaner) |
-| **Property ID** | Not shown | Add reference ID next to price |
-| **Layout structure** | Dense with multiple rows | Cleaner spacing, property type + address prominent |
-| **Action button** | "View Deal" on hover | Visible accent CTA button (e.g., "View Details") |
+### Visual Design
 
-### Visual Comparison
-
-**Current Design:**
 ```text
-┌───────────────────────────────┐
-│ [1/5]             [+ Compare] │
-│        [Property Image]       │
-├───────────────────────────────┤
-│ ██ £125,000         Available │  ← Blue bar
-├───────────────────────────────┤
-│ High-Yield HMO with...        │
-│ 📍 Manchester, M1 2AB         │
-│ 🛏 3 beds  🚿 2 baths  🏠 HMO │
-│ ─────────────────────────────│
-│ 📈 Gross Yield   [View Deal →]│
-│    8.5%                       │
-└───────────────────────────────┘
+┌─────────────────────────────────┐
+│ [☐]              [●●●○○]   [⋮] │ ← Click triggers dropdown
+│        [Property Image]        │
+│                                │
+└────────────────────────────────┘
+                              ┌─────────────────┐
+                              │ ♡ Save Property │
+                              │ 🔗 Share        │
+                              │ ⚑ Report        │
+                              └─────────────────┘
 ```
-
-**Proposed Design:**
-```text
-┌───────────────────────────────┐
-│ [☐]          [●●●○○]     [⋮] │
-│        [Property Image]       │
-│                               │
-└───────────────────────────────┘
-│ £125,000              #OM1234 │  ← Bold price, ref ID
-│ High-Yield HMO Investment     │  ← Property title
-│ Manchester, M1 2AB            │  ← Location  
-│ 🛏 3  🚿 2  📐 1,200 sqft     │  ← Compact specs
-│ ┌──────────────────────────┐ │
-│ │   📈 View Details        │ │  ← Accent button
-│ └──────────────────────────┘ │
-└───────────────────────────────┘
-```
-
-### Detailed Changes
-
-#### 1. PropertyCard.tsx - Full Redesign
-
-**Image Section Updates:**
-- Add checkbox icon (simple square icon) in top-left instead of text button
-- Move photo count to bottom as carousel dots indicator
-- Add 3-dot menu icon in top-right (placeholder for future actions)
-
-**Remove the Blue Price Bar:**
-- Price moves directly into the card content as a large, bold headline
-
-**Content Section Updates:**
-- Price as main headline with property reference ID
-- Title and location on separate lines
-- Compact specs row with just icons and numbers
-- Full-width accent "View Details" button at bottom (always visible)
-
-**Yield Display:**
-- Move yield to a subtle badge or integrate into specs row
-- Or show in the button hover state
-
-#### 2. Properties Page - Minor Updates
-
-- Adjust grid gap slightly for new card proportions
-- Ensure consistent 4-column layout on larger screens
 
 ### Technical Implementation
 
-**PropertyCard.tsx changes:**
+#### 1. Create Reusable Hook for Save Functionality
 
-```tsx
-// New structure
-<Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300">
-  {/* Image with overlay controls */}
-  <div className="relative aspect-[4/3] overflow-hidden">
-    <img ... />
-    
-    {/* Top-left: Checkbox icon */}
-    <CompareCheckbox ... variant="icon" />
-    
-    {/* Bottom center: Carousel dots */}
-    {photoCount > 1 && <CarouselDots count={photoCount} />}
-    
-    {/* Top-right: Options menu */}
-    <OptionsMenu ... />
-  </div>
+**File:** `src/hooks/useSaveProperty.ts` (NEW)
 
-  {/* Content - clean layout */}
-  <CardContent className="p-4">
-    {/* Price row */}
-    <div className="flex items-center justify-between mb-2">
-      <span className="text-xl font-bold">{formatPrice(price)}</span>
-      <span className="text-xs text-muted-foreground">#OM{id.slice(-4)}</span>
-    </div>
-    
-    {/* Title */}
-    <h3 className="font-medium line-clamp-1 mb-1">{title}</h3>
-    
-    {/* Location */}
-    <p className="text-sm text-muted-foreground mb-3">{city}, {postcode}</p>
-    
-    {/* Specs row */}
-    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-      <span>🛏 {beds}</span>
-      <span>🚿 {baths}</span>
-      <span>📈 {yield}%</span>
-    </div>
-    
-    {/* Action button */}
-    <Button className="w-full" variant="default">
-      View Details
-    </Button>
-  </CardContent>
-</Card>
+Extract the save/unsave logic from PropertyCTAs into a reusable hook so it can be shared between the card dropdown and the detail page.
+
+```typescript
+export function useSaveProperty(propertyId: string) {
+  const { user } = useAuth();
+  const [isSaved, setIsSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Check if saved on mount
+  useEffect(() => { /* query saved_properties */ }, [user, propertyId]);
+
+  const toggleSave = async () => {
+    // Insert or delete from saved_properties
+    // Show appropriate toast
+  };
+
+  return { isSaved, isLoading, toggleSave };
+}
 ```
 
-**CompareCheckbox variant:**
-- Add an "icon" variant that shows just a checkbox/square icon without text
-- Cleaner look for the overlay
+#### 2. Create PropertyCardMenu Component
+
+**File:** `src/components/properties/PropertyCardMenu.tsx` (NEW)
+
+A self-contained dropdown menu component for property cards:
+
+```typescript
+interface PropertyCardMenuProps {
+  property: Property;
+}
+
+export function PropertyCardMenu({ property }: PropertyCardMenuProps) {
+  const { isSaved, isLoading, toggleSave } = useSaveProperty(property.id);
+
+  const handleShare = () => {
+    const url = `${window.location.origin}/properties/${property.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard!");
+  };
+
+  const handleReport = () => {
+    toast.info("Thank you for your feedback. We'll review this listing.");
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button className="...">
+          <MoreVertical />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48 bg-popover">
+        <DropdownMenuItem onClick={toggleSave}>
+          <Heart className={isSaved ? "fill-current text-red-500" : ""} />
+          {isSaved ? "Remove from Saved" : "Save Property"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleShare}>
+          <Share2 />
+          Share
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleReport}>
+          <Flag />
+          Report Listing
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+```
+
+#### 3. Update PropertyCard.tsx
+
+Replace the placeholder button with the new `PropertyCardMenu` component:
+
+```tsx
+// Before (lines 77-86)
+<button onClick={(e) => { e.preventDefault(); }}>
+  <MoreVertical />
+</button>
+
+// After
+<PropertyCardMenu property={property} />
+```
+
+#### 4. Update PropertyCTAs to Use Shared Hook
+
+Refactor `PropertyCTAs.tsx` to use the new `useSaveProperty` hook instead of inline state management, ensuring consistency across the app.
 
 ### File Changes Summary
 
 | File | Change |
 |------|--------|
-| `src/components/properties/PropertyCard.tsx` | Major redesign following new layout |
-| `src/components/comparison/CompareCheckbox.tsx` | Add icon-only variant |
-| `src/components/landing/FeaturedPropertyCard.tsx` | Apply same design language |
-| `src/pages/Properties.tsx` | Minor grid adjustments if needed |
+| `src/hooks/useSaveProperty.ts` | NEW - Reusable hook for save/unsave functionality |
+| `src/components/properties/PropertyCardMenu.tsx` | NEW - Dropdown menu component |
+| `src/components/properties/PropertyCard.tsx` | Import and use PropertyCardMenu |
+| `src/components/property-detail/PropertyCTAs.tsx` | Refactor to use useSaveProperty hook |
 
-### Design Decisions
+### Event Handling
 
-**What we're keeping from current design:**
-- 4:3 aspect ratio (good for property photos)
-- Core information hierarchy (price, title, location, specs)
-- Yield visibility (investors care about this)
+The dropdown must prevent the card's Link navigation when clicked:
+- Use `e.preventDefault()` and `e.stopPropagation()` on menu trigger
+- The Radix DropdownMenu handles this automatically for menu items
 
-**What we're adopting from reference:**
-- Cleaner checkbox icon instead of text button
-- Photo carousel dots indicator
-- Price in content area instead of colored bar
-- Reference ID for professional look
-- Always-visible action button
-- More breathing room / spacing
+### Dropdown Styling
 
-**What we're NOT adopting:**
-- "Send Mail" as primary CTA (not relevant for this use case)
-- Dark theme as default (keeping current light/dark toggle)
+Following the existing dropdown pattern from `src/components/ui/dropdown-menu.tsx`:
+- Solid background (`bg-popover`) for visibility
+- High z-index to overlay the card
+- Proper dark mode support with `text-popover-foreground`
+- Smooth animations on open/close
+
+### User Experience
+
+| User State | Save Action |
+|------------|-------------|
+| Logged in | Toggle save state immediately |
+| Not logged in | Show toast prompting to log in |
 
 ### Result
 
-A cleaner, more modern property card design that:
-- Feels more professional and polished
-- Has better visual hierarchy
-- Uses space more efficiently
-- Maintains all the important investment data visibility
-- Matches modern property portal standards
+- Users can quickly save properties without navigating to the detail page
+- Easy sharing via clipboard copy
+- Report option for flagging issues (placeholder for future moderation system)
+- Consistent save state across cards and detail pages via shared hook
 
