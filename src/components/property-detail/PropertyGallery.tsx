@@ -30,7 +30,7 @@ export default function PropertyGallery({ photos, floorPlanUrls = [], title }: P
 
   if (!hasImages) {
     return (
-      <div className="bg-muted rounded-xl h-96 flex flex-col items-center justify-center text-muted-foreground">
+      <div className="bg-muted rounded-xl aspect-[3/2] flex flex-col items-center justify-center text-muted-foreground">
         <ImageIcon className="h-16 w-16 mb-4 opacity-50" />
         <p className="text-lg font-medium">No photos available</p>
         <p className="text-sm">Photos will be added soon</p>
@@ -47,7 +47,7 @@ export default function PropertyGallery({ photos, floorPlanUrls = [], title }: P
         <img
           src={allImages[currentIndex]}
           alt={`${title} - ${isFloorPlan ? "Floor Plan" : "Photo"} ${currentIndex + 1}`}
-          className="w-full h-96 object-cover"
+          className="w-full aspect-[3/2] object-cover"
         />
         
         {/* Floor plan badge */}
