@@ -49,7 +49,7 @@ const mortgageMetrics: MortgageMetric[] = [
     getValue: (p, ltv, rate, term) => {
       const loanAmount = p.asking_price * (ltv / 100);
       const monthlyPayment = calculateMonthlyPayment(loanAmount, rate, term);
-      const monthlyRent = p.estimated_rental_income || 0;
+      const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
       return monthlyRent - monthlyPayment;
     },
     format: "currency-monthly",
@@ -60,7 +60,7 @@ const mortgageMetrics: MortgageMetric[] = [
     getValue: (p, ltv, rate, term) => {
       const loanAmount = p.asking_price * (ltv / 100);
       const monthlyPayment = calculateMonthlyPayment(loanAmount, rate, term);
-      const monthlyRent = p.estimated_rental_income || 0;
+      const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
       return (monthlyRent - monthlyPayment) * 12;
     },
     format: "currency",
@@ -72,7 +72,7 @@ const mortgageMetrics: MortgageMetric[] = [
       const deposit = p.asking_price * (1 - ltv / 100);
       const loanAmount = p.asking_price * (ltv / 100);
       const monthlyPayment = calculateMonthlyPayment(loanAmount, rate, term);
-      const monthlyRent = p.estimated_rental_income || 0;
+      const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
       const annualCashFlow = (monthlyRent - monthlyPayment) * 12;
       if (deposit === 0) return null;
       return (annualCashFlow / deposit) * 100;
