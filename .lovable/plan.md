@@ -1,186 +1,167 @@
 
 
-## AI Auto-Improve Property Titles & Descriptions
+## Regenerate AI Content for Listed Properties
 
 ### Overview
-Create an AI-powered feature that automatically enhances property titles and descriptions to maintain consistency, improve SEO, and create professional, compelling copy across all listings.
+Add the ability for admins to regenerate AI-enhanced titles, descriptions, and highlights on already-listed properties directly from the property detail page. This enables admins to improve listing content at any time, not just during the initial conversion.
 
 ### How It Will Work
 
-The system will provide **two modes** of operation:
+When an admin views a property detail page, they will see an **admin toolbar** with an "Enhance with AI" button. Clicking it triggers the existing AI enhancement flow, showing a preview dialog where they can review, edit, and apply the improved content.
 
-| Mode | Use Case | When It Runs |
-|------|----------|--------------|
-| **Manual** | Admin clicks "Enhance with AI" on any property | On-demand from Admin panel |
-| **Auto** | AI improves content when a submission is converted to listing | During "Convert to Listing" flow |
-
-### What The AI Will Do
-
-Given raw property data, the AI will generate:
-
-1. **Professional Title** - Concise, attention-grabbing headline
-   - Example: "123 Main St, M1" → "High-Yield 3-Bed Terrace in Central Manchester"
-
-2. **Compelling Description** - Well-structured, benefit-focused copy
-   - Highlights key investment metrics (yield, location, potential)
-   - Maintains consistent tone and format across all properties
-   - Includes key facts without fluff
-
-3. **Investment Highlights** - Auto-generate bullet points if empty
-   - E.g., "Strong rental demand", "Below market value", "Tenanted from day one"
-
-### User Experience
-
-**For Admins reviewing submissions:**
 ```text
-┌─────────────────────────────────────────────────────┐
-│  Property: 45 Oak Lane, Manchester                  │
-│  Current Title: "45 Oak Lane"                       │
-│  Description: "3 bed house for sale"                │
-│                                                     │
-│  ┌─────────────────────────────────────────────┐   │
-│  │ ✨ Enhance with AI                          │   │
-│  └─────────────────────────────────────────────┘   │
-│                                                     │
-│  → Generates preview                                │
-│  → Admin can approve/edit before saving             │
-└─────────────────────────────────────────────────────┘
-```
-
-**When converting submission to listing:**
-```text
-┌─────────────────────────────────────────────────────┐
-│  Converting to Listing...                           │
-│                                                     │
-│  ☐ Auto-enhance title & description with AI        │
-│                                                     │
-│  [Cancel]                    [Convert to Listing]   │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  Admin Toolbar (only visible to admins)                 │
+│  ┌───────────────────┐  ┌───────────────────────────┐  │
+│  │ ✨ Enhance with AI │  │ 📝 Edit Property (future) │  │
+│  └───────────────────┘  └───────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
+│                                                         │
+│  [Property Gallery]                                     │
+│  [Property Details...]                                  │
 ```
 
 ### Technical Implementation
 
-#### 1. New Edge Function: `enhance-property-content`
+#### 1. Create Property Update Mutation
 
-**File:** `supabase/functions/enhance-property-content/index.ts`
+**File:** `src/hooks/useProperties.ts`
 
-This function will:
-- Accept property data (address, city, type, beds, baths, price, yield, strategies, etc.)
-- Use Lovable AI (gemini-3-flash-preview) to generate enhanced content
-- Return structured JSON with improved title, description, and highlights
-- Use tool calling for structured output extraction
+Add a new mutation hook to update property content:
 
-**AI Prompt Strategy:**
-```text
-You are a UK property investment copywriter. Given the property details below,
-create professional marketing content that appeals to buy-to-let investors.
+```typescript
+export const useUpdatePropertyContent = () => {
+  const queryClient = useQueryClient();
 
-Rules:
-- Title: Max 60 chars, include key selling point + location
-- Description: 100-150 words, structured with investment focus
-- Highlights: 3-5 bullet points about investment potential
+  return useMutation({
+    mutationFn: async ({
+      propertyId,
+      content,
+    }: {
+      propertyId: string;
+      content: { title: string; description: string; highlights: string[] };
+    }) => {
+      const { data, error } = await supabase
+        .from("properties")
+        .update({
+          title: content.title,
+          property_description: content.description,
+          investment_highlights: content.highlights,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", propertyId)
+        .select()
+        .single();
 
-Property Data:
-[property details injected here]
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["property", variables.propertyId] });
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      toast({
+        title: "Content Updated",
+        description: "Property content has been enhanced with AI.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Update Failed",
+        description: "Could not update property content.",
+        variant: "destructive",
+      });
+    },
+  });
+};
 ```
 
-**Response Structure (via tool calling):**
-```json
-{
-  "title": "High-Yield 3-Bed Terrace Near University Quarter",
-  "description": "Prime investment opportunity in Manchester's...",
-  "highlights": [
-    "7.2% gross yield with tenanted income",
-    "15% below market value",
-    "Walking distance to university campus"
-  ]
+#### 2. Create Admin Toolbar Component
+
+**File:** `src/components/property-detail/AdminPropertyToolbar.tsx` (NEW)
+
+A toolbar that shows only for admin users with the enhance button:
+
+```typescript
+interface AdminPropertyToolbarProps {
+  property: Property;
 }
+
+export const AdminPropertyToolbar = ({ property }: AdminPropertyToolbarProps) => {
+  // Use useIsAdmin hook to check admin status
+  // Use useEnhancePropertyContent for AI generation
+  // Use useUpdatePropertyContent to save changes
+  // Render EnhanceContentDialog for preview/edit
+  
+  return (
+    <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 rounded-lg p-4 mb-6">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Shield className="h-5 w-5 text-amber-600" />
+          <span className="font-medium text-amber-800 dark:text-amber-200">Admin Controls</span>
+        </div>
+        <Button onClick={handleEnhanceWithAI} disabled={isPending}>
+          <Sparkles className="h-4 w-4 mr-2" />
+          {isPending ? "Enhancing..." : "Enhance with AI"}
+        </Button>
+      </div>
+    </div>
+  );
+};
 ```
 
-#### 2. Frontend Hook: `useEnhancePropertyContent`
+#### 3. Integrate Toolbar into Property Detail Page
 
-**File:** `src/hooks/useEnhancePropertyContent.ts`
+**File:** `src/pages/PropertyDetail.tsx`
 
-A React Query mutation hook that:
-- Calls the edge function with property data
-- Returns loading/error states
-- Provides the enhanced content for preview
+Add the admin toolbar component above the property content:
 
-#### 3. Admin UI: Enhancement Button
+```typescript
+import { AdminPropertyToolbar } from "@/components/property-detail/AdminPropertyToolbar";
+import { useIsAdmin } from "@/hooks/useAdminApplications";
 
-**File:** `src/components/admin/SubmissionDetailDialog.tsx` (modify)
+// Inside component:
+const { data: isAdmin } = useIsAdmin();
 
-Add an "Enhance with AI" button that:
-- Shows a sparkle icon (Wand2 from lucide-react)
-- Triggers the AI enhancement
-- Shows a preview modal with before/after comparison
-- Allows admin to approve, edit, or cancel
-
-#### 4. Convert to Listing Enhancement
-
-**File:** `src/hooks/useSellerSubmissions.ts` (modify)
-
-Add optional AI enhancement during conversion:
-- Add checkbox option in conversion flow
-- If enabled, call enhance function before creating listing
-- Use enhanced content in the new property record
+// In render, after "Back to Properties" link:
+{isAdmin && <AdminPropertyToolbar property={property} />}
+```
 
 ### File Changes Summary
 
 | File | Change |
 |------|--------|
-| `supabase/functions/enhance-property-content/index.ts` | NEW - Edge function for AI content enhancement |
-| `supabase/config.toml` | Add function config |
-| `src/hooks/useEnhancePropertyContent.ts` | NEW - React hook for calling enhancement |
-| `src/components/admin/EnhanceContentDialog.tsx` | NEW - Preview dialog for enhanced content |
-| `src/components/admin/SubmissionDetailDialog.tsx` | Add "Enhance with AI" button |
-| `src/hooks/useSellerSubmissions.ts` | Add enhancement option to conversion |
+| `src/hooks/useProperties.ts` | Add `useUpdatePropertyContent` mutation hook |
+| `src/components/property-detail/AdminPropertyToolbar.tsx` | NEW - Admin toolbar with AI enhance button |
+| `src/pages/PropertyDetail.tsx` | Import and render AdminPropertyToolbar for admins |
 
-### Edge Function: Tool Calling for Structured Output
+### User Flow
 
-The function will use Lovable AI's tool calling feature to ensure consistent JSON output:
+1. Admin navigates to any property detail page
+2. Sees the admin toolbar with "Enhance with AI" button
+3. Clicks the button - AI generates improved content
+4. Preview dialog shows original vs. enhanced content side-by-side
+5. Admin can edit the enhanced content if needed
+6. Clicks "Apply Changes" to save to the database
+7. Property page updates with new content
 
-```typescript
-const body = {
-  model: "google/gemini-3-flash-preview",
-  messages: [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: propertyDataPrompt }
-  ],
-  tools: [{
-    type: "function",
-    function: {
-      name: "enhance_property_content",
-      description: "Generate professional property listing content",
-      parameters: {
-        type: "object",
-        properties: {
-          title: { type: "string", description: "60 char max title" },
-          description: { type: "string", description: "100-150 word description" },
-          highlights: { 
-            type: "array", 
-            items: { type: "string" },
-            description: "3-5 investment highlight bullets"
-          }
-        },
-        required: ["title", "description", "highlights"]
-      }
-    }
-  }],
-  tool_choice: { type: "function", function: { name: "enhance_property_content" } }
-};
-```
+### Reusing Existing Components
 
-### Security & Rate Limiting
+This implementation maximizes code reuse:
+- `useEnhancePropertyContent` - Existing hook for AI generation
+- `EnhanceContentDialog` - Existing preview/edit dialog
+- `useIsAdmin` - Existing admin check hook
 
-- Edge function requires admin authentication (verified via JWT claims)
-- Rate limit handling (429) with user-friendly error messages
-- Credit exhaustion handling (402) with appropriate messaging
+Only new code needed:
+- `useUpdatePropertyContent` - Save enhanced content to properties table
+- `AdminPropertyToolbar` - Thin wrapper that orchestrates the flow
+
+### Security
+
+- Admin check via `useIsAdmin` hook (existing RLS-backed check)
+- Properties table has RLS policy: "Admins can update properties" 
+- Edge function `enhance-property-content` already validates admin status via JWT claims
 
 ### Result
 
-- **Consistent branding** - All properties have professional, uniform copy
-- **Time savings** - Admins don't need to write descriptions manually
-- **SEO-friendly** - Properly structured titles and descriptions
-- **Flexible** - Can be used on-demand or automatically during conversion
+Admins can improve any listed property's content at any time, ensuring all listings maintain professional, consistent copy that maximizes investor interest.
 
