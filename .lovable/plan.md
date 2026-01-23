@@ -1,144 +1,85 @@
 
-## Enhance PropertyCard - Add Visual Richness
 
-### The Problem
-The current PropertyCard feels "empty" and "half-finished" because:
-1. **Missing icons** - No visual indicators for beds/baths/property type
-2. **No visual hierarchy** - Content section is just plain text lines
-3. **Sparse content area** - Too much white space, not enough information density
-4. **No interactive feel** - Missing hover CTA or "View Deal" prompt
-5. **Compare button feels disconnected** - Plain white button floating on image
+## Enhance FeaturedPropertyCard to Match PropertyCard Design
 
-The `FeaturedPropertyCard` in the codebase is actually much richer - it uses icons, gradients, structured layouts, and a "View Deal" CTA. We can borrow those patterns.
+### Overview
+Align the FeaturedPropertyCard with the new clean, Rightmove-inspired PropertyCard design. The main changes involve removing the gradient overlay from the image and introducing the solid primary-colored price bar.
 
----
+### Current vs. New Design
 
-### Solution: Enrich the Card Content
-
-#### Before vs After
-
-| Element | Current (Plain) | Enhanced |
-|---------|----------------|----------|
-| Property info | "3 bed Semi-Detached" (text only) | Icons + structured layout (beds, baths, type) |
-| Location | Plain text | MapPin icon + text |
-| Yield display | Plain text line | Icon in circle + label + bold value |
-| Hover state | Just shadow | "View Deal" CTA arrow appears |
-| Compare button | White pill, disconnected | Subtle, semi-transparent |
-
----
+| Element | Current FeaturedPropertyCard | New Design |
+|---------|------------------------------|------------|
+| Image aspect ratio | `aspect-video` (16:9) | `aspect-[4/3]` (taller) |
+| Price display | Gradient overlay on image bottom | Solid `bg-primary` bar below image |
+| Photo count | Not shown | Add `📷 1/X` indicator top-left |
+| Image overlays | Gradient price overlay | Clean, minimal overlays only |
+| CTA hover effect | Gap animation (`gap-1.5 → gap-2.5`) | Opacity fade in (`opacity-0 → 100`) |
+| Title | Shown as h3 in content area | Remove (location already shows address) |
 
 ### Visual Mockup
 
 ```text
-┌─────────────────────────────────────┐
-│  📷 1/6                    [Compare]│  ← Semi-transparent overlays
-│                                     │
-│           [Property Image]          │
-│                                     │
-├─────────────────────────────────────┤
-│  £325,000              [Reserved]   │  ← Price bar (keep as-is)
-├─────────────────────────────────────┤
-│  📍 123 Example Street, Manchester  │  ← Location with icon
-│                                     │
-│  🛏 3 beds   🛁 2 baths   🏠 Semi   │  ← Icons for key details
-│                                     │
-│  ─────────────────────────────────  │  ← Subtle divider
-│                                     │
-│  ◉ Gross Yield          View Deal → │  ← Yield + CTA
-│    7.2%                             │
-└─────────────────────────────────────┘
+     [Featured Deal]  ← Badge stays as-is
+┌─────────────────────────────────┐
+│  📷 1/6                         │  ← NEW: Photo count indicator
+│                                 │
+│         [Property Image]        │  ← CLEAN: No gradient overlay
+│                                 │
+│                                 │
+├─────────────────────────────────┤
+│  £325,000                       │  ← NEW: Solid primary bar
+├─────────────────────────────────┤
+│  📍 Manchester, M1 2AB          │
+│  🛏 3 beds   🛁 2 baths   🏠 Semi│
+│  ─────────────────────────────  │
+│  ◉ Gross Yield      View Deal → │
+│    7.2%                         │
+└─────────────────────────────────┘
 ```
-
----
 
 ### File Changes
 
-#### `src/components/properties/PropertyCard.tsx`
+#### `src/components/landing/FeaturedPropertyCard.tsx`
 
-**1. Add new icon imports:**
+**1. Add Camera icon import:**
 ```typescript
-import { Building, Camera, MapPin, Bed, Bath, TrendingUp, ArrowRight } from "lucide-react";
+import { MapPin, Bed, Bath, TrendingUp, Building, ArrowRight, Camera } from "lucide-react";
 ```
 
-**2. Enhance content section structure:**
-
-Replace the sparse text-only content with a richer layout:
-
-```tsx
-<CardContent className="p-4">
-  {/* Location with icon */}
-  <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-    <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/70" />
-    <span className="text-sm font-medium line-clamp-1">
-      {property.title}, {property.property_city}
-    </span>
-  </div>
-
-  {/* Property specs with icons */}
-  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
-    <div className="flex items-center gap-1">
-      <Bed className="h-3.5 w-3.5 text-primary/70" />
-      <span className="font-medium">{property.bedrooms || "—"} beds</span>
-    </div>
-    <div className="flex items-center gap-1">
-      <Bath className="h-3.5 w-3.5 text-primary/70" />
-      <span className="font-medium">{property.bathrooms || "—"} baths</span>
-    </div>
-    <div className="flex items-center gap-1">
-      <Building className="h-3.5 w-3.5 text-primary/70" />
-      <span className="font-medium">{propertyTypeLabels[property.property_type]}</span>
-    </div>
-  </div>
-
-  {/* Yield and CTA row */}
-  <div className="flex items-center justify-between pt-3 border-t border-border/60">
-    <div className="flex items-center gap-2">
-      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-        <TrendingUp className="h-3.5 w-3.5 text-primary" />
-      </div>
-      <div>
-        <span className="text-xs text-muted-foreground block">Gross Yield</span>
-        <span className="font-bold text-primary text-sm">
-          {formatYield(grossYield)}
-        </span>
-      </div>
-    </div>
-    <div className="flex items-center gap-1 text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-      <span>View Deal</span>
-      <ArrowRight className="h-4 w-4" />
-    </div>
-  </div>
-</CardContent>
+**2. Add photo count calculation:**
+```typescript
+const photoCount = property.photo_urls?.length || 0;
 ```
 
-**3. Refine compare button styling:**
+**3. Update skeleton loading state:**
+Change aspect ratio from `aspect-video` to `aspect-[4/3]` to match.
 
-Make it more subtle and integrated:
-```tsx
-<div className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 transition-opacity">
-  <CompareCheckbox propertyId={property.id} />
-</div>
-```
+**4. Replace image section:**
+- Change aspect ratio from `aspect-video` to `aspect-[4/3]`
+- Remove the gradient price overlay
+- Add photo count indicator in top-left (like PropertyCard)
 
-**4. Enhance card hover state:**
+**5. Add solid price bar:**
+Insert a new `bg-primary` price bar between image and CardContent (matching PropertyCard pattern).
 
-Add stronger shadow on hover:
-```tsx
-<Card className="group overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300">
-```
+**6. Simplify content section:**
+- Remove the title (h3) since location already identifies the property
+- Keep location, property specs, and yield/CTA rows (already consistent)
 
----
+**7. Update CTA hover effect:**
+Change from gap animation to opacity fade for consistency with PropertyCard.
 
-### Summary of Enhancements
+### Summary of Changes
 
-| Enhancement | Impact |
-|-------------|--------|
-| MapPin icon for location | Adds visual cue, breaks up text |
-| Bed/Bath/Building icons | Shows key specs at a glance |
-| Yield in icon circle | Creates focal point, matches FeaturedPropertyCard |
-| "View Deal" CTA on hover | Adds interactivity, invites clicks |
-| Border-top divider | Creates visual sections |
-| Stronger hover shadow | More interactive feel |
+| Change | Reason |
+|--------|--------|
+| `aspect-video` → `aspect-[4/3]` | Match PropertyCard proportions |
+| Remove gradient overlay | Clean image presentation |
+| Add solid price bar | Consistent price display pattern |
+| Add photo count | Helpful info, matches PropertyCard |
+| Remove title h3 | Simplify content, location is enough |
+| Opacity CTA animation | Consistent hover behavior |
 
 ### Result
-The cards will feel more "complete" and visually rich while maintaining the clean aesthetic. The pattern matches what's already used in `FeaturedPropertyCard`, creating consistency across the app.
+The FeaturedPropertyCard will share the same visual language as PropertyCard - clean images with a solid price bar - while retaining its distinctive "Featured Deal" badge that makes it stand out as a highlighted property.
+
