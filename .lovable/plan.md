@@ -1,71 +1,81 @@
 
-## Streamline Admin Workflow: Approve = Automatically List
+## Fix: Prevent Duplicate Listings When Re-approving Edited Submissions
 
-### Current Workflow (2 Steps)
-1. Admin clicks "Approve" → Status changes to "approved"
-2. Admin must then click "Add to Listings" → Property is created and status becomes "listed"
+### Problem Identified
+When a user edits an already-listed property submission:
+1. The edit resets `admin_status` to "pending"
+2. Admin re-approves by clicking "Approve & List"
+3. The system **creates a duplicate listing** instead of updating the existing one
 
-### New Workflow (1 Step)
-1. Admin clicks "Approve" → Property is created automatically and status becomes "listed"
+This is confirmed by database showing multiple properties with the same `submission_id`.
 
-### Implementation Approach
+### Root Cause
+The `useConvertToListing` function always performs an INSERT without checking if a property already exists for that submission.
 
-There are two options:
-1. **Option A (Client-side)**: Modify the approve button handlers to call the `convertToListing` mutation instead of `updateSubmissionStatus`
-2. **Option B (Database trigger)**: Create a database trigger that automatically creates a listing when status changes to "approved"
-
-**Recommended: Option A (Client-side)** - Simpler, easier to maintain, and allows for clearer user feedback.
+### Solution
+Modify the `useConvertToListing` mutation to:
+1. First check if a property already exists for the given `submission_id`
+2. If it exists: just update the submission status to "listed" (the database trigger will sync changes)
+3. If it doesn't exist: create the new property listing
 
 ---
 
-### Files to Modify
+### Technical Details
 
-#### 1. `src/components/admin/SubmissionsTable.tsx`
+**File: `src/hooks/useSellerSubmissions.ts`**
 
-**Current behavior (lines 205-221):**
-The "Approve" button calls `onUpdateStatus(submission.id, "approved")`
-
-**New behavior:**
-The "Approve" button should call `onConvertToListing(submission)` directly, which creates the listing and triggers the database trigger to set status to "listed".
+Update the `useConvertToListing` mutation function:
 
 ```typescript
-// Change line 210 from:
-onClick={() => onUpdateStatus(submission.id, "approved")}
+mutationFn: async (submission: SellerSubmission) => {
+  // Check if a property already exists for this submission
+  const { data: existingProperty } = await supabase
+    .from("properties")
+    .select("id")
+    .eq("submission_id", submission.id)
+    .maybeSingle();
 
-// To:
-onClick={() => onConvertToListing(submission)}
+  if (existingProperty) {
+    // Property already exists - just update submission status
+    // The sync_submission_to_property trigger will handle the updates
+    const { error: updateError } = await supabase
+      .from("seller_submissions")
+      .update({ admin_status: "listed" })
+      .eq("id", submission.id);
+
+    if (updateError) throw updateError;
+    return existingProperty;
+  }
+
+  // No existing property - create new listing
+  const { data: property, error: propertyError } = await supabase
+    .from("properties")
+    .insert({
+      // ... existing insert fields
+    })
+    .select()
+    .single();
+
+  if (propertyError) throw propertyError;
+  return property;
+},
 ```
 
-Also update button text and loading state to reflect the combined action.
+### How It Works
 
-#### 2. `src/components/admin/SubmissionDetailDialog.tsx`
+| Scenario | Action |
+|----------|--------|
+| First-time approval | Creates new property, trigger sets status to "listed" |
+| Re-approval after edit | Updates status to "listed", sync trigger updates property |
 
-**Current behavior (lines 351-360):**
-Shows an "Approve" button that sets status to "approved", then separately shows "Create Listing" button for approved submissions.
+### Why This Works
 
-**New behavior:**
-The "Approve" button should directly create the listing. Remove the intermediate "approved" state UI.
+The existing database trigger `sync_submission_to_property` already syncs changes from submissions to properties when status is "listed". By simply updating the status (instead of creating a new property), the trigger handles all the field updates automatically.
 
----
+### Summary
 
-### Summary of Changes
-
-| File | Change |
-|------|--------|
-| `SubmissionsTable.tsx` | Change "Approve" button to call `onConvertToListing` instead of `onUpdateStatus("approved")` |
-| `SubmissionsTable.tsx` | Update button text from "Approve" to "Approve & List" |
-| `SubmissionsTable.tsx` | Update loading state to use `isConverting` |
-| `SubmissionsTable.tsx` | Remove the separate "Add to Listings" button for approved status |
-| `SubmissionDetailDialog.tsx` | Same changes for the detail dialog approve button |
-| `SubmissionDetailDialog.tsx` | Remove the separate "Create Listing" button |
-
-### Expected Result
-
-| Before | After |
-|--------|-------|
-| Pending → Approve → Approved → Add to Listings → Listed | Pending → Approve & List → Listed |
-| 2 clicks to publish | 1 click to publish |
-| "approved" status exists as intermediate state | Submissions go directly from pending to listed |
-
-### What About Rejected Submissions?
-The reject flow remains unchanged - admin can still reject submissions that shouldn't be listed.
+| Aspect | Before | After |
+|--------|--------|-------|
+| First approval | Creates property | Creates property (no change) |
+| Re-approval after edit | Creates duplicate property | Updates existing property via trigger |
+| Database integrity | Broken (duplicates) | Maintained (one property per submission) |
