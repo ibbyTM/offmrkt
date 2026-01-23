@@ -9,24 +9,30 @@ interface PropertyCardCarouselProps {
 
 export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+  const [nextIndex, setNextIndex] = useState<number | null>(null);
 
   const hasMultipleImages = images.length > 1;
   const minSwipeDistance = 50;
 
   const animateToSlide = (newIndex: number, direction: 'left' | 'right') => {
     if (isAnimating) return;
+    setPrevIndex(currentIndex);
+    setNextIndex(newIndex);
     setSlideDirection(direction);
     setIsAnimating(true);
     
     setTimeout(() => {
       setCurrentIndex(newIndex);
       setIsAnimating(false);
+      setPrevIndex(null);
+      setNextIndex(null);
       setSlideDirection(null);
-    }, 150);
+    }, 300);
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -90,22 +96,44 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
 
   return (
     <div
-      className="w-full h-full relative"
+      className="w-full h-full relative overflow-hidden"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Current Image */}
-      <img
-        src={images[currentIndex]}
-        alt={alt}
-        className={cn(
-          "w-full h-full object-cover transition-all duration-300 ease-out group-hover:scale-105",
-          isAnimating && slideDirection === 'left' && "opacity-0 -translate-x-2",
-          isAnimating && slideDirection === 'right' && "opacity-0 translate-x-2",
-          !isAnimating && "opacity-100 translate-x-0"
-        )}
-      />
+      {/* Current/Static Image (when not animating) */}
+      {!isAnimating && (
+        <img
+          src={images[currentIndex]}
+          alt={alt}
+          className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+        />
+      )}
+
+      {/* Outgoing image (slides out) */}
+      {isAnimating && prevIndex !== null && (
+        <img
+          src={images[prevIndex]}
+          alt={alt}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out",
+            slideDirection === 'left' && "-translate-x-full",
+            slideDirection === 'right' && "translate-x-full"
+          )}
+        />
+      )}
+
+      {/* Incoming image (slides in) */}
+      {isAnimating && nextIndex !== null && (
+        <img
+          src={images[nextIndex]}
+          alt={alt}
+          className={cn(
+            "absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out",
+            "translate-x-0"
+          )}
+        />
+      )}
 
       {/* Navigation Arrows - visible on hover */}
       {hasMultipleImages && (
