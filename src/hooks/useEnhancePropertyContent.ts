@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-interface PropertyData {
+export interface PropertyData {
   property_address: string;
   property_city: string;
   property_postcode?: string;
