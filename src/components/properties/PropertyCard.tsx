@@ -8,6 +8,7 @@ import {
   formatPrice,
   formatYield,
   listingStatusLabels,
+  propertyTypeLabels,
 } from "@/lib/propertyUtils";
 import { CompareCheckbox } from "@/components/comparison/CompareCheckbox";
 import { PropertyCardMenu } from "./PropertyCardMenu";
@@ -31,9 +32,12 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   // Generate short reference ID from property id
   const referenceId = property.property_reference || `OM${property.id.slice(-4).toUpperCase()}`;
 
+  // Get property type label
+  const propertyTypeLabel = propertyTypeLabels[property.property_type] || property.property_type;
+
   return (
     <Link to={`/properties/${property.id}`}>
-      <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 bg-card">
+      <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 bg-card">
         {/* Image section with interactive carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <PropertyCardCarousel images={images} alt={property.title} />
@@ -59,10 +63,10 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
           )}
         </div>
 
-        {/* Content section - clean layout */}
+        {/* Content section - refined layout */}
         <CardContent className="p-4">
-          {/* Price row with reference ID */}
-          <div className="flex items-center justify-between mb-2">
+          {/* Price + Reference */}
+          <div className="flex items-center justify-between mb-1">
             <span className="text-xl font-bold text-foreground">
               {formatPrice(property.asking_price)}
             </span>
@@ -70,21 +74,21 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
               #{referenceId}
             </span>
           </div>
-          
-          {/* Title */}
-          <h3 className="font-medium text-foreground line-clamp-1 mb-1">
-            {property.title}
-          </h3>
+
+          {/* Property Type */}
+          <p className="text-sm text-muted-foreground mb-1">
+            {propertyTypeLabel}
+          </p>
           
           {/* Location */}
           <div className="flex items-center gap-1 text-muted-foreground mb-3">
             <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="text-sm">
+            <span className="text-sm line-clamp-1">
               {property.property_city}, {property.property_postcode}
             </span>
           </div>
           
-          {/* Specs row - compact with icons */}
+          {/* Specs row - Bed, Bath, Yield */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
             <div className="flex items-center gap-1">
               <Bed className="h-4 w-4" />
@@ -100,7 +104,7 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
             </div>
           </div>
           
-          {/* Action button - always visible */}
+          {/* CTA Button */}
           <Button className="w-full" variant="default">
             View Details
           </Button>
