@@ -1,123 +1,118 @@
 
-
-## Add Swipe Gesture Support to Property Card Carousel
+## Animate Property Card Image Transitions
 
 ### Overview
-Enhance the PropertyCardCarousel component to detect and respond to touch swipe gestures, allowing mobile users to intuitively browse property images by swiping left or right.
+Add smooth, eased sliding animations to the property card carousel so image transitions feel polished and controlled rather than instant swaps.
 
-### Implementation Approach
+### Animation Approach
 
-We'll implement native touch event handling (no external libraries needed) to keep the bundle size minimal and provide a responsive, lightweight solution.
+We'll implement a **CSS-based sliding transition** using `transform: translateX()` with easing. This approach:
+- Uses GPU-accelerated CSS transforms for smooth 60fps animation
+- Requires no external animation libraries
+- Works seamlessly with existing swipe gestures
 
-### Technical Details
-
-#### Touch Gesture Detection Logic
-
-The swipe detection will track:
-- **Touch start position** (X coordinate when finger touches)
-- **Touch end position** (X coordinate when finger lifts)
-- **Swipe threshold** (minimum distance to register as intentional swipe, ~50px)
+### Visual Effect
 
 ```text
-Swipe Left (→ to ←):  Go to next image
-Swipe Right (← to →): Go to previous image
+Current State:           Transition:              End State:
+┌─────────────┐          ┌─────────────┐          ┌─────────────┐
+│  Image 1    │   ──►    │ Image 1 │ 2 │   ──►    │   Image 2   │
+└─────────────┘          └─────────────┘          └─────────────┘
+                         (slides left)
 ```
 
-#### State Management
+### Technical Implementation
 
-New state to track touch interactions:
-- `touchStart`: X position where touch began (null when not touching)
-- `touchEnd`: X position where touch ended
+#### 1. Update State Management
 
-#### Event Handlers
+Add state to track the sliding direction for proper animation:
 
-| Event | Purpose |
-|-------|---------|
-| `onTouchStart` | Capture starting X position |
-| `onTouchMove` | Update current position (for potential visual feedback) |
-| `onTouchEnd` | Calculate swipe direction and navigate |
+```typescript
+const [isAnimating, setIsAnimating] = useState(false);
+const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+```
 
-#### Swipe Threshold
+#### 2. Animation Technique
 
-A minimum swipe distance of 50 pixels prevents accidental navigation from small touches while still feeling responsive.
+Use a fade + subtle slide effect which works well for carousels where images can vary significantly:
+
+```typescript
+// Trigger animation state before changing index
+const animateToSlide = (newIndex: number, direction: 'left' | 'right') => {
+  setSlideDirection(direction);
+  setIsAnimating(true);
+  
+  // After brief fade-out, change image and fade-in
+  setTimeout(() => {
+    setCurrentIndex(newIndex);
+    setIsAnimating(false);
+  }, 150); // Half the total transition time
+};
+```
+
+#### 3. CSS Transitions
+
+Apply eased transitions to the image element:
+
+```tsx
+<img
+  src={images[currentIndex]}
+  alt={alt}
+  className={cn(
+    "w-full h-full object-cover transition-all duration-300 ease-out",
+    "group-hover:scale-105",
+    isAnimating && slideDirection === 'left' && "opacity-0 -translate-x-2",
+    isAnimating && slideDirection === 'right' && "opacity-0 translate-x-2",
+    !isAnimating && "opacity-100 translate-x-0"
+  )}
+/>
+```
+
+### Animation Timing
+
+| Property | Value | Purpose |
+|----------|-------|---------|
+| Duration | 300ms | Feels snappy but visible |
+| Easing | `ease-out` | Natural deceleration |
+| Opacity | 0 → 1 | Smooth crossfade |
+| Transform | ±8px slide | Directional hint |
 
 ### File Changes
 
 | File | Change |
 |------|--------|
-| `src/components/properties/PropertyCardCarousel.tsx` | Add touch event handlers and swipe detection logic |
+| `src/components/properties/PropertyCardCarousel.tsx` | Add animation state and transition classes |
 
-### Updated Component Structure
+### Updated Navigation Functions
+
+All navigation methods (arrows, dots, swipe) will use the new animation wrapper:
 
 ```typescript
-export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+const goToPrevious = (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (isAnimating) return; // Prevent rapid clicking
+  const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+  animateToSlide(newIndex, 'right');
+};
 
-  // Minimum swipe distance (in px) to register as intentional
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe && hasMultipleImages) {
-      // Swiped left → go to next image
-      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    }
-    if (isRightSwipe && hasMultipleImages) {
-      // Swiped right → go to previous image
-      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    }
-  };
-
-  // Existing navigation functions remain unchanged...
-
-  return (
-    <div
-      className="w-full h-full"
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      <img src={images[currentIndex]} alt={alt} ... />
-      {/* Navigation arrows and dots remain unchanged */}
-    </div>
-  );
-}
+const goToNext = (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (isAnimating) return;
+  const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+  animateToSlide(newIndex, 'left');
+};
 ```
-
-### User Experience
-
-| Gesture | Result |
-|---------|--------|
-| Swipe left | Next image (loops to first) |
-| Swipe right | Previous image (loops to last) |
-| Short touch/tap | No navigation (below threshold) |
-| Vertical swipe | Ignored (only horizontal detected) |
 
 ### Key Features
 
-- **No external dependencies**: Uses native touch events
-- **Minimal threshold**: 50px prevents accidental swipes
-- **Horizontal only**: Vertical swipes won't interfere with page scrolling
-- **Looping navigation**: Seamlessly wraps around image array
-- **Works alongside existing controls**: Dots and arrows still function normally
+- **Directional awareness**: Sliding left vs right provides visual context
+- **Debounced transitions**: Prevents animation conflicts from rapid clicks
+- **GPU-accelerated**: Uses `transform` and `opacity` for smooth performance
+- **No external dependencies**: Pure CSS transitions with React state
+- **Preserves existing behavior**: Swipe gestures, dots, and arrows all animate consistently
 
 ### Result
 
-Mobile users can now naturally swipe through property images directly on the card, matching the gesture patterns they expect from modern apps like Airbnb and Rightmove.
-
+Image transitions will feel smooth and intentional with a subtle slide and fade effect, matching modern property portal experiences like Airbnb and Rightmove.
