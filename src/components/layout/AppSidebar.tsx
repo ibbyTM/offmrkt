@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Building2, Scale, Plus, 
   Settings, HelpCircle, Shield
 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -116,9 +117,12 @@ export function AppSidebar({ children }: AppSidebarProps) {
 
         {/* Page-specific content (filters, sections, etc.) - Scrollable */}
         {children && (
-          <div className="flex-1 overflow-y-auto min-h-0">
-            {children}
-          </div>
+          <>
+            <Separator className="mx-2 my-2" />
+            <div className="flex-1 overflow-y-auto min-h-0">
+              {children}
+            </div>
+          </>
         )}
       </SidebarContent>
 
