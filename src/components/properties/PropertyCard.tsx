@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building, MapPin, Bed, Bath, TrendingUp } from "lucide-react";
+import { MapPin, Bed, Bath, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import {
 } from "@/lib/propertyUtils";
 import { CompareCheckbox } from "@/components/comparison/CompareCheckbox";
 import { PropertyCardMenu } from "./PropertyCardMenu";
+import { PropertyCardCarousel } from "./PropertyCardCarousel";
 
 interface PropertyCardProps {
   property: Property;
@@ -18,9 +19,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, showCompare = true }: PropertyCardProps) {
-  const mainImage = property.photo_urls?.[0];
-  const photoCount = property.photo_urls?.length || 0;
-
+  const images = property.photo_urls || [];
   // Calculate gross yield dynamically if not stored
   const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
   const annualRent = monthlyRent * 12;
@@ -35,41 +34,14 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   return (
     <Link to={`/properties/${property.id}`}>
       <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 bg-card">
-        {/* Image section with overlay controls */}
+        {/* Image section with interactive carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          {mainImage ? (
-            <img
-              src={mainImage}
-              alt={property.title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-accent">
-              <Building className="h-12 w-12 text-muted-foreground" />
-            </div>
-          )}
+          <PropertyCardCarousel images={images} alt={property.title} />
           
           {/* Top-left: Compare checkbox (icon variant) */}
           {showCompare && (
-            <div className="absolute top-3 left-3">
+            <div className="absolute top-3 left-3 z-20">
               <CompareCheckbox propertyId={property.id} variant="icon" />
-            </div>
-          )}
-
-          {/* Bottom center: Carousel dots indicator */}
-          {photoCount > 1 && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-              {Array.from({ length: Math.min(photoCount, 5) }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 w-1.5 rounded-full transition-colors ${
-                    i === 0 ? "bg-white" : "bg-white/50"
-                  }`}
-                />
-              ))}
-              {photoCount > 5 && (
-                <span className="text-[10px] text-white/80 ml-0.5">+{photoCount - 5}</span>
-              )}
             </div>
           )}
 

@@ -1,16 +1,14 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Bed, Bath, MapPin, TrendingUp, Building, MoreVertical } from "lucide-react";
+import { ArrowRight, Bed, Bath, MapPin, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProperties } from "@/hooks/useProperties";
-import {
-  formatPrice,
-  formatYield,
-  propertyTypeLabels,
-} from "@/lib/propertyUtils";
+import { formatPrice, formatYield } from "@/lib/propertyUtils";
+import { PropertyCardCarousel } from "@/components/properties/PropertyCardCarousel";
+import { PropertyCardMenu } from "@/components/properties/PropertyCardMenu";
 
 export function FeaturedPropertiesSection() {
   const { data: properties, isLoading } = useProperties();
@@ -61,7 +59,7 @@ export function FeaturedPropertiesSection() {
                 </Card>
               ))
             : featuredProperties.map((property, index) => {
-                const photoCount = property.photo_urls?.length || 0;
+                const images = property.photo_urls || [];
                 const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
                 const annualRent = monthlyRent * 12;
                 const calculatedGrossYield = property.asking_price > 0 && annualRent > 0
@@ -69,7 +67,6 @@ export function FeaturedPropertiesSection() {
                   : null;
                 const grossYield = property.gross_yield_percentage || calculatedGrossYield;
                 const referenceId = property.property_reference || `OM${property.id.slice(-4).toUpperCase()}`;
-
                 return (
                   <motion.div
                     key={property.id}
@@ -80,57 +77,22 @@ export function FeaturedPropertiesSection() {
                   >
                     <Link to={`/properties/${property.id}`} className="group block">
                       <Card className="overflow-hidden h-full rounded-xl border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg bg-card">
-                        {/* Image Container with overlay controls */}
+                        {/* Image Container with interactive carousel */}
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                          {property.photo_urls?.[0] ? (
-                            <img
-                              src={property.photo_urls[0]}
-                              alt={property.title}
-                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Building className="w-12 h-12 text-muted-foreground/30" />
-                            </div>
-                          )}
+                          <PropertyCardCarousel images={images} alt={property.title} />
 
                           {/* Featured Badge (first property only) */}
                           {index === 0 && (
                             <Badge
                               variant="secondary"
-                              className="absolute top-3 left-3 bg-background/90 text-foreground shadow-md"
+                              className="absolute top-3 left-3 z-20 bg-background/90 text-foreground shadow-md"
                             >
                               Top Pick
                             </Badge>
                           )}
 
-                          {/* Bottom center: Carousel dots */}
-                          {photoCount > 1 && (
-                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-                              {Array.from({ length: Math.min(photoCount, 5) }).map((_, i) => (
-                                <div
-                                  key={i}
-                                  className={`h-1.5 w-1.5 rounded-full ${
-                                    i === 0 ? "bg-white" : "bg-white/50"
-                                  }`}
-                                />
-                              ))}
-                              {photoCount > 5 && (
-                                <span className="text-[10px] text-white/80 ml-0.5">+{photoCount - 5}</span>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Top-right: Options menu placeholder */}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                            }}
-                            className="absolute top-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-colors opacity-0 group-hover:opacity-100"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </button>
+                          {/* Top-right: Options menu */}
+                          <PropertyCardMenu propertyId={property.id} />
                         </div>
 
                         <CardContent className="p-4">
