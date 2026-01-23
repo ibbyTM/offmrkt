@@ -73,7 +73,26 @@ export const useConvertToListing = () => {
 
   return useMutation({
     mutationFn: async (submission: SellerSubmission) => {
-      // Create the property listing from the submission
+      // Check if a property already exists for this submission
+      const { data: existingProperty } = await supabase
+        .from("properties")
+        .select("id")
+        .eq("submission_id", submission.id)
+        .maybeSingle();
+
+      if (existingProperty) {
+        // Property already exists - just update submission status to "listed"
+        // The sync_submission_to_property trigger will handle syncing the updates
+        const { error: updateError } = await supabase
+          .from("seller_submissions")
+          .update({ admin_status: "listed" })
+          .eq("id", submission.id);
+
+        if (updateError) throw updateError;
+        return existingProperty;
+      }
+
+      // No existing property - create new listing
       const { data: property, error: propertyError } = await supabase
         .from("properties")
         .insert({
