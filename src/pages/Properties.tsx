@@ -3,13 +3,16 @@ import { Building } from "lucide-react";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarGroupContent,
+} from "@/components/ui/sidebar";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyFiltersPanel, PropertyFilters } from "@/components/properties/PropertyFilters";
-import { PropertiesSidebar } from "@/components/properties/PropertiesSidebar";
 import { PropertiesToolbar } from "@/components/properties/PropertiesToolbar";
-import { ComparisonBar } from "@/components/comparison/ComparisonBar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useProperties } from "@/hooks/useProperties";
 
 const defaultFilters: PropertyFilters = {
@@ -126,132 +129,118 @@ const Properties = () => {
     return count;
   }, [filters]);
 
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        {/* Sidebar with navigation + filters */}
-        <PropertiesSidebar
+  // Sidebar filters content
+  const filtersContent = (
+    <SidebarGroup>
+      <SidebarGroupLabel>Filters</SidebarGroupLabel>
+      <SidebarGroupContent className="px-2">
+        <PropertyFiltersPanel
           filters={filters}
           onFiltersChange={setFilters}
           cities={cities}
         />
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
 
-        <SidebarInset>
-          {/* Page Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger />
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Building className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold text-foreground">
-                  Properties
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {isLoading
-                    ? "Loading properties..."
-                    : `${filteredProperties.length} deals available`}
-                </p>
-              </div>
-            </div>
+  return (
+    <AppLayout
+      pageTitle="Properties"
+      pageSubtitle={isLoading ? "Loading properties..." : `${filteredProperties.length} deals available`}
+      pageIcon={<Building className="h-5 w-5 text-primary" />}
+      sidebarContent={filtersContent}
+      showComparisonBar
+    >
+      {/* Toolbar */}
+      <PropertiesToolbar
+        searchValue={filters.search}
+        onSearchChange={(val) => setFilters({ ...filters, search: val })}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        onFilterClick={() => setMobileFiltersOpen(true)}
+        activeFilterCount={activeFilterCount}
+      />
+
+      {/* Mobile Filter Sheet */}
+      <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+        <SheetContent side="left" className="w-80 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Filters</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6">
+            <PropertyFiltersPanel
+              filters={filters}
+              onFiltersChange={setFilters}
+              cities={cities}
+            />
           </div>
+        </SheetContent>
+      </Sheet>
 
-          {/* Toolbar */}
-          <PropertiesToolbar
-            searchValue={filters.search}
-            onSearchChange={(val) => setFilters({ ...filters, search: val })}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            onFilterClick={() => setMobileFiltersOpen(true)}
-            activeFilterCount={activeFilterCount}
-          />
-
-          {/* Mobile Filter Sheet */}
-          <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-            <SheetContent side="left" className="w-80 overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>Filters</SheetTitle>
-              </SheetHeader>
-              <div className="mt-6">
-                <PropertyFiltersPanel
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  cities={cities}
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
-
-          {/* Main Content */}
-          <main className="p-6">
-            {/* Loading State */}
-            {isLoading && (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="rounded-xl border border-border overflow-hidden">
-                    <Skeleton className="aspect-[4/3]" />
-                    <div className="p-4 space-y-3">
-                      <Skeleton className="h-6 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                      <Skeleton className="h-4 w-full" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Error State */}
-            {error && (
-              <div className="text-center py-12">
-                <p className="text-destructive">Failed to load properties. Please try again.</p>
-              </div>
-            )}
-
-            {/* Empty State */}
-            {!isLoading && !error && filteredProperties.length === 0 && (
-              <div className="text-center py-16">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                  <Building className="h-8 w-8 text-muted-foreground" />
+      {/* Main Content */}
+      <div className="p-6">
+        {/* Loading State */}
+        {isLoading && (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="rounded-xl border border-border overflow-hidden">
+                <Skeleton className="aspect-[4/3]" />
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-full" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  No properties found
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Try adjusting your filters to see more results.
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setFilters(defaultFilters)}
-                >
-                  Clear all filters
-                </Button>
               </div>
-            )}
+            ))}
+          </div>
+        )}
 
-            {/* Property Grid - 4 columns on XL */}
-            {!isLoading && !error && filteredProperties.length > 0 && (
-              <div
-                className={
-                  viewMode === "grid"
-                    ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    : "space-y-4"
-                }
-              >
-                {filteredProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </div>
-            )}
-          </main>
-        </SidebarInset>
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-12">
+            <p className="text-destructive">Failed to load properties. Please try again.</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && filteredProperties.length === 0 && (
+          <div className="text-center py-16">
+            <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <Building className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">
+              No properties found
+            </h3>
+            <p className="text-muted-foreground mb-6">
+              Try adjusting your filters to see more results.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setFilters(defaultFilters)}
+            >
+              Clear all filters
+            </Button>
+          </div>
+        )}
+
+        {/* Property Grid - 4 columns on XL */}
+        {!isLoading && !error && filteredProperties.length > 0 && (
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                : "space-y-4"
+            }
+          >
+            {filteredProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} />
+            ))}
+          </div>
+        )}
       </div>
-
-      {/* Comparison Bar */}
-      <ComparisonBar />
-    </SidebarProvider>
+    </AppLayout>
   );
 };
 
