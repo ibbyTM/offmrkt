@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useProperty } from "@/hooks/useProperties";
+import { useIsAdmin } from "@/hooks/useAdminApplications";
 import { Layout } from "@/components/layout/Layout";
 import PropertyGallery from "@/components/property-detail/PropertyGallery";
 import PropertyHeader from "@/components/property-detail/PropertyHeader";
@@ -12,6 +13,7 @@ import ROIBreakdown from "@/components/property-detail/ROIBreakdown";
 import AIPropertyAnalysis from "@/components/property-detail/AIPropertyAnalysis";
 import ComplianceDocuments from "@/components/property-detail/ComplianceDocuments";
 import PropertyCTAs from "@/components/property-detail/PropertyCTAs";
+import { AdminPropertyToolbar } from "@/components/property-detail/AdminPropertyToolbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -19,6 +21,7 @@ import { ArrowLeft } from "lucide-react";
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: property, isLoading, error } = useProperty(id || "");
+  const { data: isAdmin } = useIsAdmin();
 
   if (isLoading) {
     return (
@@ -70,6 +73,8 @@ export default function PropertyDetail() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Properties
         </Link>
+
+        {isAdmin && <AdminPropertyToolbar property={property} />}
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
