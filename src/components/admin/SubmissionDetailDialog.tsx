@@ -348,24 +348,15 @@ export const SubmissionDetailDialog = ({
               Mark Reviewing
             </Button>
           )}
-          {submission.admin_status !== "approved" && submission.admin_status !== "listed" && (
+          {submission.admin_status === "pending" && (
             <Button
               variant="default"
-              onClick={() => handleStatusUpdate("approved")}
-              disabled={isUpdating || isConverting}
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              Approve
-            </Button>
-          )}
-          {submission.admin_status === "approved" && (
-            <Button
               onClick={() => onConvertToListing(submission)}
               disabled={isConverting}
               className="bg-green-600 hover:bg-green-700"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              {isConverting ? "Creating..." : "Create Listing"}
+              <CheckCircle className="h-4 w-4 mr-2" />
+              {isConverting ? "Creating..." : "Approve & List"}
             </Button>
           )}
         </DialogFooter>

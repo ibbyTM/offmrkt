@@ -207,15 +207,15 @@ export const SubmissionsTable = ({
                         <Button
                           size="lg"
                           className="bg-green-600 hover:bg-green-700 text-base px-6"
-                          onClick={() => onUpdateStatus(submission.id, "approved")}
-                          disabled={isUpdating}
+                          onClick={() => onConvertToListing(submission)}
+                          disabled={isConverting}
                         >
-                          {isUpdating ? (
+                          {isConverting ? (
                             <Loader2 className="h-5 w-5 animate-spin" />
                           ) : (
                             <>
                               <CheckCircle className="h-5 w-5 mr-2" />
-                              Approve
+                              Approve & List
                             </>
                           )}
                         </Button>
@@ -224,30 +224,12 @@ export const SubmissionsTable = ({
                           size="lg"
                           className="text-base px-6"
                           onClick={() => onUpdateStatus(submission.id, "rejected")}
-                          disabled={isUpdating}
+                          disabled={isUpdating || isConverting}
                         >
                           <XCircle className="h-5 w-5 mr-2" />
                           Reject
                         </Button>
                       </>
-                    )}
-                    
-                    {submission.admin_status === "approved" && (
-                      <Button
-                        size="lg"
-                        className="bg-primary hover:bg-primary/90 text-base px-6"
-                        onClick={() => onConvertToListing(submission)}
-                        disabled={isConverting}
-                      >
-                        {isConverting ? (
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                        ) : (
-                          <>
-                            <Plus className="h-5 w-5 mr-2" />
-                            Add to Listings
-                          </>
-                        )}
-                      </Button>
                     )}
                   </div>
                 </div>
