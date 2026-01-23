@@ -1,201 +1,197 @@
 
 
-## Apply Sidebar Layout to All App Pages
+## Add Mobile Bottom Navigation Bar
 
 ### Overview
-Extend the Landify-inspired sidebar layout from the Properties page to all authenticated app pages (Dashboard, Admin, Compare) while keeping marketing/legal pages with the standard Layout.
+Create a fixed bottom navigation bar that appears on mobile devices (below 768px) when the sidebar is hidden. This provides easy thumb-accessible navigation for authenticated app pages using `AppLayout`.
 
-### Pages to Update
-
-| Page | Current Layout | Change |
-|------|---------------|--------|
-| **Dashboard** | `Layout` + container | Sidebar + SidebarInset |
-| **Admin** | `Layout` + container | Sidebar + SidebarInset |
-| **Compare** | `Layout` + container | Sidebar + SidebarInset |
-| Index, Privacy, Terms, etc. | `Layout` | **Keep as-is** (marketing pages) |
-
-### Architecture
-
-We'll create a reusable **AppSidebar** component that can be used across all authenticated pages, with the current PropertiesSidebar's filter section being page-specific.
+### Design
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│                    AppSidebar                           │
-├─────────────────────────────────────────────────────────┤
-│  Logo + Collapse Button                                │
-├─────────────────────────────────────────────────────────┤
-│  Navigation:                                            │
-│    • Dashboard        (/dashboard)                     │
-│    • Properties       (/properties)                    │
-│    • Compare          (/compare) - if has selections   │
-│    • Submit Property  (/submit-property)               │
-│    • Admin            (/admin) - if admin              │
-├─────────────────────────────────────────────────────────┤
-│  Page-specific content (filters, etc.)                 │
-├─────────────────────────────────────────────────────────┤
-│  Footer: Settings + Help                               │
-└─────────────────────────────────────────────────────────┘
+Desktop (>768px)                    Mobile (<768px)
+┌──────┬────────────────────┐      ┌────────────────────────┐
+│      │                    │      │  Page Header           │
+│ Side │   Page Content     │      ├────────────────────────┤
+│ bar  │                    │      │                        │
+│      │                    │      │   Page Content         │
+│      │                    │      │                        │
+│      │                    │      ├────────────────────────┤
+│      │                    │      │ [Home][Props][+][More] │
+└──────┴────────────────────┘      └────────────────────────┘
 ```
+
+### Bottom Navigation Items
+
+| Item | Icon | Route | Description |
+|------|------|-------|-------------|
+| Dashboard | `LayoutDashboard` | `/dashboard` | Main dashboard |
+| Properties | `Building2` | `/properties` | Property listings |
+| Submit | `Plus` | `/submit-property` | Add new property |
+| More | `Menu` | Opens sheet | Settings, Help, Admin (if applicable), Compare (if has selections) |
 
 ### File Changes
 
 | File | Change Type | Description |
 |------|-------------|-------------|
-| `src/components/layout/AppSidebar.tsx` | **Create** | Reusable sidebar with navigation for all app pages |
-| `src/components/layout/AppLayout.tsx` | **Create** | Wrapper component with SidebarProvider + SidebarInset |
-| `src/pages/Dashboard.tsx` | **Modify** | Replace `Layout` with `AppLayout` |
-| `src/pages/Admin.tsx` | **Modify** | Replace `Layout` with `AppLayout` |
-| `src/pages/Compare.tsx` | **Modify** | Replace `Layout` with `AppLayout` |
-| `src/pages/Properties.tsx` | **Modify** | Refactor to use shared `AppSidebar` |
+| `src/components/layout/MobileBottomNav.tsx` | **Create** | New bottom navigation component |
+| `src/components/layout/AppLayout.tsx` | **Modify** | Add MobileBottomNav + padding for content |
 
 ---
 
 ## Technical Details
 
-### 1. AppSidebar Component (Shared Navigation)
+### 1. MobileBottomNav Component
 
 ```tsx
-// src/components/layout/AppSidebar.tsx
+// src/components/layout/MobileBottomNav.tsx
 import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { 
-  LayoutDashboard, Building2, Scale, Plus, Users, 
-  Settings, HelpCircle, Shield
+  LayoutDashboard, Building2, Plus, Menu, 
+  Settings, HelpCircle, Shield, Scale, X 
 } from "lucide-react";
-import {
-  Sidebar, SidebarContent, SidebarHeader, SidebarFooter,
-  SidebarGroup, SidebarGroupLabel, SidebarGroupContent,
-  SidebarMenu, SidebarMenuItem, SidebarMenuButton,
-  SidebarTrigger, useSidebar,
-} from "@/components/ui/sidebar";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useComparison } from "@/contexts/ComparisonContext";
 import { useIsAdmin } from "@/hooks/useAdminApplications";
-import logo from "@/assets/offmrkt-logo.png";
+import { cn } from "@/lib/utils";
 
-interface AppSidebarProps {
-  children?: React.ReactNode;  // For page-specific sidebar content (filters, etc.)
-}
+const primaryNavItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Properties", url: "/properties", icon: Building2 },
+  { title: "Submit", url: "/submit-property", icon: Plus },
+];
 
-export function AppSidebar({ children }: AppSidebarProps) {
+export function MobileBottomNav() {
   const location = useLocation();
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
+  const isMobile = useIsMobile();
+  const [moreOpen, setMoreOpen] = useState(false);
   const { selectedProperties } = useComparison();
   const { data: isAdmin } = useIsAdmin();
 
-  const navItems = [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Properties", url: "/properties", icon: Building2 },
-    { title: "Submit Property", url: "/submit-property", icon: Plus },
-  ];
+  // Only show on mobile
+  if (!isMobile) return null;
 
-  // Conditionally show Compare if user has selections
-  if (selectedProperties.length > 0) {
-    navItems.push({ 
-      title: `Compare (${selectedProperties.length})`, 
-      url: "/compare", 
-      icon: Scale 
-    });
-  }
+  const isActive = (url: string) => location.pathname === url;
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center justify-between p-2">
-          {!isCollapsed && (
-            <Link to="/">
-              <img src={logo} alt="OffMrkt" className="h-10" />
+    <>
+      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-pb">
+        <div className="flex items-center justify-around h-16">
+          {primaryNavItems.map((item) => (
+            <Link
+              key={item.title}
+              to={item.url}
+              className={cn(
+                "flex flex-col items-center justify-center flex-1 h-full px-2 transition-colors",
+                isActive(item.url)
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              <span className="text-xs mt-1 font-medium">{item.title}</span>
             </Link>
-          )}
-          <SidebarTrigger />
+          ))}
+
+          {/* More Button */}
+          <button
+            onClick={() => setMoreOpen(true)}
+            className={cn(
+              "flex flex-col items-center justify-center flex-1 h-full px-2 transition-colors relative",
+              moreOpen
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Menu className="h-5 w-5" />
+            <span className="text-xs mt-1 font-medium">More</span>
+            {/* Badge for Compare or Admin notifications */}
+            {(selectedProperties.length > 0 || isAdmin) && (
+              <span className="absolute top-2 right-1/4 h-2 w-2 rounded-full bg-primary" />
+            )}
+          </button>
         </div>
-      </SidebarHeader>
+      </nav>
 
-      <SidebarContent>
-        {/* Main Navigation */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-          <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={location.pathname === item.url}
-                  tooltip={item.title}
-                >
-                  <Link to={item.url}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        {/* Admin Section (if admin) */}
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={location.pathname.startsWith("/admin")}
-                  tooltip="Admin Panel"
-                >
-                  <Link to="/admin">
-                    <Shield className="h-4 w-4" />
-                    <span>Admin Panel</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {/* Page-specific content (filters, etc.) */}
-        {children}
-      </SidebarContent>
-
-      <SidebarFooter className="border-t border-sidebar-border">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings">
-              <Link to="/dashboard?tab=settings">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
+      {/* More Menu Sheet */}
+      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
+        <SheetContent side="bottom" className="rounded-t-xl">
+          <SheetHeader>
+            <SheetTitle>More Options</SheetTitle>
+          </SheetHeader>
+          
+          <div className="grid gap-2 py-4">
+            {/* Compare - if has selections */}
+            {selectedProperties.length > 0 && (
+              <Link
+                to="/compare"
+                onClick={() => setMoreOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                  isActive("/compare")
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-muted"
+                )}
+              >
+                <Scale className="h-5 w-5" />
+                <span className="flex-1">Compare Properties</span>
+                <Badge variant="secondary">{selectedProperties.length}</Badge>
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Help">
-              <HelpCircle className="h-4 w-4" />
+            )}
+
+            {/* Admin - if admin */}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setMoreOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
+                  location.pathname.startsWith("/admin")
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-muted"
+                )}
+              >
+                <Shield className="h-5 w-5" />
+                <span>Admin Panel</span>
+              </Link>
+            )}
+
+            {/* Settings */}
+            <Link
+              to="/dashboard?tab=settings"
+              onClick={() => setMoreOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
+            >
+              <Settings className="h-5 w-5" />
+              <span>Settings</span>
+            </Link>
+
+            {/* Help */}
+            <button
+              onClick={() => setMoreOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors w-full text-left"
+            >
+              <HelpCircle className="h-5 w-5" />
               <span>Help</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
+            </button>
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
 ```
 
-### 2. AppLayout Wrapper Component
+### 2. Update AppLayout
+
+Add the bottom nav and ensure content doesn't get hidden behind it:
 
 ```tsx
 // src/components/layout/AppLayout.tsx
-import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
-import { Header } from "./Header";
-
-interface AppLayoutProps {
-  children: React.ReactNode;
-  sidebarContent?: React.ReactNode;  // Page-specific sidebar content
-  pageTitle?: string;
-  pageSubtitle?: string;
-  pageIcon?: React.ReactNode;
-  headerActions?: React.ReactNode;
-}
+import { MobileBottomNav } from "./MobileBottomNav";
 
 export function AppLayout({ 
   children, 
@@ -203,7 +199,8 @@ export function AppLayout({
   pageTitle,
   pageSubtitle,
   pageIcon,
-  headerActions
+  headerActions,
+  showComparisonBar = false,
 }: AppLayoutProps) {
   return (
     <SidebarProvider>
@@ -213,205 +210,86 @@ export function AppLayout({
         <SidebarInset>
           {/* Page Header */}
           {pageTitle && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger />
-                {pageIcon && (
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    {pageIcon}
-                  </div>
-                )}
-                <div>
-                  <h1 className="text-xl font-semibold text-foreground">
-                    {pageTitle}
-                  </h1>
-                  {pageSubtitle && (
-                    <p className="text-sm text-muted-foreground">{pageSubtitle}</p>
-                  )}
-                </div>
-              </div>
-              {headerActions}
+            <div className="...">
+              {/* ... existing header ... */}
             </div>
           )}
           
-          {/* Main Content */}
-          <main className="flex-1">
+          {/* Main Content - add bottom padding for mobile nav */}
+          <main className="flex-1 pb-16 md:pb-0">
             {children}
           </main>
         </SidebarInset>
       </div>
+
+      {/* Comparison Bar (optional) */}
+      {showComparisonBar && <ComparisonBar />}
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
     </SidebarProvider>
   );
 }
 ```
 
-### 3. Dashboard Page Update
+### 3. Add Safe Area CSS
 
-```tsx
-// src/pages/Dashboard.tsx - Key structural changes
-import { AppLayout } from "@/components/layout/AppLayout";
-import { LayoutDashboard } from "lucide-react";
+For devices with home indicators (iPhone X+), add CSS for safe area padding:
 
-const Dashboard = () => {
-  // ... existing state and hooks ...
-
-  if (loading) {
-    return (
-      <AppLayout 
-        pageTitle="Dashboard" 
-        pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
-      >
-        <div className="min-h-[80vh] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </AppLayout>
-    );
-  }
-
-  return (
-    <AppLayout
-      pageTitle={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Investor"}`}
-      pageSubtitle="Manage your property investments"
-      pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
-      headerActions={
-        <Badge variant={investorStatus === "approved" ? "default" : "secondary"}>
-          {investorStatus === "approved" ? "Approved Investor" : "Pending Approval"}
-        </Badge>
-      }
-    >
-      <div className="p-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          {/* ... existing stats cards ... */}
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="saved" className="space-y-6">
-          {/* ... existing tabs content ... */}
-        </Tabs>
-      </div>
-    </AppLayout>
-  );
-};
+```css
+/* In src/index.css */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
 ```
 
-### 4. Admin Page Update
+### Key Features
 
-```tsx
-// src/pages/Admin.tsx - Key structural changes
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Shield } from "lucide-react";
+| Feature | Implementation |
+|---------|----------------|
+| **Mobile Only** | Uses `useIsMobile()` hook (768px breakpoint) |
+| **Primary Nav** | Dashboard, Properties, Submit - always visible |
+| **More Menu** | Sheet from bottom with Compare, Admin, Settings, Help |
+| **Active States** | Primary color for current route |
+| **Compare Badge** | Shows count in "More" menu and dot indicator on button |
+| **Admin Access** | Only shows in menu when user is admin |
+| **Safe Areas** | Proper padding for notched devices |
+| **Content Spacing** | Main content gets bottom padding to prevent overlap |
 
-const Admin = () => {
-  // ... existing state and hooks ...
+### Visual Design
 
-  // Admin sidebar content - section navigation
-  const adminSidebarContent = (
-    <SidebarGroup>
-      <SidebarGroupLabel>Sections</SidebarGroupLabel>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton 
-            isActive={currentSection === 'applications'}
-            onClick={() => setCurrentSection('applications')}
-          >
-            <Users className="h-4 w-4" />
-            <span>Applications</span>
-            {pendingApps > 0 && (
-              <Badge className="ml-auto">{pendingApps}</Badge>
-            )}
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-        {/* ... more section buttons ... */}
-      </SidebarMenu>
-    </SidebarGroup>
-  );
-
-  return (
-    <AppLayout
-      pageTitle="Admin Panel"
-      pageSubtitle="Manage investors, properties, and leads"
-      pageIcon={<Shield className="h-5 w-5 text-primary" />}
-      sidebarContent={adminSidebarContent}
-    >
-      <div className="p-6">
-        {/* Section content based on currentSection */}
-      </div>
-    </AppLayout>
-  );
-};
+```text
+┌──────────────────────────────────┐
+│                                  │
+│         Page Content             │
+│                                  │
+│                                  │
+├──────────────────────────────────┤
+│ 🏠        🏢        ➕       ☰  │
+│Dashboard Properties Submit  More │
+└──────────────────────────────────┘
+       ↑ Fixed to bottom, 64px height
 ```
 
-### 5. Compare Page Update
+When "More" is tapped:
 
-```tsx
-// src/pages/Compare.tsx - Key structural changes
-import { AppLayout } from "@/components/layout/AppLayout";
-import { Scale } from "lucide-react";
-
-const Compare = () => {
-  const { selectedProperties, clearSelection, maxProperties } = useComparison();
-  // ... existing hooks ...
-
-  return (
-    <AppLayout
-      pageTitle="Compare Properties"
-      pageSubtitle={`${selectedProperties.length} of ${maxProperties} properties selected`}
-      pageIcon={<Scale className="h-5 w-5 text-primary" />}
-      headerActions={
-        <div className="flex items-center gap-2">
-          {canAddMore && (
-            <Button asChild variant="outline" size="sm">
-              <Link to="/properties">
-                <Plus className="h-4 w-4 mr-1.5" />
-                Add More
-              </Link>
-            </Button>
-          )}
-          {selectedProperties.length > 0 && (
-            <Button variant="ghost" size="sm" onClick={clearSelection}>
-              Clear All
-            </Button>
-          )}
-        </div>
-      }
-    >
-      <div className="p-6">
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* ... loading skeletons ... */}
-          </div>
-        ) : (
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
-            <ComparisonTable properties={propertiesToCompare} />
-          </div>
-        )}
-      </div>
-    </AppLayout>
-  );
-};
+```text
+┌──────────────────────────────────┐
+│         More Options             │
+├──────────────────────────────────┤
+│ ⚖️ Compare Properties      [3]  │ ← Only if has selections
+│ 🛡️ Admin Panel                  │ ← Only if admin
+│ ⚙️ Settings                      │
+│ ❓ Help                          │
+└──────────────────────────────────┘
+       ↑ Bottom sheet slides up
 ```
 
-### 6. Update Properties Page to Use Shared AppSidebar
+### File Summary
 
-Refactor `PropertiesSidebar` to extend `AppSidebar` with the filters section as page-specific content.
-
-### Benefits
-
-| Benefit | Description |
-|---------|-------------|
-| **Consistent UX** | Same navigation across all app pages |
-| **Single Source of Truth** | Navigation defined once in AppSidebar |
-| **Flexible** | Pages can add their own sidebar content (filters, sections) |
-| **Compare Badge** | Shows selection count in sidebar when comparing |
-| **Admin Visibility** | Admin nav only shows for admins |
-| **Mobile Ready** | Sidebar collapses to sheet on mobile |
-
-### Visual Result
-
-All authenticated pages will now have:
-- Collapsible sidebar with consistent navigation
-- Same header structure with page title + icon
-- Clean content area with consistent padding
-- Unified look matching the Properties page
+| File | Change |
+|------|--------|
+| `src/components/layout/MobileBottomNav.tsx` | Create new component with nav bar + more sheet |
+| `src/components/layout/AppLayout.tsx` | Add `MobileBottomNav` and content padding |
+| `src/index.css` | Add `.safe-area-pb` utility class |
 
