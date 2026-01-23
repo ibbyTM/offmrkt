@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Building, Camera, MapPin, Bed, Bath, TrendingUp, ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Building, MapPin, Bed, Bath, TrendingUp, MoreVertical } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Property,
   formatPrice,
@@ -28,10 +29,13 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
     : null;
   const grossYield = property.gross_yield_percentage || calculatedGrossYield;
 
+  // Generate short reference ID from property id
+  const referenceId = property.property_reference || `OM${property.id.slice(-4).toUpperCase()}`;
+
   return (
     <Link to={`/properties/${property.id}`}>
-      <Card className="group overflow-hidden border border-border hover:border-primary/50 hover:shadow-xl transition-all duration-300">
-        {/* Image section */}
+      <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 bg-card">
+        {/* Image section with overlay controls */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {mainImage ? (
             <img
@@ -45,83 +49,98 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
             </div>
           )}
           
-          {/* Photo count - subtle top-left */}
-          {photoCount > 1 && (
-            <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-              <Camera className="h-3 w-3" />
-              <span>1/{photoCount}</span>
-            </div>
-          )}
-
-          {/* Compare - subtle top-right */}
+          {/* Top-left: Compare checkbox (icon variant) */}
           {showCompare && (
-            <div className="absolute top-2 right-2 opacity-80 group-hover:opacity-100 transition-opacity">
-              <CompareCheckbox propertyId={property.id} />
+            <div className="absolute top-3 left-3">
+              <CompareCheckbox propertyId={property.id} variant="icon" />
             </div>
           )}
-        </div>
 
-        {/* Price Bar */}
-        <div className="bg-primary px-4 py-2.5 flex justify-between items-center">
-          <span className="text-primary-foreground font-bold text-xl">
-            {formatPrice(property.asking_price)}
-          </span>
+          {/* Bottom center: Carousel dots indicator */}
+          {photoCount > 1 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+              {Array.from({ length: Math.min(photoCount, 5) }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 w-1.5 rounded-full transition-colors ${
+                    i === 0 ? "bg-white" : "bg-white/50"
+                  }`}
+                />
+              ))}
+              {photoCount > 5 && (
+                <span className="text-[10px] text-white/80 ml-0.5">+{photoCount - 5}</span>
+              )}
+            </div>
+          )}
+
+          {/* Top-right: Options menu placeholder */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              // Future: open options menu
+            }}
+            className="absolute top-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-colors opacity-0 group-hover:opacity-100"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </button>
+
+          {/* Status badge (if not available) */}
           {property.listing_status !== "available" && (
-            <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground text-xs font-medium">
+            <Badge 
+              variant="secondary" 
+              className="absolute top-3 right-14 bg-background/90 text-foreground text-xs font-medium shadow-sm"
+            >
               {listingStatusLabels[property.listing_status]}
             </Badge>
           )}
         </div>
 
-        {/* Content - enhanced with icons */}
+        {/* Content section - clean layout */}
         <CardContent className="p-4">
-          {/* Title and location */}
-          <div className="mb-2">
-            <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-1">
-              {property.title}
-            </h3>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-3 w-3 flex-shrink-0 text-primary/70" />
-              <span className="text-xs">
-                {property.property_city}, {property.property_postcode}
-              </span>
-            </div>
+          {/* Price row with reference ID */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xl font-bold text-foreground">
+              {formatPrice(property.asking_price)}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">
+              #{referenceId}
+            </span>
           </div>
-
-          {/* Property specs with icons */}
+          
+          {/* Title */}
+          <h3 className="font-medium text-foreground line-clamp-1 mb-1">
+            {property.title}
+          </h3>
+          
+          {/* Location */}
+          <div className="flex items-center gap-1 text-muted-foreground mb-3">
+            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+            <span className="text-sm">
+              {property.property_city}, {property.property_postcode}
+            </span>
+          </div>
+          
+          {/* Specs row - compact with icons */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
             <div className="flex items-center gap-1">
-              <Bed className="h-3.5 w-3.5 text-primary/70" />
-              <span className="font-medium">{property.bedrooms || "—"} beds</span>
+              <Bed className="h-4 w-4" />
+              <span>{property.bedrooms || "—"}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Bath className="h-3.5 w-3.5 text-primary/70" />
-              <span className="font-medium">{property.bathrooms || "—"} baths</span>
+              <Bath className="h-4 w-4" />
+              <span>{property.bathrooms || "—"}</span>
             </div>
             <div className="flex items-center gap-1">
-              <Building className="h-3.5 w-3.5 text-primary/70" />
-              <span className="font-medium">{propertyTypeLabels[property.property_type]}</span>
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span className="font-semibold text-primary">{formatYield(grossYield)}</span>
             </div>
           </div>
-
-          {/* Yield and CTA row */}
-          <div className="flex items-center justify-between pt-3 border-t border-border/60">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/10">
-                <TrendingUp className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <div>
-                <span className="text-xs text-muted-foreground block">Gross Yield</span>
-                <span className="font-bold text-primary text-sm">
-                  {formatYield(grossYield)}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-              <span>View Deal</span>
-              <ArrowRight className="h-4 w-4" />
-            </div>
-          </div>
+          
+          {/* Action button - always visible */}
+          <Button className="w-full" variant="default">
+            View Details
+          </Button>
         </CardContent>
       </Card>
     </Link>
