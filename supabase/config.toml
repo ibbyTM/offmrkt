@@ -3,5 +3,8 @@ project_id = "uruqmzpihbxzzowrsrny"
 [functions.analyze-property]
 verify_jwt = false
 
+[functions.enhance-property-content]
+verify_jwt = false
+
 [functions.mortgage-enquiry]
 verify_jwt = false

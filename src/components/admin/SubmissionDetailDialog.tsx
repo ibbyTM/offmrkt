@@ -27,9 +27,12 @@ import {
   Eye,
   FileText,
   User,
-  Plus,
+  Sparkles,
 } from "lucide-react";
 import type { SellerSubmission, SubmissionStatus } from "@/hooks/useSellerSubmissions";
+import { useEnhancePropertyContent, type EnhancedContent } from "@/hooks/useEnhancePropertyContent";
+import { EnhanceContentDialog } from "./EnhanceContentDialog";
+import { toast } from "@/hooks/use-toast";
 
 const statusConfig: Record<SubmissionStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: React.ReactNode }> = {
   pending: { label: "Pending", variant: "secondary", icon: <Clock className="h-3 w-3" /> },
@@ -82,7 +85,7 @@ interface SubmissionDetailDialogProps {
   submission: SellerSubmission | null;
   onClose: () => void;
   onUpdateStatus: (submissionId: string, status: SubmissionStatus, notes?: string) => void;
-  onConvertToListing: (submission: SellerSubmission) => void;
+  onConvertToListing: (submission: SellerSubmission, enhancedContent?: EnhancedContent) => void;
   isUpdating: boolean;
   isConverting: boolean;
 }
@@ -96,6 +99,10 @@ export const SubmissionDetailDialog = ({
   isConverting,
 }: SubmissionDetailDialogProps) => {
   const [adminNotes, setAdminNotes] = useState(submission?.admin_notes || "");
+  const [showEnhanceDialog, setShowEnhanceDialog] = useState(false);
+  const [enhancedContent, setEnhancedContent] = useState<EnhancedContent | null>(null);
+
+  const enhanceMutation = useEnhancePropertyContent();
 
   if (!submission) return null;
 
@@ -111,6 +118,38 @@ export const SubmissionDetailDialog = ({
 
   const handleStatusUpdate = (newStatus: SubmissionStatus) => {
     onUpdateStatus(submission.id, newStatus, adminNotes);
+  };
+
+  const handleEnhanceWithAI = async () => {
+    try {
+      const result = await enhanceMutation.mutateAsync({
+        property_address: submission.property_address,
+        property_city: submission.property_city,
+        property_postcode: submission.property_postcode,
+        property_type: submission.property_type,
+        property_description: submission.property_description || undefined,
+        asking_price: submission.asking_price,
+        bedrooms: submission.bedrooms,
+        bathrooms: submission.bathrooms,
+        current_status: submission.current_status,
+        current_monthly_rent: submission.current_monthly_rent,
+        estimated_monthly_rent: submission.estimated_monthly_rent,
+        epc_rating: submission.epc_rating,
+      });
+      setEnhancedContent(result);
+      setShowEnhanceDialog(true);
+    } catch (error) {
+      // Error handled by mutation
+    }
+  };
+
+  const handleApplyEnhancedContent = (content: EnhancedContent) => {
+    onConvertToListing(submission, content);
+    setShowEnhanceDialog(false);
+  };
+
+  const generateDefaultTitle = () => {
+    return `${submission.bedrooms || ""} Bed ${propertyTypeLabels[submission.property_type] || submission.property_type} in ${submission.property_city}`.trim();
   };
 
   return (
@@ -332,7 +371,7 @@ export const SubmissionDetailDialog = ({
             <Button
               variant="destructive"
               onClick={() => handleStatusUpdate("rejected")}
-              disabled={isUpdating || isConverting}
+              disabled={isUpdating || isConverting || enhanceMutation.isPending}
             >
               <XCircle className="h-4 w-4 mr-2" />
               Reject
@@ -342,24 +381,50 @@ export const SubmissionDetailDialog = ({
             <Button
               variant="secondary"
               onClick={() => handleStatusUpdate("reviewing")}
-              disabled={isUpdating || isConverting}
+              disabled={isUpdating || isConverting || enhanceMutation.isPending}
             >
               <Eye className="h-4 w-4 mr-2" />
               Mark Reviewing
             </Button>
           )}
           {submission.admin_status === "pending" && (
-            <Button
-              variant="default"
-              onClick={() => onConvertToListing(submission)}
-              disabled={isConverting}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <CheckCircle className="h-4 w-4 mr-2" />
-              {isConverting ? "Creating..." : "Approve & List"}
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                onClick={handleEnhanceWithAI}
+                disabled={enhanceMutation.isPending || isConverting}
+                className="border-primary/50 text-primary hover:bg-primary/10"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                {enhanceMutation.isPending ? "Enhancing..." : "Enhance with AI"}
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => onConvertToListing(submission)}
+                disabled={isConverting || enhanceMutation.isPending}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {isConverting ? "Creating..." : "Approve & List"}
+              </Button>
+            </>
           )}
         </DialogFooter>
+
+        {/* AI Enhancement Preview Dialog */}
+        {enhancedContent && (
+          <EnhanceContentDialog
+            open={showEnhanceDialog}
+            onClose={() => setShowEnhanceDialog(false)}
+            originalContent={{
+              title: generateDefaultTitle(),
+              description: submission.property_description || "",
+            }}
+            enhancedContent={enhancedContent}
+            onApply={handleApplyEnhancedContent}
+            isApplying={isConverting}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

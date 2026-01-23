@@ -14,6 +14,7 @@ import {
   useConvertToListing,
   type SubmissionStatus,
   type SellerSubmission,
+  type EnhancedContent,
 } from "@/hooks/useSellerSubmissions";
 import { useMortgageReferrals } from "@/hooks/useMortgageReferrals";
 import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
@@ -55,8 +56,8 @@ const Admin = () => {
     updateSubStatus({ submissionId, status, adminNotes: notes });
   };
 
-  const handleConvertToListing = (submission: SellerSubmission) => {
-    convertToListing(submission);
+  const handleConvertToListing = (submission: SellerSubmission, enhancedContent?: EnhancedContent) => {
+    convertToListing({ submission, enhancedContent });
   };
 
   // Show loading state while checking auth
