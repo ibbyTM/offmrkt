@@ -1,115 +1,176 @@
 
 
-## Fix Property Card Titles
+## Property Card Design Refresh
 
-### The Problem
+### Overview
+Apply design elements from the reference to create a more polished, modern property card design while keeping the functionality that makes sense for your investment property platform.
 
-1. **Titles are too long for cards** - AI-generated titles like "11.3% Yield HMO with 5-Year Mears Lease | Bishop Auckland" overflow the card width
-2. **Yield is redundant in title** - Yield is already displayed prominently at the bottom of each card, so including it in the title is unnecessary duplication
+### Key Design Elements to Adopt
 
-### Solution
+From the reference, here are the improvements we'll implement:
 
-Two-part fix:
+| Element | Current | Proposed |
+|---------|---------|----------|
+| **Image** | 4:3 aspect ratio | Keep 4:3 (good for property photos) |
+| **Image carousel dots** | Photo count badge only | Add navigation dots at bottom of image |
+| **Checkbox position** | Text-based "Compare" button | Clean checkbox icon in top-left corner |
+| **Options menu** | None | Add 3-dot menu for quick actions (top-right) |
+| **Price display** | Blue bar below image | Large, bold price directly in content area (cleaner) |
+| **Property ID** | Not shown | Add reference ID next to price |
+| **Layout structure** | Dense with multiple rows | Cleaner spacing, property type + address prominent |
+| **Action button** | "View Deal" on hover | Visible accent CTA button (e.g., "View Details") |
 
-| Component | Change |
-|-----------|--------|
-| **PropertyCard.tsx** | Display only the title (not title + city), since city/postcode already implied |
-| **Edge Function** | Update AI prompt to explicitly exclude yield percentages from titles |
+### Visual Comparison
 
-### Card Display Changes
-
-**Current layout issue:**
+**Current Design:**
 ```text
-┌─────────────────────────────┐
-│ 📍 11.3% Yield HMO with...  │  ← Title truncated, yield redundant
-│    Bishop Auckland          │
-│ 3 beds · 2 baths · HMO      │
-│ ─────────────────────────── │
-│ Gross Yield: 11.3%          │  ← Yield shown again here!
-└─────────────────────────────┘
+┌───────────────────────────────┐
+│ [1/5]             [+ Compare] │
+│        [Property Image]       │
+├───────────────────────────────┤
+│ ██ £125,000         Available │  ← Blue bar
+├───────────────────────────────┤
+│ High-Yield HMO with...        │
+│ 📍 Manchester, M1 2AB         │
+│ 🛏 3 beds  🚿 2 baths  🏠 HMO │
+│ ─────────────────────────────│
+│ 📈 Gross Yield   [View Deal →]│
+│    8.5%                       │
+└───────────────────────────────┘
 ```
 
-**Proposed fix:**
+**Proposed Design:**
 ```text
-┌─────────────────────────────┐
-│ 📍 5-Bed HMO with 5-Year    │  ← Cleaner title, no yield
-│    Mears Lease              │
-│ Bishop Auckland, DL14       │  ← Location on separate line
-│ 3 beds · 2 baths · HMO      │
-│ ─────────────────────────── │
-│ Gross Yield: 11.3%          │  ← Yield displayed once here
-└─────────────────────────────┘
+┌───────────────────────────────┐
+│ [☐]          [●●●○○]     [⋮] │
+│        [Property Image]       │
+│                               │
+└───────────────────────────────┘
+│ £125,000              #OM1234 │  ← Bold price, ref ID
+│ High-Yield HMO Investment     │  ← Property title
+│ Manchester, M1 2AB            │  ← Location  
+│ 🛏 3  🚿 2  📐 1,200 sqft     │  ← Compact specs
+│ ┌──────────────────────────┐ │
+│ │   📈 View Details        │ │  ← Accent button
+│ └──────────────────────────┘ │
+└───────────────────────────────┘
 ```
 
-### File Changes
+### Detailed Changes
 
-#### 1. PropertyCard.tsx - Better title display
+#### 1. PropertyCard.tsx - Full Redesign
 
-**Lines 79-84** - Change from single line title+city to two-line layout:
+**Image Section Updates:**
+- Add checkbox icon (simple square icon) in top-left instead of text button
+- Move photo count to bottom as carousel dots indicator
+- Add 3-dot menu icon in top-right (placeholder for future actions)
+
+**Remove the Blue Price Bar:**
+- Price moves directly into the card content as a large, bold headline
+
+**Content Section Updates:**
+- Price as main headline with property reference ID
+- Title and location on separate lines
+- Compact specs row with just icons and numbers
+- Full-width accent "View Details" button at bottom (always visible)
+
+**Yield Display:**
+- Move yield to a subtle badge or integrate into specs row
+- Or show in the button hover state
+
+#### 2. Properties Page - Minor Updates
+
+- Adjust grid gap slightly for new card proportions
+- Ensure consistent 4-column layout on larger screens
+
+### Technical Implementation
+
+**PropertyCard.tsx changes:**
 
 ```tsx
-// From:
-<div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-  <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/70" />
-  <span className="text-sm font-medium line-clamp-1">
-    {property.title}, {property.property_city}
-  </span>
-</div>
-
-// To:
-<div className="mb-2">
-  <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-1">
-    {property.title}
-  </h3>
-  <div className="flex items-center gap-1 text-muted-foreground">
-    <MapPin className="h-3 w-3 flex-shrink-0 text-primary/70" />
-    <span className="text-xs">
-      {property.property_city}, {property.property_postcode}
-    </span>
+// New structure
+<Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300">
+  {/* Image with overlay controls */}
+  <div className="relative aspect-[4/3] overflow-hidden">
+    <img ... />
+    
+    {/* Top-left: Checkbox icon */}
+    <CompareCheckbox ... variant="icon" />
+    
+    {/* Bottom center: Carousel dots */}
+    {photoCount > 1 && <CarouselDots count={photoCount} />}
+    
+    {/* Top-right: Options menu */}
+    <OptionsMenu ... />
   </div>
-</div>
+
+  {/* Content - clean layout */}
+  <CardContent className="p-4">
+    {/* Price row */}
+    <div className="flex items-center justify-between mb-2">
+      <span className="text-xl font-bold">{formatPrice(price)}</span>
+      <span className="text-xs text-muted-foreground">#OM{id.slice(-4)}</span>
+    </div>
+    
+    {/* Title */}
+    <h3 className="font-medium line-clamp-1 mb-1">{title}</h3>
+    
+    {/* Location */}
+    <p className="text-sm text-muted-foreground mb-3">{city}, {postcode}</p>
+    
+    {/* Specs row */}
+    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+      <span>🛏 {beds}</span>
+      <span>🚿 {baths}</span>
+      <span>📈 {yield}%</span>
+    </div>
+    
+    {/* Action button */}
+    <Button className="w-full" variant="default">
+      View Details
+    </Button>
+  </CardContent>
+</Card>
 ```
 
-This change:
-- Gives the title its own line with `line-clamp-2` (allows wrapping to 2 lines if needed)
-- Moves location to a smaller secondary line
-- Better visual hierarchy (title = prominent, location = secondary info)
+**CompareCheckbox variant:**
+- Add an "icon" variant that shows just a checkbox/square icon without text
+- Cleaner look for the overlay
 
-#### 2. FeaturedPropertyCard.tsx - Apply same pattern
-
-**Lines 91-97** - Update to match the new pattern for consistency.
-
-#### 3. Edge Function - Exclude yield from titles
-
-**supabase/functions/enhance-property-content/index.ts**
-
-**Lines 96-103** - Update the system prompt to explicitly exclude yield:
-
-```typescript
-// Update systemPrompt to add explicit rule about yield
-const systemPrompt = `You are a UK property investment copywriter specialising in buy-to-let and investment properties. Your task is to create professional, compelling marketing content that appeals to property investors.
-
-Rules:
-- Title: Maximum 60 characters. Include the key selling point and location. Make it attention-grabbing.
-- Title: DO NOT include yield percentages in the title - yield is displayed separately on the listing card.
-- Description: 100-150 words. Focus on investment potential, rental yield, location benefits, and property features. Use professional UK English. Structure it well with clear benefits.
-- Highlights: 3-5 concise bullet points about investment potential. Each should be impactful and factual.
-
-Tone: Professional, trustworthy, investment-focused. Avoid hyperbole but be compelling.`;
-```
-
-### Summary of Changes
+### File Changes Summary
 
 | File | Change |
 |------|--------|
-| `src/components/properties/PropertyCard.tsx` | Two-line title layout with `line-clamp-2`, separate location line |
-| `src/components/landing/FeaturedPropertyCard.tsx` | Same pattern for consistency |
-| `supabase/functions/enhance-property-content/index.ts` | Add rule to exclude yield from titles |
+| `src/components/properties/PropertyCard.tsx` | Major redesign following new layout |
+| `src/components/comparison/CompareCheckbox.tsx` | Add icon-only variant |
+| `src/components/landing/FeaturedPropertyCard.tsx` | Apply same design language |
+| `src/pages/Properties.tsx` | Minor grid adjustments if needed |
+
+### Design Decisions
+
+**What we're keeping from current design:**
+- 4:3 aspect ratio (good for property photos)
+- Core information hierarchy (price, title, location, specs)
+- Yield visibility (investors care about this)
+
+**What we're adopting from reference:**
+- Cleaner checkbox icon instead of text button
+- Photo carousel dots indicator
+- Price in content area instead of colored bar
+- Reference ID for professional look
+- Always-visible action button
+- More breathing room / spacing
+
+**What we're NOT adopting:**
+- "Send Mail" as primary CTA (not relevant for this use case)
+- Dark theme as default (keeping current light/dark toggle)
 
 ### Result
 
-- Titles will have room to breathe with up to 2 lines
-- Location shown separately for clarity
-- AI will stop putting yield in titles (which was redundant since yield is already displayed on the card)
-- Existing properties with yield in titles will still display correctly, but when re-enhanced with AI, the new titles will be cleaner
+A cleaner, more modern property card design that:
+- Feels more professional and polished
+- Has better visual hierarchy
+- Uses space more efficiently
+- Maintains all the important investment data visibility
+- Matches modern property portal standards
 
