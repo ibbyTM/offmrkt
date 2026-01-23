@@ -1,95 +1,129 @@
 
 
-## Add Visual Indicator for Already-Listed Submissions
+## Redesign PropertyCard - Clean, Rightmove-Inspired Style
 
 ### Overview
-Add a visual indicator in the admin panel to show when a property submission has already been converted to a listing. This prevents accidental re-listing attempts and provides clearer status information for admins.
+Redesign the PropertyCard component to match the clean, minimal aesthetic from the reference image. The key change is removing overlays from the image and using a prominent price bar below the image instead.
 
-### Current State
-- The `useConvertToListing` hook already checks for existing properties before creating duplicates
-- However, there's no visual feedback to admins that a submission has already been listed
-- The "Approve & List" button still shows for pending submissions even if a property exists (edge case after status rollback)
+### Reference Design Analysis
+From the Rightmove-style reference:
+- **Large clean image** with almost no overlays
+- **Small photo count indicator** in top-left corner (unobtrusive)
+- **Price displayed on a solid colored bar** below the image (not overlaying it)
+- **Simple property info**: beds + type on one line, address on another
+- **Minimal visual clutter** - no strategy tags, no yield badges on image
 
-### Solution
-Modify the seller submissions query to include linked property information, then display visual indicators throughout the admin interface.
+### Current vs. New Design
 
----
+| Element | Current | New |
+|---------|---------|-----|
+| Price | Badge overlaying image top-left | Solid colored bar below image |
+| Status badge | Overlaying image top-right | Small pill in price bar (if not available) |
+| Compare checkbox | Overlaying image bottom-right | Small icon top-right corner only |
+| Photo count | Not shown | Show "1/X" indicator top-left (subtle) |
+| Strategy tags | Shown in content area | Remove or make optional |
+| Yield | Footer with border | Keep, but simplify |
+| Image aspect ratio | 4:3 | 16:10 (taller, more prominent) |
 
-### Files to Modify
+### Visual Mockup
 
-#### 1. `src/hooks/useSellerSubmissions.ts`
-
-**Change**: Update the query to join with properties table to check if a property already exists.
-
-```typescript
-// Current
-.select("*")
-
-// Updated - include linked property info
-.select("*, linked_property:properties!submission_id(id)")
-```
-
-**Add**: Export a helper type for the enhanced submission with property info.
-
-```typescript
-export type SellerSubmissionWithProperty = SellerSubmission & {
-  linked_property: { id: string } | null;
-};
-```
-
----
-
-#### 2. `src/components/admin/SubmissionsTable.tsx`
-
-**Changes**:
-- Update type to use `SellerSubmissionWithProperty`
-- Add a "Already Listed" indicator badge next to pending submissions that have a linked property
-- Disable "Approve & List" button if property already exists (with tooltip explaining why)
-
-**Visual Indicator Locations**:
-1. **Badge next to status**: Show a separate "Has Listing" badge for submissions with linked properties
-2. **Button state**: Change "Approve & List" to "Update Listing" if property exists, or show informative tooltip
-
----
-
-#### 3. `src/components/admin/SubmissionDetailDialog.tsx`
-
-**Changes**:
-- Show a prominent alert/banner if the submission already has a linked property
-- Include link to view the property listing
-- Update action button text to reflect re-sync vs new listing
-
----
-
-### Visual Design
-
-**For submissions with an existing property listing**:
-
-| Location | Indicator |
-|----------|-----------|
-| Card header | Blue "Has Listing" badge with link icon |
-| Action buttons | "Sync Changes" instead of "Approve & List" |
-| Detail dialog | Info banner: "This submission already has a live property listing" with View Property link |
-
-**Example Badge**:
 ```text
-[Pending Review] [Has Listing →]
-                 ↑ clickable link to /properties/:id
+┌─────────────────────────────────┐
+│  📷 1/6                    ☐    │  ← Subtle photo count + compare
+│                                 │
+│         [Property Image]        │  ← Clean, no overlays
+│                                 │
+│                                 │
+├─────────────────────────────────┤
+│  £325,000          [Reserved]   │  ← Solid primary color bar
+├─────────────────────────────────┤
+│  3 bed Semi-Detached            │  ← Primary color text
+│  123 Example Street, Manchester │  ← Muted address
+│                                 │
+│  Gross Yield: 7.2%              │  ← Simple yield line
+└─────────────────────────────────┘
 ```
 
----
+### File Changes
 
-### Summary of Changes
+#### `src/components/properties/PropertyCard.tsx`
 
-| File | Change |
-|------|--------|
-| `useSellerSubmissions.ts` | Join with properties table, add type for property relationship |
-| `SubmissionsTable.tsx` | Add "Has Listing" badge, update button text for re-sync scenario |
-| `SubmissionDetailDialog.tsx` | Add info banner when property exists, link to live listing |
+**Image Section Changes:**
+- Remove price badge overlay
+- Remove status badge overlay  
+- Move compare checkbox to subtle top-right position with semi-transparent background
+- Add photo count indicator (e.g., "1/6") in top-left if multiple photos exist
+- Change aspect ratio to 16:10 for taller image
 
-### Result
-- Admins can immediately see which submissions already have listings
-- Button text changes to reflect the actual action (sync vs create)
-- Prevents confusion about whether clicking "Approve & List" will create duplicates
-- Provides quick access to view the live property listing
+**New Price Bar Section:**
+- Add solid `bg-primary` bar below image
+- Display price in bold white text
+- Show status badge (if not "available") as small pill on the right side of price bar
+
+**Content Section Changes:**
+- Simplify to show: `{beds} bed {property_type}` on first line in primary color
+- Address on second line in muted text
+- Remove strategy tags (or make them very subtle/optional)
+- Keep yield display but make it more subtle
+
+**Code Structure:**
+```tsx
+<Card className="group overflow-hidden ...">
+  {/* Clean Image - minimal overlays */}
+  <div className="relative aspect-[16/10] overflow-hidden">
+    <img ... />
+    
+    {/* Photo count - subtle top-left */}
+    {photoCount > 1 && (
+      <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+        📷 1/{photoCount}
+      </div>
+    )}
+    
+    {/* Compare - subtle top-right */}
+    {showCompare && (
+      <div className="absolute top-2 right-2">
+        <CompareCheckbox propertyId={property.id} />
+      </div>
+    )}
+  </div>
+
+  {/* Price Bar */}
+  <div className="bg-primary px-4 py-2 flex justify-between items-center">
+    <span className="text-primary-foreground font-bold text-xl">
+      {formatPrice(property.asking_price)}
+    </span>
+    {property.listing_status !== "available" && (
+      <Badge variant="secondary" className="bg-white/20 text-white text-xs">
+        {statusLabel}
+      </Badge>
+    )}
+  </div>
+
+  {/* Content - simplified */}
+  <CardContent className="p-4">
+    <p className="text-primary font-semibold">
+      {property.bedrooms} bed {propertyTypeLabels[property.property_type]}
+    </p>
+    <p className="text-muted-foreground text-sm">
+      {property.title}, {property.property_city}
+    </p>
+    <p className="text-sm text-muted-foreground mt-2">
+      Gross Yield: <span className="font-medium">{formatYield(grossYield)}</span>
+    </p>
+  </CardContent>
+</Card>
+```
+
+### Summary
+
+| Change | Reason |
+|--------|--------|
+| Remove image overlays | Clean, unobstructed property photos |
+| Add price bar below image | Prominent price display without covering image |
+| Simplify content | Focus on key info: beds, type, location, yield |
+| Subtle photo count | Helpful info without cluttering image |
+| Keep compare checkbox | Maintain functionality but make unobtrusive |
+
+This creates a cleaner, more modern card that lets the property images shine while still displaying all essential investment information.
 
