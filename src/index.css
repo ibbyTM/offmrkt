@@ -125,4 +125,8 @@ html {
   .text-balance {
     text-wrap: balance;
   }
+
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
 }
