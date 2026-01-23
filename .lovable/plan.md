@@ -1,81 +1,41 @@
 
-## Fix: Prevent Duplicate Listings When Re-approving Edited Submissions
 
-### Problem Identified
-When a user edits an already-listed property submission:
-1. The edit resets `admin_status` to "pending"
-2. Admin re-approves by clicking "Approve & List"
-3. The system **creates a duplicate listing** instead of updating the existing one
+## Clean Up Duplicate Properties
 
-This is confirmed by database showing multiple properties with the same `submission_id`.
+### Current State
+Found 5 duplicate property entries that need to be removed:
 
-### Root Cause
-The `useConvertToListing` function always performs an INSERT without checking if a property already exists for that submission.
+| Submission | Property to Keep | Duplicates to Delete |
+|------------|-----------------|---------------------|
+| 4 Bed HMO in Thornaby | `db609650...` (Jan 14) | `ecff8308...` (Jan 23), `d70c95a2...` (Jan 23) |
+| 5 Bed Detached in Manchester | `afa2a421...` (Jan 22) | `e7f7f2a4...` (Jan 23) |
 
-### Solution
-Modify the `useConvertToListing` mutation to:
-1. First check if a property already exists for the given `submission_id`
-2. If it exists: just update the submission status to "listed" (the database trigger will sync changes)
-3. If it doesn't exist: create the new property listing
+### Action Required
 
----
+Since this is a data deletion operation, you'll need to run this SQL in Cloud View:
 
-### Technical Details
+1. Go to **Cloud View** → **Run SQL**
+2. Execute the following query:
 
-**File: `src/hooks/useSellerSubmissions.ts`**
-
-Update the `useConvertToListing` mutation function:
-
-```typescript
-mutationFn: async (submission: SellerSubmission) => {
-  // Check if a property already exists for this submission
-  const { data: existingProperty } = await supabase
-    .from("properties")
-    .select("id")
-    .eq("submission_id", submission.id)
-    .maybeSingle();
-
-  if (existingProperty) {
-    // Property already exists - just update submission status
-    // The sync_submission_to_property trigger will handle the updates
-    const { error: updateError } = await supabase
-      .from("seller_submissions")
-      .update({ admin_status: "listed" })
-      .eq("id", submission.id);
-
-    if (updateError) throw updateError;
-    return existingProperty;
-  }
-
-  // No existing property - create new listing
-  const { data: property, error: propertyError } = await supabase
-    .from("properties")
-    .insert({
-      // ... existing insert fields
-    })
-    .select()
-    .single();
-
-  if (propertyError) throw propertyError;
-  return property;
-},
+```sql
+-- Delete duplicate properties, keeping the oldest one per submission_id
+DELETE FROM properties 
+WHERE id IN (
+  'ecff8308-87e7-461f-a3ec-bd33b2975be2',
+  'd70c95a2-6feb-4313-b961-0724e3cd053b',
+  'e7f7f2a4-ea67-4c93-a5fc-6d1091fd4950'
+);
 ```
 
-### How It Works
+### Result
+- **3 duplicate rows will be deleted**
+- **2 original properties will remain** (one per submission)
+- Database integrity restored
 
-| Scenario | Action |
-|----------|--------|
-| First-time approval | Creates new property, trigger sets status to "listed" |
-| Re-approval after edit | Updates status to "listed", sync trigger updates property |
+### How to Access
+Click the button below to open Cloud View where you can run the SQL:
 
-### Why This Works
+<lov-actions>
+<lov-open-backend>Open Cloud View</lov-open-backend>
+</lov-actions>
 
-The existing database trigger `sync_submission_to_property` already syncs changes from submissions to properties when status is "listed". By simply updating the status (instead of creating a new property), the trigger handles all the field updates automatically.
-
-### Summary
-
-| Aspect | Before | After |
-|--------|--------|-------|
-| First approval | Creates property | Creates property (no change) |
-| Re-approval after edit | Creates duplicate property | Updates existing property via trigger |
-| Database integrity | Broken (duplicates) | Maintained (one property per submission) |
