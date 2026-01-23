@@ -1,295 +1,97 @@
 
 
-## Add Mobile Bottom Navigation Bar
+## Update Submit Property Page to Match App Layout
 
 ### Overview
-Create a fixed bottom navigation bar that appears on mobile devices (below 768px) when the sidebar is hidden. This provides easy thumb-accessible navigation for authenticated app pages using `AppLayout`.
+Update the Submit Property page to use the unified `AppLayout` component with the sidebar navigation, matching the look and feel of Dashboard, Properties, Admin, and Compare pages.
 
-### Design
+### Current vs. New Design
 
 ```text
-Desktop (>768px)                    Mobile (<768px)
-┌──────┬────────────────────┐      ┌────────────────────────┐
-│      │                    │      │  Page Header           │
-│ Side │   Page Content     │      ├────────────────────────┤
-│ bar  │                    │      │                        │
-│      │                    │      │   Page Content         │
-│      │                    │      │                        │
-│      │                    │      ├────────────────────────┤
-│      │                    │      │ [Home][Props][+][More] │
-└──────┴────────────────────┘      └────────────────────────┘
+Current (Old Layout)                New (AppLayout)
+┌─────────────────────────────┐    ┌──────┬────────────────────────┐
+│  Global Header              │    │      │ Page Header (title +   │
+├─────────────────────────────┤    │ Side │ icon + subtitle)       │
+│  Page Banner                │    │ bar  ├────────────────────────┤
+│  (bg-secondary + icon)      │    │      │                        │
+├─────────────────────────────┤    │ Nav  │  Multi-step Form       │
+│                             │    │      │  (same content)        │
+│  Container + SellerForm     │    │      │                        │
+│                             │    │      │                        │
+├─────────────────────────────┤    └──────┴────────────────────────┘
+│  Footer                     │           └─ Mobile: Bottom Nav
+└─────────────────────────────┘
 ```
 
-### Bottom Navigation Items
+### Key Changes
 
-| Item | Icon | Route | Description |
-|------|------|-------|-------------|
-| Dashboard | `LayoutDashboard` | `/dashboard` | Main dashboard |
-| Properties | `Building2` | `/properties` | Property listings |
-| Submit | `Plus` | `/submit-property` | Add new property |
-| More | `Menu` | Opens sheet | Settings, Help, Admin (if applicable), Compare (if has selections) |
+| Aspect | Before | After |
+|--------|--------|-------|
+| **Wrapper** | `Layout` component | `AppLayout` component |
+| **Header** | Custom banner with large icon | Standard `pageTitle` + `pageIcon` props |
+| **Navigation** | None (only global header) | Sidebar with Dashboard, Properties, etc. |
+| **Mobile** | Standard header | Bottom navigation bar |
+| **Styling** | Container-based centering | `p-6` padding within SidebarInset |
 
 ### File Changes
 
 | File | Change Type | Description |
 |------|-------------|-------------|
-| `src/components/layout/MobileBottomNav.tsx` | **Create** | New bottom navigation component |
-| `src/components/layout/AppLayout.tsx` | **Modify** | Add MobileBottomNav + padding for content |
+| `src/pages/SubmitProperty.tsx` | **Modify** | Replace `Layout` with `AppLayout`, update structure |
 
----
+### Implementation Details
 
-## Technical Details
+The updated page will:
 
-### 1. MobileBottomNav Component
+1. **Use AppLayout wrapper** with:
+   - `pageTitle="Submit Your Property"`
+   - `pageSubtitle="Connect with verified investors ready to buy"`
+   - `pageIcon={<Building2 />}`
 
-```tsx
-// src/components/layout/MobileBottomNav.tsx
-import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
-import { 
-  LayoutDashboard, Building2, Plus, Menu, 
-  Settings, HelpCircle, Shield, Scale, X 
-} from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useComparison } from "@/contexts/ComparisonContext";
-import { useIsAdmin } from "@/hooks/useAdminApplications";
-import { cn } from "@/lib/utils";
+2. **Simplify structure** - Remove the custom header banner and let AppLayout handle it
 
-const primaryNavItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Properties", url: "/properties", icon: Building2 },
-  { title: "Submit", url: "/submit-property", icon: Plus },
-];
+3. **Keep SellerForm unchanged** - The multi-step form works perfectly, just needs different container styling
 
-export function MobileBottomNav() {
-  const location = useLocation();
-  const isMobile = useIsMobile();
-  const [moreOpen, setMoreOpen] = useState(false);
-  const { selectedProperties } = useComparison();
-  const { data: isAdmin } = useIsAdmin();
-
-  // Only show on mobile
-  if (!isMobile) return null;
-
-  const isActive = (url: string) => location.pathname === url;
-
-  return (
-    <>
-      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-pb">
-        <div className="flex items-center justify-around h-16">
-          {primaryNavItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.url}
-              className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full px-2 transition-colors",
-                isActive(item.url)
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs mt-1 font-medium">{item.title}</span>
-            </Link>
-          ))}
-
-          {/* More Button */}
-          <button
-            onClick={() => setMoreOpen(true)}
-            className={cn(
-              "flex flex-col items-center justify-center flex-1 h-full px-2 transition-colors relative",
-              moreOpen
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <Menu className="h-5 w-5" />
-            <span className="text-xs mt-1 font-medium">More</span>
-            {/* Badge for Compare or Admin notifications */}
-            {(selectedProperties.length > 0 || isAdmin) && (
-              <span className="absolute top-2 right-1/4 h-2 w-2 rounded-full bg-primary" />
-            )}
-          </button>
-        </div>
-      </nav>
-
-      {/* More Menu Sheet */}
-      <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
-        <SheetContent side="bottom" className="rounded-t-xl">
-          <SheetHeader>
-            <SheetTitle>More Options</SheetTitle>
-          </SheetHeader>
-          
-          <div className="grid gap-2 py-4">
-            {/* Compare - if has selections */}
-            {selectedProperties.length > 0 && (
-              <Link
-                to="/compare"
-                onClick={() => setMoreOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                  isActive("/compare")
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted"
-                )}
-              >
-                <Scale className="h-5 w-5" />
-                <span className="flex-1">Compare Properties</span>
-                <Badge variant="secondary">{selectedProperties.length}</Badge>
-              </Link>
-            )}
-
-            {/* Admin - if admin */}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                onClick={() => setMoreOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
-                  location.pathname.startsWith("/admin")
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted"
-                )}
-              >
-                <Shield className="h-5 w-5" />
-                <span>Admin Panel</span>
-              </Link>
-            )}
-
-            {/* Settings */}
-            <Link
-              to="/dashboard?tab=settings"
-              onClick={() => setMoreOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors"
-            >
-              <Settings className="h-5 w-5" />
-              <span>Settings</span>
-            </Link>
-
-            {/* Help */}
-            <button
-              onClick={() => setMoreOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors w-full text-left"
-            >
-              <HelpCircle className="h-5 w-5" />
-              <span>Help</span>
-            </button>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </>
-  );
-}
-```
-
-### 2. Update AppLayout
-
-Add the bottom nav and ensure content doesn't get hidden behind it:
+### Updated Code Structure
 
 ```tsx
-// src/components/layout/AppLayout.tsx
-import { MobileBottomNav } from "./MobileBottomNav";
+// src/pages/SubmitProperty.tsx
+import { AppLayout } from "@/components/layout/AppLayout";
+import { SellerForm } from "@/components/seller/SellerForm";
+import { Building2 } from "lucide-react";
 
-export function AppLayout({ 
-  children, 
-  sidebarContent,
-  pageTitle,
-  pageSubtitle,
-  pageIcon,
-  headerActions,
-  showComparisonBar = false,
-}: AppLayoutProps) {
+const SubmitProperty = () => {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar>{sidebarContent}</AppSidebar>
-        
-        <SidebarInset>
-          {/* Page Header */}
-          {pageTitle && (
-            <div className="...">
-              {/* ... existing header ... */}
-            </div>
-          )}
-          
-          {/* Main Content - add bottom padding for mobile nav */}
-          <main className="flex-1 pb-16 md:pb-0">
-            {children}
-          </main>
-        </SidebarInset>
+    <AppLayout
+      pageTitle="Submit Your Property"
+      pageSubtitle="Connect with verified investors ready to buy"
+      pageIcon={<Building2 className="h-5 w-5 text-primary" />}
+    >
+      <div className="p-6">
+        <SellerForm />
       </div>
-
-      {/* Comparison Bar (optional) */}
-      {showComparisonBar && <ComparisonBar />}
-
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav />
-    </SidebarProvider>
+    </AppLayout>
   );
-}
+};
+
+export default SubmitProperty;
 ```
 
-### 3. Add Safe Area CSS
+### Benefits
 
-For devices with home indicators (iPhone X+), add CSS for safe area padding:
+| Benefit | Description |
+|---------|-------------|
+| **Consistent Navigation** | Users can navigate to Dashboard, Properties, etc. from sidebar |
+| **Mobile Experience** | Bottom nav available on smaller screens |
+| **Unified Header** | Same header pattern as all other app pages |
+| **Brand Cohesion** | Logo visible in sidebar, consistent with other pages |
+| **Reduced Code** | Simpler page component, ~10 lines vs ~30 lines |
 
-```css
-/* In src/index.css */
-.safe-area-pb {
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-```
+### Visual Result
 
-### Key Features
-
-| Feature | Implementation |
-|---------|----------------|
-| **Mobile Only** | Uses `useIsMobile()` hook (768px breakpoint) |
-| **Primary Nav** | Dashboard, Properties, Submit - always visible |
-| **More Menu** | Sheet from bottom with Compare, Admin, Settings, Help |
-| **Active States** | Primary color for current route |
-| **Compare Badge** | Shows count in "More" menu and dot indicator on button |
-| **Admin Access** | Only shows in menu when user is admin |
-| **Safe Areas** | Proper padding for notched devices |
-| **Content Spacing** | Main content gets bottom padding to prevent overlap |
-
-### Visual Design
-
-```text
-┌──────────────────────────────────┐
-│                                  │
-│         Page Content             │
-│                                  │
-│                                  │
-├──────────────────────────────────┤
-│ 🏠        🏢        ➕       ☰  │
-│Dashboard Properties Submit  More │
-└──────────────────────────────────┘
-       ↑ Fixed to bottom, 64px height
-```
-
-When "More" is tapped:
-
-```text
-┌──────────────────────────────────┐
-│         More Options             │
-├──────────────────────────────────┤
-│ ⚖️ Compare Properties      [3]  │ ← Only if has selections
-│ 🛡️ Admin Panel                  │ ← Only if admin
-│ ⚙️ Settings                      │
-│ ❓ Help                          │
-└──────────────────────────────────┘
-       ↑ Bottom sheet slides up
-```
-
-### File Summary
-
-| File | Change |
-|------|--------|
-| `src/components/layout/MobileBottomNav.tsx` | Create new component with nav bar + more sheet |
-| `src/components/layout/AppLayout.tsx` | Add `MobileBottomNav` and content padding |
-| `src/index.css` | Add `.safe-area-pb` utility class |
+The Submit Property page will now feel like part of the app experience rather than a standalone marketing page, with:
+- Collapsible sidebar with navigation
+- Consistent header with icon + title
+- Mobile bottom navigation
+- Same padding and spacing as Dashboard/Properties
 
