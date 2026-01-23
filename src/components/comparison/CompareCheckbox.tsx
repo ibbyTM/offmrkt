@@ -53,3 +53,4 @@ export const CompareCheckbox = React.forwardRef<HTMLButtonElement, CompareCheckb
   }
 );
 CompareCheckbox.displayName = "CompareCheckbox";
+
