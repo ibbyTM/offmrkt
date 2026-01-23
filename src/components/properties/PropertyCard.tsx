@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building, MapPin, Bed, Bath, TrendingUp, MoreVertical } from "lucide-react";
+import { Building, MapPin, Bed, Bath, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +7,10 @@ import {
   Property,
   formatPrice,
   formatYield,
-  propertyTypeLabels,
   listingStatusLabels,
 } from "@/lib/propertyUtils";
 import { CompareCheckbox } from "@/components/comparison/CompareCheckbox";
+import { PropertyCardMenu } from "./PropertyCardMenu";
 
 interface PropertyCardProps {
   property: Property;
@@ -73,17 +73,8 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
             </div>
           )}
 
-          {/* Top-right: Options menu placeholder */}
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              // Future: open options menu
-            }}
-            className="absolute top-3 right-3 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-colors opacity-0 group-hover:opacity-100"
-          >
-            <MoreVertical className="h-4 w-4" />
-          </button>
+          {/* Top-right: Options menu */}
+          <PropertyCardMenu propertyId={property.id} />
 
           {/* Status badge (if not available) */}
           {property.listing_status !== "available" && (

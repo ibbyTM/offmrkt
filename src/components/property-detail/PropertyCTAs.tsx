@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
 import { Heart, ShieldCheck, UserPlus, Building2, Mail, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Property, formatPrice, listingStatusLabels } from "@/lib/propertyUtils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useSaveProperty } from "@/hooks/useSaveProperty";
 import { cn } from "@/lib/utils";
 
 interface PropertyCTAsProps {
@@ -15,71 +14,11 @@ interface PropertyCTAsProps {
 export default function PropertyCTAs({ property }: PropertyCTAsProps) {
   const { user } = useAuth();
   const isLoggedIn = !!user;
-  const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const { isSaved, isLoading: isSaving, toggleSave } = useSaveProperty(property.id);
   const isAvailable = property.listing_status === "available";
 
-  // Check if property is already saved on mount
-  useEffect(() => {
-    if (!user) {
-      setIsSaved(false);
-      return;
-    }
-
-    const checkIfSaved = async () => {
-      const { data } = await supabase
-        .from("saved_properties")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("property_id", property.id)
-        .maybeSingle();
-
-      setIsSaved(!!data);
-    };
-
-    checkIfSaved();
-  }, [user, property.id]);
-
   const handleToggleFavorite = async () => {
-    if (!user) {
-      toast.info("Please log in to save properties to your favorites");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      if (isSaved) {
-        // Remove from favorites
-        const { error } = await supabase
-          .from("saved_properties")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("property_id", property.id);
-
-        if (error) {
-          toast.error("Failed to remove from favorites");
-        } else {
-          setIsSaved(false);
-          toast.success("Removed from favorites");
-        }
-      } else {
-        // Add to favorites
-        const { error } = await supabase
-          .from("saved_properties")
-          .insert({ user_id: user.id, property_id: property.id });
-
-        if (error) {
-          toast.error("Failed to save property");
-        } else {
-          setIsSaved(true);
-          toast.success("Saved to favorites!");
-        }
-      }
-    } catch {
-      toast.error("Something went wrong");
-    } finally {
-      setIsSaving(false);
-    }
+    toggleSave();
   };
 
   const handleReserve = () => {
