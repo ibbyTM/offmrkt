@@ -12,7 +12,8 @@ interface FinancialStatsGridProps {
 }
 
 export default function FinancialStatsGrid({ property }: FinancialStatsGridProps) {
-  const annualRent = (property.estimated_rental_income || property.current_rental_income || 0) * 12;
+  // Prioritize current_rental_income (actual rent) over estimated_rental_income (market rent)
+  const annualRent = (property.current_rental_income || property.estimated_rental_income || 0) * 12;
   
   // Auto-calculate gross ROCE (leveraged)
   const deposit = property.deposit_required || Math.round(property.asking_price * 0.25);

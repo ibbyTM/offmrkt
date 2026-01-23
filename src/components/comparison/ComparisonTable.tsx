@@ -26,7 +26,7 @@ interface MetricRow {
 
 // Helper function to calculate gross yield dynamically
 function calculateGrossYield(p: Property): number | null {
-  const monthlyRent = p.estimated_rental_income || p.current_rental_income || 0;
+  const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
   const annualRent = monthlyRent * 12;
   if (p.asking_price > 0 && annualRent > 0) {
     return (annualRent / p.asking_price) * 100;
@@ -47,7 +47,7 @@ const metricRows: MetricRow[] = [
   { label: "Monthly Rent", getValue: (p) => p.estimated_rental_income, format: "currency", highlightBest: "highest" },
   { label: "Current Monthly Rent", getValue: (p) => p.current_rental_income, format: "currency", highlightBest: "highest" },
   { label: "Annual Rent", getValue: (p) => {
-    const monthlyRent = p.estimated_rental_income || p.current_rental_income || 0;
+    const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
     return monthlyRent > 0 ? monthlyRent * 12 : null;
   }, format: "currency", highlightBest: "highest" },
   { label: "Bedrooms", getValue: (p) => p.bedrooms, format: "number" },
