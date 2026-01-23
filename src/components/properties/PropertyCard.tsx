@@ -75,12 +75,17 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
 
         {/* Content - enhanced with icons */}
         <CardContent className="p-4">
-          {/* Location with icon */}
-          <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/70" />
-            <span className="text-sm font-medium line-clamp-1">
-              {property.title}, {property.property_city}
-            </span>
+          {/* Title and location */}
+          <div className="mb-2">
+            <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-1">
+              {property.title}
+            </h3>
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <MapPin className="h-3 w-3 flex-shrink-0 text-primary/70" />
+              <span className="text-xs">
+                {property.property_city}, {property.property_postcode}
+              </span>
+            </div>
           </div>
 
           {/* Property specs with icons */}
