@@ -68,11 +68,23 @@ export const useUpdateSubmissionStatus = () => {
   });
 };
 
+export interface EnhancedContent {
+  title: string;
+  description: string;
+  highlights: string[];
+}
+
 export const useConvertToListing = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (submission: SellerSubmission) => {
+    mutationFn: async ({
+      submission,
+      enhancedContent,
+    }: {
+      submission: SellerSubmission;
+      enhancedContent?: EnhancedContent;
+    }) => {
       // Check if a property already exists for this submission
       const { data: existingProperty } = await supabase
         .from("properties")
@@ -92,16 +104,26 @@ export const useConvertToListing = () => {
         return existingProperty;
       }
 
+      // Generate title - use enhanced if available, otherwise default
+      const defaultTitle = `${submission.bedrooms || ""} Bed ${submission.property_type.replace("_", " ")} in ${submission.property_city}`.trim();
+      const title = enhancedContent?.title || defaultTitle;
+      
+      // Use enhanced description if available
+      const description = enhancedContent?.description || submission.property_description;
+      
+      // Use enhanced highlights if available
+      const highlights = enhancedContent?.highlights || null;
+
       // No existing property - create new listing
       const { data: property, error: propertyError } = await supabase
         .from("properties")
         .insert({
-          title: `${submission.bedrooms || ""} Bed ${submission.property_type.replace("_", " ")} in ${submission.property_city}`.trim(),
+          title,
           property_address: submission.property_address,
           property_city: submission.property_city,
           property_postcode: submission.property_postcode,
           property_type: submission.property_type,
-          property_description: submission.property_description,
+          property_description: description,
           asking_price: submission.asking_price,
           bedrooms: submission.bedrooms,
           bathrooms: submission.bathrooms,
@@ -116,6 +138,7 @@ export const useConvertToListing = () => {
           estimated_rental_income: submission.estimated_monthly_rent,
           listing_status: "available",
           submission_id: submission.id,
+          investment_highlights: highlights,
         })
         .select()
         .single();
@@ -127,12 +150,17 @@ export const useConvertToListing = () => {
 
       return property;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["seller-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["properties"] });
+      
+      const message = variables.enhancedContent
+        ? "Property has been published with AI-enhanced content."
+        : "Property has been published and is now live.";
+      
       toast({
         title: "Listing Created",
-        description: "Property has been published and is now live.",
+        description: message,
       });
     },
     onError: (error) => {

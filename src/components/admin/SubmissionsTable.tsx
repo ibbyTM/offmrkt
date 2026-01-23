@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Eye, CheckCircle, XCircle, Clock, FileText, Plus, MapPin, Banknote, Home, Loader2 } from "lucide-react";
-import type { SellerSubmission, SubmissionStatus } from "@/hooks/useSellerSubmissions";
+import type { SellerSubmission, SubmissionStatus, EnhancedContent } from "@/hooks/useSellerSubmissions";
 import { SubmissionDetailDialog } from "./SubmissionDetailDialog";
 
 const propertyTypeLabels: Record<string, string> = {
@@ -26,7 +26,7 @@ interface SubmissionsTableProps {
   submissions: SellerSubmission[];
   isLoading: boolean;
   onUpdateStatus: (submissionId: string, status: SubmissionStatus, notes?: string) => void;
-  onConvertToListing: (submission: SellerSubmission) => void;
+  onConvertToListing: (submission: SellerSubmission, enhancedContent?: EnhancedContent) => void;
   isUpdating: boolean;
   isConverting: boolean;
 }
