@@ -1,46 +1,95 @@
 
-## Add Unique Constraint on submission_id
+
+## Add Visual Indicator for Already-Listed Submissions
 
 ### Overview
-Add a database constraint to ensure only one property can exist per seller submission. This prevents the duplicate listing bug from ever happening again at the database level.
+Add a visual indicator in the admin panel to show when a property submission has already been converted to a listing. This prevents accidental re-listing attempts and provides clearer status information for admins.
 
 ### Current State
-- The `submission_id` column exists and is nullable (correctly allowing admin-created properties without a submission)
-- No unique constraint currently exists
-- The duplicate cleanup has already been completed (verified: no duplicates remain)
+- The `useConvertToListing` hook already checks for existing properties before creating duplicates
+- However, there's no visual feedback to admins that a submission has already been listed
+- The "Approve & List" button still shows for pending submissions even if a property exists (edge case after status rollback)
 
 ### Solution
-Add a partial unique index on `submission_id` that only applies when the value is NOT NULL. This approach:
-- Allows multiple properties with `submission_id = NULL` (for admin-created listings)
-- Prevents multiple properties with the same non-null `submission_id`
+Modify the seller submissions query to include linked property information, then display visual indicators throughout the admin interface.
 
-### Database Migration
+---
 
-```sql
--- Add unique constraint on submission_id (only for non-null values)
-CREATE UNIQUE INDEX idx_properties_unique_submission 
-ON public.properties (submission_id) 
-WHERE submission_id IS NOT NULL;
+### Files to Modify
+
+#### 1. `src/hooks/useSellerSubmissions.ts`
+
+**Change**: Update the query to join with properties table to check if a property already exists.
+
+```typescript
+// Current
+.select("*")
+
+// Updated - include linked property info
+.select("*, linked_property:properties!submission_id(id)")
 ```
 
-### Why a Partial Index?
-A standard unique constraint would fail because:
-- Multiple properties might have `submission_id = NULL` (admin-created properties)
-- PostgreSQL considers each NULL as distinct, but a partial index is cleaner and more explicit
+**Add**: Export a helper type for the enhanced submission with property info.
+
+```typescript
+export type SellerSubmissionWithProperty = SellerSubmission & {
+  linked_property: { id: string } | null;
+};
+```
+
+---
+
+#### 2. `src/components/admin/SubmissionsTable.tsx`
+
+**Changes**:
+- Update type to use `SellerSubmissionWithProperty`
+- Add a "Already Listed" indicator badge next to pending submissions that have a linked property
+- Disable "Approve & List" button if property already exists (with tooltip explaining why)
+
+**Visual Indicator Locations**:
+1. **Badge next to status**: Show a separate "Has Listing" badge for submissions with linked properties
+2. **Button state**: Change "Approve & List" to "Update Listing" if property exists, or show informative tooltip
+
+---
+
+#### 3. `src/components/admin/SubmissionDetailDialog.tsx`
+
+**Changes**:
+- Show a prominent alert/banner if the submission already has a linked property
+- Include link to view the property listing
+- Update action button text to reflect re-sync vs new listing
+
+---
+
+### Visual Design
+
+**For submissions with an existing property listing**:
+
+| Location | Indicator |
+|----------|-----------|
+| Card header | Blue "Has Listing" badge with link icon |
+| Action buttons | "Sync Changes" instead of "Approve & List" |
+| Detail dialog | Info banner: "This submission already has a live property listing" with View Property link |
+
+**Example Badge**:
+```text
+[Pending Review] [Has Listing →]
+                 ↑ clickable link to /properties/:id
+```
+
+---
+
+### Summary of Changes
+
+| File | Change |
+|------|--------|
+| `useSellerSubmissions.ts` | Join with properties table, add type for property relationship |
+| `SubmissionsTable.tsx` | Add "Has Listing" badge, update button text for re-sync scenario |
+| `SubmissionDetailDialog.tsx` | Add info banner when property exists, link to live listing |
 
 ### Result
+- Admins can immediately see which submissions already have listings
+- Button text changes to reflect the actual action (sync vs create)
+- Prevents confusion about whether clicking "Approve & List" will create duplicates
+- Provides quick access to view the live property listing
 
-| Scenario | Behavior |
-|----------|----------|
-| First listing from submission | Allowed |
-| Second listing from same submission | **Blocked** by database |
-| Admin creates property without submission | Allowed (NULL submission_id) |
-| Multiple admin-created properties | Allowed (all have NULL) |
-
-### Error Handling
-If the code ever tries to create a duplicate, the database will return an error like:
-```
-duplicate key value violates unique constraint "idx_properties_unique_submission"
-```
-
-This provides a safety net even if application logic fails.
