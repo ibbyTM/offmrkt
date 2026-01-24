@@ -1,111 +1,142 @@
 
 
-## Remove Daily Submission Limit & Increase Photo Limit to 60
+## Improve Multi-Unit Property Input
 
-### Overview
+### The Problem
 
-You want two changes:
-1. **Remove the daily property submission limit** — Currently there's a database trigger enforcing a 5-property-per-day limit
-2. **Increase photo limit from 10 to 60** — Allow more property images per submission
+Currently, the multi-unit submission requires filling in too many separate fields:
+1. Street Address field (gets ignored for multi-unit)
+2. Tick "This is a multi-unit property"
+3. Building/Block Name (e.g., "Mayfair Court")
+4. From Unit (e.g., 1)
+5. To Unit (e.g., 8)
+6. City (e.g., Hull)
+7. Postcode
 
-### Current State
+This is confusing because you just want to enter "1-8 Mayfair Court, Hull" naturally.
 
-| Feature | Current Setting | New Setting |
-|---------|-----------------|-------------|
-| Daily submission limit | 5 per user per 24 hours | **No limit** |
-| Photo upload limit | 10 photos | **60 photos** |
+### The Solution
 
----
+Restructure the form so when multi-unit is ticked:
+- **Replace** the street address field with a more intuitive layout
+- Show **Building Name**, **Unit Range**, **City**, and **Postcode** in a cleaner arrangement
+- Hide the street address autocomplete (since it doesn't apply to blocks)
 
-### Implementation
-
-#### 1. Remove Daily Submission Limit
-
-**Database Migration**: Drop the trigger and function that enforces the rate limit.
-
-```sql
--- Drop the rate limit trigger
-DROP TRIGGER IF EXISTS enforce_seller_submission_rate_limit ON public.seller_submissions;
-
--- Drop the rate limit function
-DROP FUNCTION IF EXISTS public.check_seller_submission_rate_limit();
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  Property Details                                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ☑ This is a multi-unit property (block of flats, HMO, etc.)   │
+│                                                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                                                           │  │
+│  │  Units: [ 1 ] to [ 8 ]   Building: [ Mayfair Court    ]  │  │
+│  │                                                           │  │
+│  │  City: [ Hull          ]   Postcode: [ HU1 2AA       ]   │  │
+│  │                                                           │  │
+│  │  ─────────────────────────────────────────────────────   │  │
+│  │  Preview: 8 units will be created                         │  │
+│  │  • Unit 1, Mayfair Court, Hull, HU1 2AA                  │  │
+│  │  • Unit 2, Mayfair Court, Hull, HU1 2AA                  │  │
+│  │  • Unit 3, Mayfair Court, Hull, HU1 2AA                  │  │
+│  │  • ... and 5 more                                         │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**Frontend Update**: Remove the rate limit error handling message from `SellerForm.tsx` (since it will never trigger).
+### User Experience
 
-| File | Change |
-|------|--------|
-| `supabase/migrations/[timestamp]_remove_submission_rate_limit.sql` | Drop trigger and function |
-| `src/components/seller/SellerForm.tsx` | Remove rate limit error handling (lines 338-345) |
+| What You Want | What You Enter |
+|---------------|----------------|
+| 1-8 Mayfair Court, Hull | Tick multi-unit → Units 1-8 → Building "Mayfair Court" → City "Hull" → Postcode |
 
-#### 2. Increase Photo Limit to 60
-
-Update the `maxPhotos` prop passed to `PhotoUpload` component.
-
-| File | Change |
-|------|--------|
-| `src/components/seller/SellerForm.tsx` | Change `maxPhotos={10}` to `maxPhotos={60}` on line 915 |
+The form now logically groups everything together and hides the irrelevant street address field when multi-unit is selected.
 
 ---
 
 ### Technical Details
 
-#### Database Migration
+#### File Changes
 
-```sql
--- Remove submission rate limit
--- This allows users to submit unlimited properties per day
+**File: `src/components/seller/MultiUnitSection.tsx`**
 
--- Drop the trigger first (depends on the function)
-DROP TRIGGER IF EXISTS enforce_seller_submission_rate_limit ON public.seller_submissions;
+Restructure the component to include City and Postcode fields when multi-unit is checked, making it a self-contained section:
 
--- Drop the function
-DROP FUNCTION IF EXISTS public.check_seller_submission_rate_limit();
+```tsx
+{isMultiUnit && (
+  <div className="space-y-4 p-4 rounded-lg border border-primary/30 bg-primary/5">
+    {/* Unit range on same line */}
+    <div className="grid grid-cols-4 gap-4">
+      <FormField name="unit_from" ... />
+      <span className="self-end pb-2 text-center">to</span>
+      <FormField name="unit_to" ... />
+      <FormField name="building_name" ... /> {/* Takes 2 cols */}
+    </div>
+    
+    {/* City and Postcode */}
+    <div className="grid grid-cols-2 gap-4">
+      <FormField name="property_city" ... />
+      <FormField name="property_postcode" ... />
+    </div>
+    
+    {/* Preview */}
+    ...
+  </div>
+)}
 ```
 
-#### SellerForm.tsx Changes
+**File: `src/components/seller/SellerForm.tsx`**
 
-**Line 915** — Change photo limit:
+Conditionally hide the address/city/postcode fields when multi-unit is selected (since `MultiUnitSection` will handle them):
+
 ```tsx
-// Before
-<PhotoUpload
-  photos={photos}
-  onPhotosChange={setPhotos}
-  maxPhotos={10}
-/>
+{/* Only show address autocomplete for single properties */}
+{!form.watch("is_multi_unit") && (
+  <>
+    <FormField name="property_address" ... />
+    <div className="grid grid-cols-2 gap-4">
+      <FormField name="property_city" ... />
+      <FormField name="property_postcode" ... />
+    </div>
+  </>
+)}
 
-// After
-<PhotoUpload
-  photos={photos}
-  onPhotosChange={setPhotos}
-  maxPhotos={60}
-/>
+{/* Multi-Unit Section - handles its own address fields */}
+<MultiUnitSection />
 ```
 
-**Lines 338-345** — Remove rate limit error handling:
-```tsx
-// Remove this block (no longer needed)
-if (error.message?.includes('Rate limit exceeded')) {
-  toast({
-    title: "Submission limit reached",
-    description: "You can submit up to 5 properties per day. Please try again tomorrow.",
-    variant: "destructive",
-  });
-  return;
-}
+**File: `src/components/seller/sellerFormSchema.ts`**
+
+Update validation to make `property_address` optional when `is_multi_unit` is true:
+
+```typescript
+.refine((data) => {
+  if (!data.is_multi_unit) {
+    return data.property_address && data.property_address.length > 0;
+  }
+  return true;
+}, {
+  message: "Street address is required for single properties",
+  path: ["property_address"],
+})
 ```
 
 ### Files to Modify
 
 | File | Change |
 |------|--------|
-| New migration file | Drop rate limit trigger and function |
-| `src/components/seller/SellerForm.tsx` | Update `maxPhotos` to 60, remove rate limit error handling |
+| `src/components/seller/MultiUnitSection.tsx` | Add City/Postcode fields inside the component, improve layout with unit range inline |
+| `src/components/seller/SellerForm.tsx` | Conditionally hide address fields when multi-unit is checked |
+| `src/components/seller/sellerFormSchema.ts` | Make property_address optional for multi-unit |
 
 ### Result
 
-After these changes:
-- Users can submit unlimited properties per day
-- Each property submission can include up to 60 photos instead of 10
-- The multi-unit feature will work without hitting rate limits (e.g., 8 units at once is no problem)
+When you tick "multi-unit", the form transforms to show:
+- **Unit range** (1 to 8) on one line with building name
+- **City** and **Postcode** below
+- **Live preview** of all units being created
+
+The confusing street address field disappears, and everything you need is in one logical group.
 
