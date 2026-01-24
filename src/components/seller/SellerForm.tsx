@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/select";
 
 import { PhotoUpload } from "./PhotoUpload";
+import { AddressAutocomplete } from "./AddressAutocomplete";
 import {
   sellerFormSchema,
   SellerFormValues,
@@ -402,7 +403,16 @@ export function SellerForm() {
                   <FormItem>
                     <FormLabel>Street Address *</FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Example Street" {...field} />
+                      <AddressAutocomplete
+                        value={field.value}
+                        onChange={field.onChange}
+                        onAddressSelect={(address) => {
+                          form.setValue("property_address", address.street);
+                          form.setValue("property_city", address.city);
+                          form.setValue("property_postcode", address.postcode);
+                        }}
+                        placeholder="Start typing your address..."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
