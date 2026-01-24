@@ -1,142 +1,111 @@
 
 
-## Add Multi-Unit Property Submission Feature
+## Remove Daily Submission Limit & Increase Photo Limit to 60
 
 ### Overview
 
-You have 8 properties at the same address (units 1-8 Mayfair Court) that you want to submit together. Currently, the system only supports single property submissions. This feature will allow you to submit a block of units in one go, where they share the same base address but each unit gets its own listing.
+You want two changes:
+1. **Remove the daily property submission limit** — Currently there's a database trigger enforcing a 5-property-per-day limit
+2. **Increase photo limit from 10 to 60** — Allow more property images per submission
 
-### How It Will Work
+### Current State
 
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Property Details                                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ☐ This is a multi-unit property (block of flats, HMO, etc.)   │
-│                                                                 │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │ When checked, reveals:                                    │  │
-│  │                                                           │  │
-│  │  Building/Block Name: [ Mayfair Court              ]     │  │
-│  │                                                           │  │
-│  │  Unit Range:                                              │  │
-│  │  From: [ 1 ]    To: [ 8 ]                                │  │
-│  │                                                           │  │
-│  │  ─────────────────────────────────────────────────────   │  │
-│  │  Preview: 8 units will be created                         │  │
-│  │  • Unit 1, Mayfair Court, Belfast, BT14 8AA              │  │
-│  │  • Unit 2, Mayfair Court, Belfast, BT14 8AA              │  │
-│  │  • Unit 3, Mayfair Court, Belfast, BT14 8AA              │  │
-│  │  • ... and 5 more                                         │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                 │
-│  City: [ Belfast       ]    Postcode: [ BT14 8AA  ]            │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+| Feature | Current Setting | New Setting |
+|---------|-----------------|-------------|
+| Daily submission limit | 5 per user per 24 hours | **No limit** |
+| Photo upload limit | 10 photos | **60 photos** |
+
+---
+
+### Implementation
+
+#### 1. Remove Daily Submission Limit
+
+**Database Migration**: Drop the trigger and function that enforces the rate limit.
+
+```sql
+-- Drop the rate limit trigger
+DROP TRIGGER IF EXISTS enforce_seller_submission_rate_limit ON public.seller_submissions;
+
+-- Drop the rate limit function
+DROP FUNCTION IF EXISTS public.check_seller_submission_rate_limit();
 ```
 
-### User Experience
+**Frontend Update**: Remove the rate limit error handling message from `SellerForm.tsx` (since it will never trigger).
 
-| Step | What You Do | What Happens |
-|------|-------------|--------------|
-| 1 | Tick "This is a multi-unit property" | New fields appear for building name and unit range |
-| 2 | Type building name (e.g., "Mayfair Court") | Address field updates to show the building |
-| 3 | Enter unit range (1 to 8) | Preview shows all 8 unit addresses that will be created |
-| 4 | Fill in shared details (price per unit, property type, etc.) | All units will share these common attributes |
-| 5 | Submit | System creates 8 separate submissions, one for each unit |
+| File | Change |
+|------|--------|
+| `supabase/migrations/[timestamp]_remove_submission_rate_limit.sql` | Drop trigger and function |
+| `src/components/seller/SellerForm.tsx` | Remove rate limit error handling (lines 338-345) |
 
-### What Gets Shared Across Units
+#### 2. Increase Photo Limit to 60
 
-All units will share:
-- Property type, city, and postcode
-- Asking price (per unit)
-- Bedrooms/bathrooms per unit
-- Compliance documents status
-- Photos (if applicable to all units)
-- Contact information
-- Selling reason and timeline
+Update the `maxPhotos` prop passed to `PhotoUpload` component.
 
-Each unit gets a unique:
-- Unit-specific address (e.g., "Unit 1, Mayfair Court")
-- Individual submission record for separate tracking
+| File | Change |
+|------|--------|
+| `src/components/seller/SellerForm.tsx` | Change `maxPhotos={10}` to `maxPhotos={60}` on line 915 |
 
 ---
 
 ### Technical Details
 
-#### Database Changes
-
-Add new columns to `seller_submissions` table:
+#### Database Migration
 
 ```sql
-ALTER TABLE seller_submissions
-ADD COLUMN is_multi_unit BOOLEAN DEFAULT FALSE,
-ADD COLUMN building_name TEXT,
-ADD COLUMN unit_number TEXT,
-ADD COLUMN parent_submission_id UUID REFERENCES seller_submissions(id);
+-- Remove submission rate limit
+-- This allows users to submit unlimited properties per day
+
+-- Drop the trigger first (depends on the function)
+DROP TRIGGER IF EXISTS enforce_seller_submission_rate_limit ON public.seller_submissions;
+
+-- Drop the function
+DROP FUNCTION IF EXISTS public.check_seller_submission_rate_limit();
 ```
 
-| Column | Purpose |
-|--------|---------|
-| `is_multi_unit` | Flag to identify multi-unit submissions |
-| `building_name` | The block name (e.g., "Mayfair Court") |
-| `unit_number` | Individual unit identifier (e.g., "1", "2", "Flat A") |
-| `parent_submission_id` | Links child units to the first submission for grouping |
+#### SellerForm.tsx Changes
 
-#### Form Schema Updates
+**Line 915** — Change photo limit:
+```tsx
+// Before
+<PhotoUpload
+  photos={photos}
+  onPhotosChange={setPhotos}
+  maxPhotos={10}
+/>
 
-**File: `src/components/seller/sellerFormSchema.ts`**
-
-Add new fields to the Zod schema:
-
-```typescript
-is_multi_unit: z.boolean().default(false),
-building_name: z.string().optional(),
-unit_from: z.coerce.number().min(1).optional(),
-unit_to: z.coerce.number().min(1).optional(),
+// After
+<PhotoUpload
+  photos={photos}
+  onPhotosChange={setPhotos}
+  maxPhotos={60}
+/>
 ```
 
-#### Form UI Updates
-
-**File: `src/components/seller/SellerForm.tsx`**
-
-1. Add a checkbox toggle for multi-unit mode
-2. Conditionally show building name and unit range fields
-3. Display a preview of units to be created
-4. Modify `onSubmit` to loop and create multiple submissions
-
-```typescript
-// Submission logic for multi-unit
-if (data.is_multi_unit && data.unit_from && data.unit_to) {
-  const submissions = [];
-  for (let i = data.unit_from; i <= data.unit_to; i++) {
-    submissions.push({
-      ...baseSubmission,
-      property_address: `Unit ${i}, ${data.building_name}`,
-      unit_number: String(i),
-      is_multi_unit: true,
-      building_name: data.building_name,
-    });
-  }
-  const { error } = await supabase.from("seller_submissions").insert(submissions);
+**Lines 338-345** — Remove rate limit error handling:
+```tsx
+// Remove this block (no longer needed)
+if (error.message?.includes('Rate limit exceeded')) {
+  toast({
+    title: "Submission limit reached",
+    description: "You can submit up to 5 properties per day. Please try again tomorrow.",
+    variant: "destructive",
+  });
+  return;
 }
 ```
 
-#### Admin Dashboard Enhancement
-
-The admin submissions table will show a "Multi-unit" badge for grouped submissions, with the ability to expand and see all units in the block.
-
-### Files to Create/Modify
+### Files to Modify
 
 | File | Change |
 |------|--------|
-| `supabase/migrations/[timestamp]_add_multi_unit_support.sql` | Add new columns to seller_submissions |
-| `src/components/seller/sellerFormSchema.ts` | Add multi-unit fields to Zod schema |
-| `src/components/seller/SellerForm.tsx` | Add multi-unit toggle, unit range inputs, preview, and batch insert logic |
-| `src/components/admin/SubmissionsTable.tsx` | Show multi-unit badge and grouping |
+| New migration file | Drop rate limit trigger and function |
+| `src/components/seller/SellerForm.tsx` | Update `maxPhotos` to 60, remove rate limit error handling |
 
-### Rate Limit Consideration
+### Result
 
-The existing rate limit (5 properties per day) will count each unit separately. For your 8-unit block, you would need an adjusted limit or admin bypass. We can add a `daily_submission_count` that treats a multi-unit submission as 1 "batch" for rate limiting purposes.
+After these changes:
+- Users can submit unlimited properties per day
+- Each property submission can include up to 60 photos instead of 10
+- The multi-unit feature will work without hitting rate limits (e.g., 8 units at once is no problem)
 
