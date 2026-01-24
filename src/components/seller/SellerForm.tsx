@@ -272,8 +272,19 @@ export function SellerForm() {
         title: "Submission successful!",
         description: "We'll review your property and be in touch within 24-48 hours.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission error:", error);
+      
+      // Handle rate limit error with user-friendly message
+      if (error.message?.includes('Rate limit exceeded')) {
+        toast({
+          title: "Submission limit reached",
+          description: "You can submit up to 5 properties per day. Please try again tomorrow.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       toast({
         title: "Submission failed",
         description: "Please try again or contact support.",
