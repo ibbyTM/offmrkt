@@ -1,7 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { 
   LayoutDashboard, Building2, Scale, Plus, 
-  Settings, HelpCircle, Shield
+  Settings, HelpCircle, Shield, Heart, Clock, User
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -29,15 +29,27 @@ interface AppSidebarProps {
 
 export function AppSidebar({ children }: AppSidebarProps) {
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { selectedProperties } = useComparison();
   const { data: isAdmin } = useIsAdmin();
 
+  const isDashboard = location.pathname === "/dashboard";
+  const currentTab = searchParams.get("tab") || "overview";
+
   const navItems = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "Properties", url: "/properties", icon: Building2 },
     { title: "Submit Property", url: "/submit-property", icon: Plus },
+  ];
+
+  // Dashboard sub-navigation items
+  const dashboardSubItems = [
+    { title: "Overview", url: "/dashboard", tab: "overview", icon: LayoutDashboard },
+    { title: "Saved Properties", url: "/dashboard?tab=saved", tab: "saved", icon: Heart },
+    { title: "My Listings", url: "/dashboard?tab=listings", tab: "listings", icon: Building2 },
+    { title: "Reservations", url: "/dashboard?tab=reservations", tab: "reservations", icon: Clock },
   ];
 
   return (
@@ -54,7 +66,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="flex flex-col">
-        {/* Main Navigation - Fixed, never scrolls away */}
+        {/* Main Navigation */}
         <SidebarGroup className="flex-shrink-0">
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
@@ -62,7 +74,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton 
                   asChild 
-                  isActive={location.pathname === item.url}
+                  isActive={location.pathname === item.url && item.url !== "/dashboard"}
                   tooltip={item.title}
                 >
                   <Link to={item.url}>
@@ -94,7 +106,30 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Admin Section - Fixed, never scrolls away */}
+        {/* Dashboard Sub-Navigation - Only show when on dashboard */}
+        {isDashboard && (
+          <SidebarGroup className="flex-shrink-0">
+            <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+            <SidebarMenu>
+              {dashboardSubItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={currentTab === item.tab}
+                    tooltip={item.title}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
+
+        {/* Admin Section */}
         {isAdmin && (
           <SidebarGroup className="flex-shrink-0">
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
@@ -115,7 +150,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarGroup>
         )}
 
-        {/* Page-specific content (filters, sections, etc.) - Scrollable */}
+        {/* Page-specific content (filters, sections, etc.) */}
         {children && (
           <>
             <Separator className="mx-2 my-2" />
@@ -129,15 +164,15 @@ export function AppSidebar({ children }: AppSidebarProps) {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings">
+            <SidebarMenuButton asChild tooltip="Account Settings">
               <Link to="/dashboard?tab=settings">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
+                <User className="h-4 w-4" />
+                <span>Account</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Help">
+            <SidebarMenuButton tooltip="Help & Support">
               <HelpCircle className="h-4 w-4" />
               <span>Help</span>
             </SidebarMenuButton>
