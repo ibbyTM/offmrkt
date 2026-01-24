@@ -1,123 +1,72 @@
 
 
-## Add Address Autocomplete to Edit Submission Dialog
+## Fix: "Saved Properties" Navigation Goes to Same Place as "Overview"
 
-### Overview
+### Problem
 
-Add the same UK address autocomplete functionality to the Edit Submission Dialog that already exists in the Seller Form. This will provide a consistent user experience when editing property submissions from the dashboard.
+The sidebar has two navigation items that currently show identical content:
+- **Overview** → `/dashboard` (no tab parameter, defaults to "overview")
+- **Saved Properties** → `/dashboard?tab=saved`
 
-### Forms Analyzed
+The Dashboard's `renderContent()` switch statement doesn't have a `case "saved":` handler, so it falls through to `default` and displays the overview content for both.
 
-| Form | Collects UK Addresses? | Needs Autocomplete? |
-|------|------------------------|---------------------|
-| SellerForm.tsx | Yes (already done) | Already implemented |
-| EditSubmissionDialog.tsx | Yes - property address, city, postcode | **Yes** |
-| AddContactDialog.tsx | No - only city names for preferred locations | No |
-| ContactDetailDrawer.tsx | No - read-only display | No |
-| InvestorDetailDrawer.tsx | No - read-only display | No |
+### Solution
 
-The CRM components collect "preferred locations" (city names like "Bradford, Leeds") rather than full street addresses, so they don't need the Royal Mail address lookup.
+Add a dedicated `case "saved":` section in the Dashboard's `renderContent()` function that displays only the saved properties grid (without the stats cards, market pulse, or recent activity sections).
 
 ### Implementation
 
 #### File to Modify
 
-**src/components/dashboard/EditSubmissionDialog.tsx**
+**src/pages/Dashboard.tsx**
 
-Replace the standard text input for `property_address` with the `AddressAutocomplete` component, using the same pattern as the Seller Form.
+Add a new case in the switch statement before the `default` case:
 
-#### Changes Required
-
-1. Import the AddressAutocomplete component
-2. Replace the Input field for property_address with AddressAutocomplete
-3. Use the onAddressSelect callback to auto-fill city and postcode fields
-
-```text
-Before:
-┌─────────────────────────────────────────────┐
-│ Property Address                            │
-│ ┌─────────────────────────────────────────┐ │
-│ │ 123 Example Street                      │ │
-│ └─────────────────────────────────────────┘ │
-│                                             │
-│ City              │ Postcode                │
-│ ┌───────────────┐ │ ┌───────────────┐       │
-│ │ Manchester    │ │ │ M1 1AA        │       │
-│ └───────────────┘ │ └───────────────┘       │
-└─────────────────────────────────────────────┘
-
-After:
-┌─────────────────────────────────────────────┐
-│ Property Address                            │
-│ ┌─────────────────────────────────────────┐ │
-│ │ 45 High St...                       ▾   │ │
-│ └─────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────┐ │
-│ │ 45 High Street, Manchester, M1 1AA      │ │
-│ │ 45 High Street, Liverpool, L1 6BN       │ │
-│ └─────────────────────────────────────────┘ │
-│                                             │
-│ City              │ Postcode                │
-│ ┌───────────────┐ │ ┌───────────────┐       │
-│ │ (auto-filled) │ │ │ (auto-filled) │       │
-│ └───────────────┘ │ └───────────────┘       │
-└─────────────────────────────────────────────┘
-```
-
----
-
-### Technical Details
-
-#### Code Changes
-
-**1. Add import at top of file:**
 ```typescript
-import { AddressAutocomplete } from "@/components/seller/AddressAutocomplete";
+case "saved":
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-semibold text-foreground">Saved Properties</h2>
+        <p className="text-sm text-muted-foreground">Properties you've added to your watchlist</p>
+      </div>
+      {savedProperties.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {savedProperties.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      ) : (
+        <Card className="border-0 shadow-sm bg-card">
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <Heart className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <CardTitle className="text-xl mb-2">No saved properties</CardTitle>
+            <CardDescription className="text-center mb-6 max-w-md">
+              Save properties you're interested in to keep track of them here.
+            </CardDescription>
+            <Button asChild variant="gradient">
+              <Link to="/properties">
+                <Rocket className="mr-2 h-4 w-4" />
+                Browse Properties
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
 ```
 
-**2. Replace the property_address FormField (lines 148-161):**
+### Result
 
-```tsx
-<FormField
-  control={form.control}
-  name="property_address"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Property Address</FormLabel>
-      <FormControl>
-        <AddressAutocomplete
-          value={field.value}
-          onChange={field.onChange}
-          onAddressSelect={(address) => {
-            form.setValue("property_address", address.street);
-            form.setValue("property_city", address.city);
-            form.setValue("property_postcode", address.postcode);
-          }}
-          placeholder="Start typing your address..."
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-```
+| Navigation Item | URL | Content Shown |
+|-----------------|-----|---------------|
+| Overview | `/dashboard` | Stats + Saved preview (max 6) + Market Pulse + Recent Activity |
+| Saved Properties | `/dashboard?tab=saved` | **Full list of all saved properties** (with empty state if none) |
+| My Listings | `/dashboard?tab=listings` | User's submitted property listings |
+| Reservations | `/dashboard?tab=reservations` | Property reservations |
 
-### User Experience
-
-| Behaviour | Description |
-|-----------|-------------|
-| Typing | As user types 3+ characters, address suggestions appear |
-| Selection | Clicking a suggestion auto-fills street, city, and postcode |
-| Manual override | User can still manually edit city/postcode after selection |
-| Existing data | Form loads with existing address data, user can search for new address |
-
-### Files Changed
-
-| File | Change |
-|------|--------|
-| `src/components/dashboard/EditSubmissionDialog.tsx` | Replace Input with AddressAutocomplete |
-
-### No Backend Changes Required
-
-The existing `address-lookup` and `address-resolve` backend functions will be reused.
+This gives "Saved Properties" its own dedicated view showing the complete list, while "Overview" continues to show the dashboard summary with a preview of saved properties.
 
