@@ -128,8 +128,7 @@ export function PropertyFiltersPanel({
             max={PRICE_MAX}
             step={5000}
             onValueChange={([min, max]) => {
-              updateFilter("minPrice", min);
-              updateFilter("maxPrice", max);
+              onFiltersChange({ ...filters, minPrice: min, maxPrice: max });
             }}
             className="mb-2"
           />
