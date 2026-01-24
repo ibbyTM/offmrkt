@@ -417,6 +417,7 @@ export type Database = {
           property_type: Database["public"]["Enums"]["property_type"]
           refurb_cost: number | null
           roce_percentage: number | null
+          sold_at: string | null
           square_feet: number | null
           strategies:
             | Database["public"]["Enums"]["investment_strategy"][]
@@ -460,6 +461,7 @@ export type Database = {
           property_type: Database["public"]["Enums"]["property_type"]
           refurb_cost?: number | null
           roce_percentage?: number | null
+          sold_at?: string | null
           square_feet?: number | null
           strategies?:
             | Database["public"]["Enums"]["investment_strategy"][]
@@ -503,6 +505,7 @@ export type Database = {
           property_type?: Database["public"]["Enums"]["property_type"]
           refurb_cost?: number | null
           roce_percentage?: number | null
+          sold_at?: string | null
           square_feet?: number | null
           strategies?:
             | Database["public"]["Enums"]["investment_strategy"][]

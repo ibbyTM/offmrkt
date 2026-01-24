@@ -1,6 +1,27 @@
 import { Tables } from "@/integrations/supabase/types";
+import { differenceInDays } from "date-fns";
 
 export type Property = Tables<"properties">;
+
+/**
+ * Calculate "Sold in X days/weeks" text from created_at to sold_at
+ */
+export const getSoldInText = (createdAt: string, soldAt: string | null): string | null => {
+  if (!soldAt) return null;
+  
+  const days = differenceInDays(new Date(soldAt), new Date(createdAt));
+  
+  if (days === 0) return "Same day!";
+  if (days === 1) return "1 day";
+  if (days < 7) return `${days} days`;
+  
+  const weeks = Math.floor(days / 7);
+  if (weeks === 1) return "1 week";
+  if (weeks < 4) return `${weeks} weeks`;
+  
+  const months = Math.floor(days / 30);
+  return `${months} month${months !== 1 ? "s" : ""}`;
+};
 
 export const strategyLabels: Record<string, string> = {
   cash_roi: "Cash ROI",
