@@ -8,19 +8,19 @@ const reasons = [
     icon: Target,
     title: "Personalized Property Matching",
     description: "Our smart matching system learns your investment preferences and budget to surface the most relevant opportunities. Get deals tailored specifically to your portfolio goals.",
-    image: "bg-gradient-to-br from-blue-100 to-blue-50",
+    image: "bg-gradient-to-br from-primary/15 to-primary/5",
   },
   {
     icon: Zap,
     title: "Real-time Market Updates",
     description: "Stay ahead with instant notifications on new listings, price changes, and market trends. Never miss a high-yield opportunity again with our real-time alert system.",
-    image: "bg-gradient-to-br from-green-100 to-green-50",
+    image: "bg-gradient-to-br from-success/15 to-success/5",
   },
   {
     icon: Award,
     title: "Trusted by Top Investors",
     description: "Join thousands of successful property investors who rely on OffMrkt to build their portfolios. Our track record speaks for itself with verified reviews and success stories.",
-    image: "bg-gradient-to-br from-purple-100 to-purple-50",
+    image: "bg-gradient-to-br from-accent to-accent/50",
   },
 ];
 

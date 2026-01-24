@@ -35,9 +35,13 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   // Get property type label
   const propertyTypeLabel = propertyTypeLabels[property.property_type] || property.property_type;
 
+  // Check if property was listed within last 7 days
+  const isNew = property.created_at && 
+    new Date(property.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
   return (
     <Link to={`/properties/${property.id}`}>
-      <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 bg-card">
+      <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-card">
         {/* Image section with interactive carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <PropertyCardCarousel images={images} alt={property.title} />
@@ -51,6 +55,15 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
 
           {/* Top-right: Options menu */}
           <PropertyCardMenu propertyId={property.id} />
+
+          {/* New badge for recent listings */}
+          {isNew && (
+            <Badge 
+              className="absolute top-3 left-14 z-20 bg-success text-success-foreground text-xs font-semibold shadow-md"
+            >
+              New
+            </Badge>
+          )}
 
           {/* Status badge (if not available) */}
           {property.listing_status !== "available" && (

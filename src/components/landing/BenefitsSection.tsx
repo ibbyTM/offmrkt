@@ -10,7 +10,7 @@ const features = [
     description: "Access hand-picked investment properties with verified returns and transparent pricing.",
     stat: "510+",
     statLabel: "Active Deals",
-    color: "bg-blue-50 text-blue-600",
+    color: "bg-primary/10 text-primary",
   },
   {
     icon: PieChart,
@@ -18,7 +18,7 @@ const features = [
     description: "Detailed ROI calculations, yield projections, and market comparisons for every property.",
     stat: "£517K",
     statLabel: "Avg Property Value",
-    color: "bg-green-50 text-green-600",
+    color: "bg-success/10 text-success",
   },
   {
     icon: Bell,
@@ -26,7 +26,7 @@ const features = [
     description: "Be the first to know about new deals matching your investment criteria.",
     stat: "24h",
     statLabel: "Early Access",
-    color: "bg-purple-50 text-purple-600",
+    color: "bg-accent text-accent-foreground",
   },
   {
     icon: Shield,
@@ -34,7 +34,7 @@ const features = [
     description: "All sellers are verified and properties undergo thorough due diligence.",
     stat: "100%",
     statLabel: "Verified",
-    color: "bg-orange-50 text-orange-600",
+    color: "bg-warning/10 text-warning-foreground",
   },
 ];
 
