@@ -1,95 +1,116 @@
 
 
-## Add Rate Limiting to Seller Submission Form
+## Address Autofill for Property Submission Form
 
 ### Overview
-Implement rate limiting at the database level to prevent abuse of the property submission form. This will restrict users to a maximum of 5 submissions per 24-hour period.
 
-### Why Database-Level Rate Limiting?
+Add an address autocomplete feature that suggests UK addresses as the user types, then automatically populates the city and postcode fields when an address is selected. This will improve user experience and ensure accurate address data.
 
-The seller submission form inserts directly to the `seller_submissions` table via the Supabase client. A database-level approach:
-- Guarantees enforcement regardless of how data is inserted
-- Requires no frontend code changes
-- Works with the existing RLS policies
-- Provides clear, consistent error messages
+### Recommended Approach: Ideal Postcodes API
+
+For UK property addresses, **Ideal Postcodes** is the best choice because:
+- Specifically designed for UK addresses (Royal Mail PAF data)
+- Includes full address breakdown (street, city, postcode, coordinates)
+- Has a generous free tier (around 500 lookups/month for testing)
+- Simple REST API that works well with backend functions
+
+### How It Will Work
+
+1. User starts typing in the Street Address field
+2. After 3+ characters, the system searches for matching UK addresses
+3. A dropdown shows up to 6 matching addresses
+4. User clicks an address to select it
+5. City and postcode fields are automatically populated
 
 ### Implementation
 
-#### 1. Create Rate Limit Check Function
+#### Step 1: Backend Function
 
-A database function that counts a user's recent submissions:
+Create a new backend function `address-lookup` that:
+- Accepts a search query from the frontend
+- Calls the Ideal Postcodes autocomplete API
+- Returns formatted address suggestions
+- Keeps the API key secure on the server side
 
-```sql
-CREATE OR REPLACE FUNCTION check_seller_submission_rate_limit()
-RETURNS TRIGGER AS $$
-DECLARE
-  submission_count INTEGER;
-  max_submissions INTEGER := 5;
-  time_window INTERVAL := '24 hours';
-BEGIN
-  -- Count submissions by this user in the time window
-  SELECT COUNT(*) INTO submission_count
-  FROM seller_submissions
-  WHERE user_id = NEW.user_id
-    AND created_at > NOW() - time_window;
+#### Step 2: Address Autocomplete Component
 
-  -- Check if limit exceeded
-  IF submission_count >= max_submissions THEN
-    RAISE EXCEPTION 'Rate limit exceeded. Maximum % submissions allowed per 24 hours.', max_submissions
-      USING ERRCODE = 'P0001';
-  END IF;
+Create a new `AddressAutocomplete.tsx` component with:
+- Input field with debounced search (300ms delay)
+- Dropdown list of suggestions (styled like other form elements)
+- Loading state while searching
+- Click handler to select an address and autofill fields
 
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+#### Step 3: Update Seller Form
+
+Replace the plain Street Address input with the new autocomplete component that:
+- Displays suggestions as you type
+- When address selected, fills in:
+  - Street address (property_address)
+  - City (property_city)
+  - Postcode (property_postcode)
+
+### User Experience
+
+```text
+┌─────────────────────────────────────────────┐
+│ Street Address *                            │
+│ ┌─────────────────────────────────────────┐ │
+│ │ 45 High St...                       ▾   │ │
+│ └─────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────┐ │
+│ │ 45 High Street, Manchester, M1 1AA      │ │
+│ │ 45 High Street, Liverpool, L1 6BN       │ │
+│ │ 45 High Street, Leeds, LS1 5AR          │ │
+│ │ 45 High Street, Birmingham, B1 1QR      │ │
+│ └─────────────────────────────────────────┘ │
+└─────────────────────────────────────────────┘
 ```
 
-#### 2. Create Trigger
+After selection, city and postcode auto-populate - users can still manually edit if needed.
 
-Attach the function to run before each insert:
+---
 
-```sql
-CREATE TRIGGER enforce_seller_submission_rate_limit
-  BEFORE INSERT ON seller_submissions
-  FOR EACH ROW
-  EXECUTE FUNCTION check_seller_submission_rate_limit();
-```
+### Technical Details
 
-#### 3. Frontend Error Handling
+#### Files to Create
 
-Update the `SellerForm.tsx` to display a user-friendly message when rate limited:
+| File | Purpose |
+|------|---------|
+| `supabase/functions/address-lookup/index.ts` | Backend function for API calls |
+| `src/components/seller/AddressAutocomplete.tsx` | Autocomplete input component |
 
-```tsx
-// In the catch block of onSubmit
-if (error.message?.includes('Rate limit exceeded')) {
-  toast({
-    title: "Submission limit reached",
-    description: "You can submit up to 5 properties per day. Please try again tomorrow.",
-    variant: "destructive",
-  });
-  return;
-}
-```
-
-### Rate Limit Configuration
-
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| Max submissions | 5 | Generous for legitimate sellers with portfolios |
-| Time window | 24 hours | Rolling window prevents gaming |
-| Scope | Per user | Tied to authenticated user_id |
-
-### Benefits
-
-- **Prevents spam**: Limits automated or malicious bulk submissions
-- **Fair usage**: Legitimate sellers rarely submit more than 5 properties at once
-- **Clear feedback**: Users receive helpful error messages when limit is reached
-- **No frontend complexity**: Rate limiting is enforced server-side
-
-### Files to Create/Modify
+#### Files to Modify
 
 | File | Change |
 |------|--------|
-| Database Migration | Create rate limit function and trigger |
-| `src/components/seller/SellerForm.tsx` | Add user-friendly rate limit error handling |
+| `src/components/seller/SellerForm.tsx` | Replace address input with autocomplete |
+
+#### API Key Setup
+
+You'll need an Ideal Postcodes API key. After I implement the code:
+1. Sign up at [ideal-postcodes.co.uk](https://ideal-postcodes.co.uk)
+2. Create an API key
+3. I'll prompt you to add it as a secret called `IDEAL_POSTCODES_API_KEY`
+
+#### Backend Function Structure
+
+```typescript
+// Accepts: { query: "45 High Street" }
+// Returns: Array of { address, city, postcode, line_1, line_2 }
+```
+
+#### Fallback Behavior
+
+If the API fails or user prefers manual entry:
+- Manual typing still works in all fields
+- Users can ignore suggestions and type freely
+- No blocking of form submission if autofill isn't used
+
+### Cost Consideration
+
+Ideal Postcodes pricing:
+- **Free**: Around 500 lookups/month for testing
+- **Paid**: Starts at around £10 for 1,000 lookups
+
+Alternatively, if you'd prefer a completely free solution, I can implement **postcode-only lookup** using the free postcodes.io API (limited functionality - only fills city from postcode, not full address autocomplete).
 
