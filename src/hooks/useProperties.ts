@@ -10,7 +10,7 @@ export function useProperties() {
       const { data, error } = await supabase
         .from("properties")
         .select("*")
-        .eq("listing_status", "available")
+        .in("listing_status", ["available", "sold"])
         .order("created_at", { ascending: false });
 
       if (error) throw error;

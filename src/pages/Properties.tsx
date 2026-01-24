@@ -23,6 +23,7 @@ const defaultFilters: PropertyFilters = {
   propertyTypes: [],
   strategies: [],
   minBedrooms: 0,
+  showSold: false,
 };
 
 const Properties = () => {
@@ -47,6 +48,11 @@ const Properties = () => {
     if (!properties) return [];
 
     let result = properties.filter((property) => {
+      // Filter out sold properties if toggle is off
+      if (!filters.showSold && property.listing_status === 'sold') {
+        return false;
+      }
+
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
@@ -115,6 +121,13 @@ const Properties = () => {
         break;
     }
 
+    // Move sold properties to end (if showing them)
+    if (filters.showSold) {
+      const available = result.filter(p => p.listing_status !== 'sold');
+      const sold = result.filter(p => p.listing_status === 'sold');
+      result = [...available, ...sold];
+    }
+
     return result;
   }, [properties, filters, sortBy]);
 
@@ -126,6 +139,7 @@ const Properties = () => {
     if (filters.propertyTypes.length > 0) count++;
     if (filters.strategies.length > 0) count++;
     if (filters.minBedrooms > 0) count++;
+    if (filters.showSold) count++;
     return count;
   }, [filters]);
 

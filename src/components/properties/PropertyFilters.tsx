@@ -21,6 +21,7 @@ export interface PropertyFilters {
   propertyTypes: string[];
   strategies: string[];
   minBedrooms: number;
+  showSold: boolean;
 }
 
 interface PropertyFiltersProps {
@@ -61,6 +62,7 @@ export function PropertyFiltersPanel({
       propertyTypes: [],
       strategies: [],
       minBedrooms: 0,
+      showSold: false,
     });
   };
 
@@ -71,7 +73,8 @@ export function PropertyFiltersPanel({
     filters.maxPrice < PRICE_MAX ||
     filters.propertyTypes.length > 0 ||
     filters.strategies.length > 0 ||
-    filters.minBedrooms > 0;
+    filters.minBedrooms > 0 ||
+    filters.showSold;
 
   return (
     <div className="space-y-6">
@@ -199,6 +202,23 @@ export function PropertyFiltersPanel({
               </label>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Show Sold Properties */}
+      <div className="border-t pt-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="show-sold"
+            checked={filters.showSold}
+            onCheckedChange={(checked) => updateFilter("showSold", checked === true)}
+          />
+          <label
+            htmlFor="show-sold"
+            className="text-sm text-foreground cursor-pointer"
+          >
+            Show Sold Properties
+          </label>
         </div>
       </div>
 
