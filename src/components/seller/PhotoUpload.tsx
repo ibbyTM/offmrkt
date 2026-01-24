@@ -36,7 +36,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
     return publicUrl;
   };
 
-  const handleFiles = async (files: FileList | null) => {
+  const handleFiles = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     const remainingSlots = maxPhotos - photos.length;
@@ -103,7 +103,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
     } finally {
       setIsUploading(false);
     }
-  };
+  }, [photos, maxPhotos, onPhotosChange, toast]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -120,7 +120,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
     e.stopPropagation();
     setDragActive(false);
     handleFiles(e.dataTransfer.files);
-  }, [photos, maxPhotos]);
+  }, [handleFiles]);
 
   const removePhoto = (index: number) => {
     const newPhotos = [...photos];
