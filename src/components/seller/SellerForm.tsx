@@ -445,58 +445,66 @@ export function SellerForm() {
                 </div>
               </div>
 
-              <FormField
-                control={form.control}
-                name="property_address"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Street Address *</FormLabel>
-                    <FormControl>
-                      <AddressAutocomplete
-                        value={field.value}
-                        onChange={field.onChange}
-                        onAddressSelect={(address) => {
-                          form.setValue("property_address", address.street);
-                          form.setValue("property_city", address.city);
-                          form.setValue("property_postcode", address.postcode);
-                        }}
-                        placeholder="Start typing your address..."
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Multi-Unit Section - shown at top */}
+              <MultiUnitSection />
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="property_city"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>City *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Manchester" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              {/* Single property address fields - hidden when multi-unit is selected */}
+              {!form.watch("is_multi_unit") && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="property_address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Street Address *</FormLabel>
+                        <FormControl>
+                          <AddressAutocomplete
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            onAddressSelect={(address) => {
+                              form.setValue("property_address", address.street);
+                              form.setValue("property_city", address.city);
+                              form.setValue("property_postcode", address.postcode);
+                            }}
+                            placeholder="Start typing your address..."
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="property_postcode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Postcode *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="M1 1AA" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="property_city"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>City *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Manchester" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="property_postcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Postcode *</FormLabel>
+                          <FormControl>
+                            <Input placeholder="M1 1AA" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
 
               <FormField
                 control={form.control}
@@ -590,12 +598,6 @@ export function SellerForm() {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
-
-              {/* Multi-Unit Property Section */}
-              <MultiUnitSection 
-                city={form.watch("property_city")}
-                postcode={form.watch("property_postcode")}
               />
             </div>
           )}

@@ -12,17 +12,14 @@ import {
 } from "@/components/ui/form";
 import type { SellerFormValues } from "./sellerFormSchema";
 
-interface MultiUnitSectionProps {
-  city: string;
-  postcode: string;
-}
-
-export function MultiUnitSection({ city, postcode }: MultiUnitSectionProps) {
+export function MultiUnitSection() {
   const form = useFormContext<SellerFormValues>();
   const isMultiUnit = form.watch("is_multi_unit");
   const buildingName = form.watch("building_name");
   const unitFrom = form.watch("unit_from");
   const unitTo = form.watch("unit_to");
+  const city = form.watch("property_city");
+  const postcode = form.watch("property_postcode");
 
   // Calculate number of units and generate preview
   const unitCount = unitFrom && unitTo && unitTo >= unitFrom 
@@ -70,31 +67,14 @@ export function MultiUnitSection({ city, postcode }: MultiUnitSectionProps) {
             Multi-Unit Configuration
           </div>
 
-          <FormField
-            control={form.control}
-            name="building_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Building/Block Name *</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="e.g. Mayfair Court" 
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid grid-cols-2 gap-4">
+          {/* Unit range and building name in one row */}
+          <div className="grid grid-cols-[1fr_auto_1fr_2fr] gap-3 items-end">
             <FormField
               control={form.control}
               name="unit_from"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>From Unit *</FormLabel>
+                  <FormLabel>From</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
@@ -109,12 +89,14 @@ export function MultiUnitSection({ city, postcode }: MultiUnitSectionProps) {
               )}
             />
 
+            <span className="pb-2 text-muted-foreground">to</span>
+
             <FormField
               control={form.control}
               name="unit_to"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>To Unit *</FormLabel>
+                  <FormLabel>To</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
@@ -123,6 +105,55 @@ export function MultiUnitSection({ city, postcode }: MultiUnitSectionProps) {
                       {...field}
                       value={field.value || ""}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="building_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Building Name *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g. Mayfair Court" 
+                      {...field}
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* City and Postcode */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="property_city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Hull" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="property_postcode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Postcode *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="HU1 2AA" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
