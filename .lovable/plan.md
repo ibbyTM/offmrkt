@@ -1,79 +1,58 @@
 
 
-## Fix: Property Filters Not Working
+## Fix: RLS Policy Blocking Sold Properties
 
-### Root Cause Identified
+### Root Cause
 
-The network request shows:
-```
-listing_status=eq.available
-```
+The database has a Row-Level Security (RLS) policy that ONLY allows public access to properties with `listing_status = 'available'`:
 
-But it should show:
-```
-listing_status=in.(available,sold)
+```sql
+Policy Name: Anyone can view available properties 
+Using Expression: (listing_status = 'available'::listing_status)
 ```
 
-This means the `useProperties` hook change to use `.in()` is not being applied. The filter logic in the frontend is correct, but **no sold properties are being fetched from the database** in the first place.
+This means when the client queries for properties with `.in("listing_status", ["available", "sold"])`, the RLS policy filters out sold properties at the database level before returning results.
+
+The sold Thornaby property exists in the database but is invisible to non-admin users.
 
 ---
 
 ### Solution
 
-**File:** `src/hooks/useProperties.ts`
+Update the RLS policy to allow viewing both `available` AND `sold` properties:
 
-Ensure line 13 uses `.in()` instead of `.eq()`:
+```sql
+-- Drop the existing policy
+DROP POLICY IF EXISTS "Anyone can view available properties" ON properties;
 
-```tsx
-// BEFORE (what's currently running)
-.eq("listing_status", "available")
-
-// AFTER (what we need)
-.in("listing_status", ["available", "sold"])
+-- Create new policy that allows both available and sold
+CREATE POLICY "Anyone can view available and sold properties" 
+  ON properties
+  FOR SELECT
+  USING (listing_status IN ('available', 'sold'));
 ```
 
-This single change will:
-1. Fetch both available AND sold properties from the database
-2. Allow the client-side `showSold` filter to work properly
-3. Display sold properties at the end when the toggle is enabled
+This will:
+1. Allow sold properties to be fetched from the database
+2. Enable the client-side "Show Sold Properties" toggle to work correctly
+3. Keep reserved and under_offer properties hidden from public view
 
 ---
 
-### Additional Fix: Slider State Batching Issue
+### No Frontend Changes Needed
 
-The console warning about "Checkbox changing from uncontrolled to controlled" may be related to a state batching issue in the slider's `onValueChange`. 
+The frontend code is already correct:
+- `useProperties` hook uses `.in("listing_status", ["available", "sold"])`
+- Filter toggle correctly filters by `showSold` state
+- Sold properties are pushed to end of list when shown
 
-**File:** `src/components/properties/PropertyFilters.tsx`
-
-Update the slider handler to batch both updates in a single call:
-
-```tsx
-// BEFORE (lines 130-133)
-onValueChange={([min, max]) => {
-  updateFilter("minPrice", min);
-  updateFilter("maxPrice", max);
-}}
-
-// AFTER - single state update
-onValueChange={([min, max]) => {
-  onFiltersChange({ ...filters, minPrice: min, maxPrice: max });
-}}
-```
+Once the RLS policy is updated, the "Show Sold Properties" filter will work as expected.
 
 ---
 
-### Files to Update
+### Files Changed
 
 | File | Change |
 |------|--------|
-| `src/hooks/useProperties.ts` | Verify `.in("listing_status", ["available", "sold"])` is correctly applied |
-| `src/components/properties/PropertyFilters.tsx` | Fix slider to use single state update for both price values |
-
----
-
-### Expected Behavior After Fix
-
-1. **Toggle off (default)**: Only shows available properties (sold filtered out client-side)
-2. **Toggle on**: Shows available properties first, then sold properties at end with SOLD overlay
-3. **All other filters**: Work correctly without state batching issues
+| Database Migration | Update RLS policy to include `sold` status |
 
