@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const sellerFormSchema = z.object({
   // Property Details
-  property_address: z.string().min(5, "Address must be at least 5 characters"),
+  property_address: z.string().optional().default(""),
   property_city: z.string().min(2, "City is required"),
   property_postcode: z.string().min(5, "Valid postcode is required").max(10),
   property_type: z.enum([
@@ -69,6 +69,15 @@ export const sellerFormSchema = z.object({
   contact_phone: z.string().min(10, "Valid phone number is required"),
   is_owner: z.boolean().default(true),
   company_name: z.string().optional(),
+}).refine((data) => {
+  // Street address required for single properties
+  if (!data.is_multi_unit) {
+    return data.property_address && data.property_address.length >= 5;
+  }
+  return true;
+}, {
+  message: "Street address is required for single properties",
+  path: ["property_address"],
 }).refine((data) => {
   // If multi-unit is enabled, require building_name and unit range
   if (data.is_multi_unit) {
