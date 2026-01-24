@@ -604,6 +604,7 @@ export type Database = {
           asking_price: number
           bathrooms: number | null
           bedrooms: number | null
+          building_name: string | null
           company_name: string | null
           contact_email: string
           contact_name: string
@@ -618,7 +619,9 @@ export type Database = {
           has_floor_plans: boolean | null
           has_gas_safety: boolean | null
           id: string
+          is_multi_unit: boolean | null
           is_owner: boolean | null
+          parent_submission_id: string | null
           photo_urls: string[] | null
           property_address: string
           property_city: string
@@ -627,6 +630,7 @@ export type Database = {
           property_type: Database["public"]["Enums"]["property_type"]
           sale_timeline: Database["public"]["Enums"]["sale_timeline"]
           selling_reason: Database["public"]["Enums"]["selling_reason"]
+          unit_number: string | null
           updated_at: string
           user_id: string | null
         }
@@ -637,6 +641,7 @@ export type Database = {
           asking_price: number
           bathrooms?: number | null
           bedrooms?: number | null
+          building_name?: string | null
           company_name?: string | null
           contact_email: string
           contact_name: string
@@ -651,7 +656,9 @@ export type Database = {
           has_floor_plans?: boolean | null
           has_gas_safety?: boolean | null
           id?: string
+          is_multi_unit?: boolean | null
           is_owner?: boolean | null
+          parent_submission_id?: string | null
           photo_urls?: string[] | null
           property_address: string
           property_city: string
@@ -660,6 +667,7 @@ export type Database = {
           property_type: Database["public"]["Enums"]["property_type"]
           sale_timeline: Database["public"]["Enums"]["sale_timeline"]
           selling_reason: Database["public"]["Enums"]["selling_reason"]
+          unit_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -670,6 +678,7 @@ export type Database = {
           asking_price?: number
           bathrooms?: number | null
           bedrooms?: number | null
+          building_name?: string | null
           company_name?: string | null
           contact_email?: string
           contact_name?: string
@@ -684,7 +693,9 @@ export type Database = {
           has_floor_plans?: boolean | null
           has_gas_safety?: boolean | null
           id?: string
+          is_multi_unit?: boolean | null
           is_owner?: boolean | null
+          parent_submission_id?: string | null
           photo_urls?: string[] | null
           property_address?: string
           property_city?: string
@@ -693,10 +704,19 @@ export type Database = {
           property_type?: Database["public"]["Enums"]["property_type"]
           sale_timeline?: Database["public"]["Enums"]["sale_timeline"]
           selling_reason?: Database["public"]["Enums"]["selling_reason"]
+          unit_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "seller_submissions_parent_submission_id_fkey"
+            columns: ["parent_submission_id"]
+            isOneToOne: false
+            referencedRelation: "seller_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

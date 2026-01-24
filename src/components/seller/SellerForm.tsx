@@ -40,6 +40,7 @@ import {
 
 import { PhotoUpload } from "./PhotoUpload";
 import { AddressAutocomplete } from "./AddressAutocomplete";
+import { MultiUnitSection } from "./MultiUnitSection";
 import {
   sellerFormSchema,
   SellerFormValues,
@@ -97,6 +98,11 @@ export function SellerForm() {
       contact_phone: "",
       is_owner: true,
       company_name: "",
+      // Multi-unit defaults
+      is_multi_unit: false,
+      building_name: "",
+      unit_from: undefined,
+      unit_to: undefined,
     },
   });
 
@@ -224,7 +230,6 @@ export function SellerForm() {
 
   const onSubmit = async (data: SellerFormValues) => {
     if (!user) {
-      // This shouldn't happen as the submit button is hidden for non-logged-in users
       toast({
         title: "Please log in",
         description: "You need to be logged in to submit a property.",
@@ -235,8 +240,8 @@ export function SellerForm() {
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("seller_submissions").insert([{
-        property_address: data.property_address,
+      // Build base submission object
+      const baseSubmission = {
         property_city: data.property_city,
         property_postcode: data.property_postcode,
         property_type: data.property_type,
@@ -262,16 +267,69 @@ export function SellerForm() {
         is_owner: data.is_owner,
         company_name: data.company_name || null,
         user_id: user.id,
-      }]);
+      };
+
+      let submissions: any[] = [];
+
+      if (data.is_multi_unit && data.unit_from && data.unit_to && data.building_name) {
+        // Multi-unit submission: create one record per unit
+        for (let i = data.unit_from; i <= data.unit_to; i++) {
+          submissions.push({
+            ...baseSubmission,
+            property_address: `Unit ${i}, ${data.building_name}`,
+            is_multi_unit: true,
+            building_name: data.building_name,
+            unit_number: String(i),
+            // First unit is parent, others reference it
+            parent_submission_id: null, // Will be set after first insert
+          });
+        }
+      } else {
+        // Single property submission
+        submissions = [{
+          ...baseSubmission,
+          property_address: data.property_address,
+          is_multi_unit: false,
+          building_name: null,
+          unit_number: null,
+          parent_submission_id: null,
+        }];
+      }
+
+      // Insert all submissions
+      const { data: insertedData, error } = await supabase
+        .from("seller_submissions")
+        .insert(submissions)
+        .select("id");
 
       if (error) throw error;
+
+      // If multi-unit, update parent_submission_id for child records
+      if (data.is_multi_unit && insertedData && insertedData.length > 1) {
+        const parentId = insertedData[0].id;
+        const childIds = insertedData.slice(1).map(r => r.id);
+        
+        if (childIds.length > 0) {
+          await supabase
+            .from("seller_submissions")
+            .update({ parent_submission_id: parentId })
+            .in("id", childIds);
+        }
+      }
 
       // Clear draft on successful submission
       localStorage.removeItem(STORAGE_KEY);
       setIsSubmitted(true);
+      
+      const unitCount = data.is_multi_unit && data.unit_from && data.unit_to 
+        ? data.unit_to - data.unit_from + 1 
+        : 1;
+      
       toast({
         title: "Submission successful!",
-        description: "We'll review your property and be in touch within 24-48 hours.",
+        description: unitCount > 1 
+          ? `${unitCount} units submitted. We'll review and be in touch within 24-48 hours.`
+          : "We'll review your property and be in touch within 24-48 hours.",
       });
     } catch (error: any) {
       console.error("Submission error:", error);
@@ -541,6 +599,12 @@ export function SellerForm() {
                     <FormMessage />
                   </FormItem>
                 )}
+              />
+
+              {/* Multi-Unit Property Section */}
+              <MultiUnitSection 
+                city={form.watch("property_city")}
+                postcode={form.watch("property_postcode")}
               />
             </div>
           )}

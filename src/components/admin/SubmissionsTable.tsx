@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Eye, CheckCircle, XCircle, Clock, FileText, Plus, MapPin, Banknote, Home, Loader2 } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Clock, FileText, Plus, MapPin, Banknote, Home, Loader2, Layers } from "lucide-react";
 import type { SellerSubmission, SubmissionStatus, EnhancedContent } from "@/hooks/useSellerSubmissions";
 import { SubmissionDetailDialog } from "./SubmissionDetailDialog";
 
@@ -169,6 +169,17 @@ export const SubmissionsTable = ({
                         {submission.property_address}
                       </h3>
                       <StatusBadge status={submission.admin_status} />
+                      {(submission as any).is_multi_unit && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Layers className="h-3 w-3 mr-1" />
+                          Multi-unit
+                        </Badge>
+                      )}
+                      {(submission as any).building_name && (
+                        <span className="text-sm text-muted-foreground">
+                          ({(submission as any).building_name})
+                        </span>
+                      )}
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
