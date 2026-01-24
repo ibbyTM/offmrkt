@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Heart, Clock, Settings, CheckCircle, Home, Building, Building2, LayoutDashboard } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { 
+  Loader2, Heart, Clock, CheckCircle, Building, Building2, 
+  LayoutDashboard, Rocket, TrendingUp, Settings, User
+} from "lucide-react";
 import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
+import { StatCard } from "@/components/dashboard/StatCard";
+import { MarketPulse } from "@/components/dashboard/MarketPulse";
 import { useUserSubmissions } from "@/hooks/useUserSubmissions";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -30,6 +36,8 @@ interface Reservation {
 
 const Dashboard = () => {
   const { user, investorStatus } = useAuth();
+  const [searchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab") || "overview";
   const [savedProperties, setSavedProperties] = useState<SavedProperty[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,140 +123,44 @@ const Dashboard = () => {
         pageTitle="Dashboard" 
         pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
       >
-        <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="min-h-[80vh] flex items-center justify-center bg-background-secondary">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </AppLayout>
     );
   }
 
-  return (
-    <AppLayout
-      pageTitle={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Investor"}`}
-      pageSubtitle="Manage your property investments"
-      pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
-      headerActions={
-        <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1">
-          {investorStatus === "approved" ? (
-            <CheckCircle className="h-3 w-3" />
-          ) : (
-            <Clock className="h-3 w-3" />
-          )}
-          {investorStatus === "approved" ? "Approved Investor" : "Pending Approval"}
-        </Badge>
-      }
-    >
-      <div className="p-6">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Saved Properties</CardTitle>
-              <Heart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{savedProperties.length}</div>
-              <p className="text-xs text-muted-foreground">Properties in your watchlist</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">My Listings</CardTitle>
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{submissions.length}</div>
-              <p className="text-xs text-muted-foreground">Properties you've submitted</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Reservations</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {reservations.filter((r) => r.status === "pending").length}
-              </div>
-              <p className="text-xs text-muted-foreground">Properties reserved for you</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed Deals</CardTitle>
-              <Building className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {reservations.filter((r) => r.status === "completed").length}
-              </div>
-              <p className="text-xs text-muted-foreground">Successfully acquired</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tabs */}
-        <Tabs defaultValue="saved" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="saved" className="gap-2">
-              <Heart className="h-4 w-4" />
-              Saved Properties
-            </TabsTrigger>
-            <TabsTrigger value="listings" className="gap-2">
-              <Building2 className="h-4 w-4" />
-              My Listings
-            </TabsTrigger>
-            <TabsTrigger value="reservations" className="gap-2">
-              <Clock className="h-4 w-4" />
-              Reservations
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="saved" className="space-y-6">
-            {savedProperties.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {savedProperties.map((property) => (
-                  <PropertyCard key={property.id} property={property} />
-                ))}
-              </div>
-            ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Heart className="h-12 w-12 text-muted-foreground mb-4" />
-                  <CardTitle className="text-xl mb-2">No saved properties yet</CardTitle>
-                  <CardDescription className="text-center mb-4">
-                    Browse our property listings and save your favorites
-                  </CardDescription>
-                  <Button asChild>
-                    <Link to="/properties">
-                      <Home className="mr-2 h-4 w-4" />
-                      Browse Properties
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="listings" className="space-y-6">
+  // Determine which content to show based on URL tab parameter
+  const renderContent = () => {
+    switch (currentTab) {
+      case "listings":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">My Listings</h2>
+              <p className="text-sm text-muted-foreground">Properties you've submitted for review</p>
+            </div>
             <MyListingsTab />
-          </TabsContent>
-
-          <TabsContent value="reservations" className="space-y-6">
+          </div>
+        );
+      
+      case "reservations":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">My Reservations</h2>
+              <p className="text-sm text-muted-foreground">Properties you've reserved or completed</p>
+            </div>
             {reservations.length > 0 ? (
               <div className="space-y-4">
                 {reservations.map((reservation) => (
-                  <Card key={reservation.id}>
-                    <CardContent className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4">
+                  <Card key={reservation.id} className="border-0 shadow-sm bg-card">
+                    <CardContent className="flex flex-col md:flex-row items-start md:items-center gap-4 p-5">
                       <div className="flex-shrink-0">
                         <img
                           src={reservation.property.photo_urls?.[0] || "/placeholder.svg"}
                           alt={reservation.property.title}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="w-24 h-24 object-cover rounded-xl"
                         />
                       </div>
                       <div className="flex-1">
@@ -261,7 +173,7 @@ const Dashboard = () => {
                         <p className="text-sm text-muted-foreground">
                           {reservation.property.property_address}, {reservation.property.property_city}
                         </p>
-                        <p className="text-lg font-bold text-primary">
+                        <p className="text-lg font-bold text-primary mt-1">
                           £{reservation.property.asking_price.toLocaleString()}
                         </p>
                       </div>
@@ -286,50 +198,236 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <Card>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Clock className="h-12 w-12 text-muted-foreground mb-4" />
+              <Card className="border-0 shadow-sm bg-card">
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                    <Clock className="h-8 w-8 text-muted-foreground" />
+                  </div>
                   <CardTitle className="text-xl mb-2">No reservations yet</CardTitle>
-                  <CardDescription className="text-center mb-4">
-                    Reserve a property to start your investment journey
+                  <CardDescription className="text-center mb-6 max-w-md">
+                    Reserve a property to start your investment journey. Reservations hold properties for you while you complete due diligence.
                   </CardDescription>
-                  <Button asChild>
+                  <Button asChild variant="gradient">
                     <Link to="/properties">
-                      <Home className="mr-2 h-4 w-4" />
-                      Browse Properties
+                      <Rocket className="mr-2 h-4 w-4" />
+                      Find New Deals
                     </Link>
                   </Button>
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
+          </div>
+        );
 
-          <TabsContent value="settings" className="space-y-6">
-            <Card>
+      case "settings":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Account Settings</h2>
+              <p className="text-sm text-muted-foreground">Manage your profile and preferences</p>
+            </div>
+            <Card className="border-0 shadow-sm bg-card">
               <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-                <CardDescription>Manage your account details and preferences</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <User className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle>Profile Information</CardTitle>
+                    <CardDescription>Your account details</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1">
                     <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                    <p className="text-foreground">{profile?.full_name || "Not set"}</p>
+                    <p className="text-foreground font-medium">{profile?.full_name || "Not set"}</p>
                   </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-muted-foreground">Email Address</label>
+                    <p className="text-foreground font-medium">{profile?.email || user?.email}</p>
+                  </div>
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between">
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Email</label>
-                    <p className="text-foreground">{profile?.email || user?.email}</p>
+                    <p className="font-medium text-foreground">Investor Status</p>
+                    <p className="text-sm text-muted-foreground">Your current verification level</p>
                   </div>
+                  <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1">
+                    {investorStatus === "approved" ? (
+                      <CheckCircle className="h-3 w-3" />
+                    ) : (
+                      <Clock className="h-3 w-3" />
+                    )}
+                    {investorStatus === "approved" ? "Approved" : "Pending"}
+                  </Badge>
                 </div>
-                <div className="pt-4 border-t">
-                  <Button variant="outline" disabled>
-                    Edit Profile (Coming Soon)
-                  </Button>
-                </div>
+                <Separator />
+                <Button variant="outline" disabled>
+                  Edit Profile (Coming Soon)
+                </Button>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        );
+
+      default:
+        // Overview/default tab
+        return (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatCard
+                title="Saved Properties"
+                value={savedProperties.length}
+                subtitle="In your watchlist"
+                icon={<Heart className="h-4 w-4" />}
+                isPrimary
+              />
+              <StatCard
+                title="My Listings"
+                value={submissions.length}
+                subtitle="Submitted for review"
+                icon={<Building2 className="h-4 w-4" />}
+              />
+              <StatCard
+                title="Active Reservations"
+                value={reservations.filter((r) => r.status === "pending").length}
+                subtitle="Awaiting completion"
+                icon={<Clock className="h-4 w-4" />}
+              />
+              <StatCard
+                title="Completed Deals"
+                value={reservations.filter((r) => r.status === "completed").length}
+                subtitle="Successfully acquired"
+                icon={<Building className="h-4 w-4" />}
+              />
+            </div>
+
+            {/* Saved Properties or Market Pulse */}
+            {savedProperties.length > 0 ? (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Heart className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-foreground">Saved Properties</h2>
+                      <p className="text-sm text-muted-foreground">Your watchlist for quick access</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {savedProperties.slice(0, 6).map((property) => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+                {savedProperties.length > 6 && (
+                  <div className="text-center pt-2">
+                    <Button variant="outline" asChild>
+                      <Link to="/dashboard?tab=saved">
+                        View All {savedProperties.length} Saved Properties
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <MarketPulse />
+            )}
+
+            {/* Recent Activity */}
+            {(submissions.length > 0 || reservations.length > 0) && (
+              <div className="space-y-5">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">Recent Activity</h2>
+                    <p className="text-sm text-muted-foreground">Your latest updates</p>
+                  </div>
+                </div>
+                <Card className="border-0 shadow-sm bg-card">
+                  <CardContent className="p-0 divide-y divide-border">
+                    {submissions.slice(0, 3).map((submission) => (
+                      <div key={submission.id} className="flex items-center gap-4 p-4">
+                        <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                          <Building2 className="h-5 w-5 text-secondary-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {submission.property_address}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Listing submitted · {new Date(submission.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="capitalize">
+                          {submission.admin_status}
+                        </Badge>
+                      </div>
+                    ))}
+                    {reservations.slice(0, 2).map((reservation) => (
+                      <div key={reservation.id} className="flex items-center gap-4 p-4">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Clock className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {reservation.property.title}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Reservation · {new Date(reservation.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge 
+                          variant={reservation.status === "completed" ? "default" : "secondary"} 
+                          className="capitalize"
+                        >
+                          {reservation.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </>
+        );
+    }
+  };
+
+  return (
+    <AppLayout
+      pageTitle={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Investor"}`}
+      pageSubtitle="Manage your property investments"
+      pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
+      headerActions={
+        <div className="flex items-center gap-3">
+          <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1 hidden sm:flex">
+            {investorStatus === "approved" ? (
+              <CheckCircle className="h-3 w-3" />
+            ) : (
+              <Clock className="h-3 w-3" />
+            )}
+            {investorStatus === "approved" ? "Approved Investor" : "Pending Approval"}
+          </Badge>
+          <Button asChild variant="gradient" size="sm" className="gap-2">
+            <Link to="/properties">
+              <Rocket className="h-4 w-4" />
+              <span className="hidden sm:inline">Find New Deals</span>
+              <span className="sm:hidden">Browse</span>
+            </Link>
+          </Button>
+        </div>
+      }
+    >
+      <div className="p-6 bg-background-secondary min-h-full space-y-8">
+        {renderContent()}
       </div>
     </AppLayout>
   );
