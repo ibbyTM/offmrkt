@@ -58,7 +58,7 @@ export function FeaturedPropertiesSection() {
                   </CardContent>
                 </Card>
               ))
-            : featuredProperties.map((property, index) => {
+              : featuredProperties.map((property, index) => {
                 const images = property.photo_urls || [];
                 const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
                 const annualRent = monthlyRent * 12;
@@ -67,6 +67,11 @@ export function FeaturedPropertiesSection() {
                   : null;
                 const grossYield = property.gross_yield_percentage || calculatedGrossYield;
                 const referenceId = property.property_reference || `OM${property.id.slice(-4).toUpperCase()}`;
+                
+                // Check if property was listed within last 7 days
+                const isNew = property.created_at && 
+                  new Date(property.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                
                 return (
                   <motion.div
                     key={property.id}
@@ -76,7 +81,7 @@ export function FeaturedPropertiesSection() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
                     <Link to={`/properties/${property.id}`} className="group block">
-                      <Card className="overflow-hidden h-full rounded-xl border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg bg-card">
+                      <Card className="overflow-hidden h-full rounded-xl border-border hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg bg-card">
                         {/* Image Container with interactive carousel */}
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                           <PropertyCardCarousel images={images} alt={property.title} />
@@ -84,10 +89,18 @@ export function FeaturedPropertiesSection() {
                           {/* Featured Badge (first property only) */}
                           {index === 0 && (
                             <Badge
-                              variant="secondary"
-                              className="absolute top-3 left-3 z-20 bg-background/90 text-foreground shadow-md"
+                              className="absolute top-3 left-3 z-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground font-semibold shadow-lg"
                             >
                               Top Pick
+                            </Badge>
+                          )}
+                          
+                          {/* New badge for recent listings (not on first card which has Top Pick) */}
+                          {isNew && index !== 0 && (
+                            <Badge 
+                              className="absolute top-3 left-3 z-20 bg-success text-success-foreground text-xs font-semibold shadow-md"
+                            >
+                              New
                             </Badge>
                           )}
 

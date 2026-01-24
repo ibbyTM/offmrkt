@@ -318,11 +318,11 @@ export function SellerForm() {
     <div className="max-w-3xl mx-auto">
       {/* Draft Restored Banner */}
       {hasDraft && (
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 flex items-center justify-between">
-          <p className="text-sm text-blue-700 dark:text-blue-300">
+        <div className="bg-info/10 border border-info/30 rounded-lg p-4 mb-6 flex items-center justify-between">
+          <p className="text-sm text-info-foreground">
             We've restored your saved progress.
           </p>
-          <Button variant="ghost" size="sm" onClick={clearDraft} className="text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100">
+          <Button variant="ghost" size="sm" onClick={clearDraft} className="text-info-foreground hover:text-foreground">
             <Trash2 className="h-4 w-4 mr-1" />
             Start Fresh
           </Button>

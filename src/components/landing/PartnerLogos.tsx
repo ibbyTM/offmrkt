@@ -11,7 +11,7 @@ const partners = [
 
 export function PartnerLogos() {
   return (
-    <section className="py-12 bg-muted/30 border-y border-border">
+    <section className="py-16 bg-muted/30 border-y border-border">
       <div className="container">
         <motion.div
           initial={{ opacity: 0 }}
@@ -24,7 +24,7 @@ export function PartnerLogos() {
             Trusted by leading property professionals and organizations
           </p>
           
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
             {partners.map((partner, i) => (
               <motion.div
                 key={partner}
@@ -32,9 +32,11 @@ export function PartnerLogos() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.3, delay: i * 0.1 }}
-                className="text-muted-foreground/50 font-semibold text-lg hover:text-muted-foreground transition-colors"
+                className="h-10 px-5 flex items-center justify-center bg-background rounded-lg border border-border hover:border-primary/30 transition-colors"
               >
-                {partner}
+                <span className="font-bold text-muted-foreground/60 text-sm tracking-wide">
+                  {partner}
+                </span>
               </motion.div>
             ))}
           </div>

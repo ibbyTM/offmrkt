@@ -214,9 +214,9 @@ export function HeroSection() {
           className="text-center max-w-4xl mx-auto"
         >
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-            Find your perfect{" "}
-            <span className="text-primary">investment property</span>{" "}
-            with our easy platform
+            Unlock{" "}
+            <span className="text-primary">Off-Market Property Deals</span>{" "}
+            Before Anyone Else
           </h1>
           
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -226,7 +226,7 @@ export function HeroSection() {
           
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button asChild size="lg" className="font-semibold text-base px-8 group">
+            <Button asChild size="lg" variant="gradient" className="font-semibold text-base px-8 group">
               <Link to="/register">
                 Get Started for Free
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
