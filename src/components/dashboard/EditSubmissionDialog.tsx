@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select";
 import { useUserSubmissions, SellerSubmission } from "@/hooks/useUserSubmissions";
 import { Loader2 } from "lucide-react";
+import { AddressAutocomplete } from "@/components/seller/AddressAutocomplete";
 
 const editSchema = z.object({
   property_address: z.string().min(5, "Address must be at least 5 characters"),
@@ -153,7 +154,16 @@ export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDial
                 <FormItem>
                   <FormLabel>Property Address</FormLabel>
                   <FormControl>
-                    <Input placeholder="123 Example Street" {...field} />
+                    <AddressAutocomplete
+                      value={field.value}
+                      onChange={field.onChange}
+                      onAddressSelect={(address) => {
+                        form.setValue("property_address", address.street);
+                        form.setValue("property_city", address.city);
+                        form.setValue("property_postcode", address.postcode);
+                      }}
+                      placeholder="Start typing your address..."
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
