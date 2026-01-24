@@ -219,6 +219,41 @@ const Dashboard = () => {
           </div>
         );
 
+      case "saved":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Saved Properties</h2>
+              <p className="text-sm text-muted-foreground">Properties you've added to your watchlist</p>
+            </div>
+            {savedProperties.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {savedProperties.map((property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+            ) : (
+              <Card className="border-0 shadow-sm bg-card">
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                    <Heart className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <CardTitle className="text-xl mb-2">No saved properties</CardTitle>
+                  <CardDescription className="text-center mb-6 max-w-md">
+                    Save properties you're interested in to keep track of them here.
+                  </CardDescription>
+                  <Button asChild variant="gradient">
+                    <Link to="/properties">
+                      <Rocket className="mr-2 h-4 w-4" />
+                      Browse Properties
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        );
+
       case "settings":
         return (
           <div className="space-y-6">
