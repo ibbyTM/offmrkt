@@ -1,36 +1,14 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { QuestionnaireForm } from "@/components/questionnaire/QuestionnaireForm";
 import { useAuth } from "@/contexts/AuthContext";
-import { Loader2 } from "lucide-react";
 
 const Questionnaire = () => {
-  const { user, loading, hasCompletedQuestionnaire } = useAuth();
-  const navigate = useNavigate();
+  const { hasCompletedQuestionnaire, loading } = useAuth();
 
-  useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        navigate("/register");
-      } else if (hasCompletedQuestionnaire) {
-        navigate("/dashboard");
-      }
-    }
-  }, [user, loading, hasCompletedQuestionnaire, navigate]);
-
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-[80vh] flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (!user || hasCompletedQuestionnaire) {
-    return null;
+  // Redirect to dashboard if questionnaire is already completed
+  if (!loading && hasCompletedQuestionnaire) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (
