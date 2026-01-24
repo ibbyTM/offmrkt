@@ -334,15 +334,6 @@ export function SellerForm() {
     } catch (error: any) {
       console.error("Submission error:", error);
       
-      // Handle rate limit error with user-friendly message
-      if (error.message?.includes('Rate limit exceeded')) {
-        toast({
-          title: "Submission limit reached",
-          description: "You can submit up to 5 properties per day. Please try again tomorrow.",
-          variant: "destructive",
-        });
-        return;
-      }
       
       toast({
         title: "Submission failed",
@@ -912,7 +903,7 @@ export function SellerForm() {
               <PhotoUpload
                 photos={photos}
                 onPhotosChange={setPhotos}
-                maxPhotos={10}
+                maxPhotos={60}
               />
 
               <div className="rounded-lg bg-accent/50 p-4">
