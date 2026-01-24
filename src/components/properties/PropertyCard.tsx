@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, TrendingUp } from "lucide-react";
+import { MapPin, Bed, Bath, TrendingUp, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,10 +9,12 @@ import {
   formatYield,
   listingStatusLabels,
   propertyTypeLabels,
+  getSoldInText,
 } from "@/lib/propertyUtils";
 import { CompareCheckbox } from "@/components/comparison/CompareCheckbox";
 import { PropertyCardMenu } from "./PropertyCardMenu";
 import { PropertyCardCarousel } from "./PropertyCardCarousel";
+import { cn } from "@/lib/utils";
 
 interface PropertyCardProps {
   property: Property;
@@ -39,15 +41,47 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   const isNew = property.created_at && 
     new Date(property.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
+  // Check if property is sold
+  const isSold = property.listing_status === "sold";
+  const soldInText = isSold && property.created_at 
+    ? getSoldInText(property.created_at, property.sold_at) 
+    : null;
+
   return (
     <Link to={`/properties/${property.id}`}>
-      <Card className="group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-card">
+      <Card className={cn(
+        "group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-card",
+        isSold && "opacity-90"
+      )}>
         {/* Image section with interactive carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          <PropertyCardCarousel images={images} alt={property.title} />
+          <div className={cn(isSold && "grayscale-[30%]")}>
+            <PropertyCardCarousel images={images} alt={property.title} />
+          </div>
           
-          {/* Top-left: Compare checkbox (icon variant) */}
-          {showCompare && (
+          {/* SOLD Banner Overlay */}
+          {isSold && (
+            <>
+              <div className="absolute inset-0 bg-black/20 z-10" />
+              <div className="absolute inset-0 flex items-center justify-center z-20">
+                <div className="bg-destructive text-destructive-foreground px-6 py-2 font-bold text-lg tracking-wider shadow-xl transform -rotate-3">
+                  SOLD
+                </div>
+              </div>
+              {/* Sold in X days badge */}
+              {soldInText && (
+                <Badge 
+                  className="absolute bottom-3 left-3 z-20 bg-destructive/90 text-destructive-foreground text-xs font-semibold shadow-md"
+                >
+                  <Clock className="h-3 w-3 mr-1" />
+                  Sold in {soldInText}
+                </Badge>
+              )}
+            </>
+          )}
+          
+          {/* Top-left: Compare checkbox (icon variant) - hide for sold */}
+          {showCompare && !isSold && (
             <div className="absolute top-3 left-3 z-20">
               <CompareCheckbox propertyId={property.id} variant="icon" />
             </div>
@@ -56,8 +90,8 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
           {/* Top-right: Options menu */}
           <PropertyCardMenu propertyId={property.id} />
 
-          {/* New badge for recent listings */}
-          {isNew && (
+          {/* New badge for recent listings (not for sold) */}
+          {isNew && !isSold && (
             <Badge 
               className="absolute top-3 left-14 z-20 bg-success text-success-foreground text-xs font-semibold shadow-md"
             >
@@ -65,8 +99,8 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
             </Badge>
           )}
 
-          {/* Status badge (if not available) */}
-          {property.listing_status !== "available" && (
+          {/* Status badge for reserved/under_offer */}
+          {property.listing_status !== "available" && !isSold && (
             <Badge 
               variant="secondary" 
               className="absolute top-3 right-14 bg-background/90 text-foreground text-xs font-medium shadow-sm"
@@ -80,7 +114,10 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
         <CardContent className="p-4">
           {/* Price + Reference */}
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xl font-bold text-foreground">
+            <span className={cn(
+              "text-xl font-bold",
+              isSold ? "text-muted-foreground" : "text-foreground"
+            )}>
               {formatPrice(property.asking_price)}
             </span>
             <span className="text-xs text-muted-foreground font-mono">
@@ -112,14 +149,19 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
               <span>{property.bathrooms || "—"}</span>
             </div>
             <div className="flex items-center gap-1">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-primary">{formatYield(grossYield)}</span>
+              <TrendingUp className={cn("h-4 w-4", isSold ? "text-muted-foreground" : "text-primary")} />
+              <span className={cn("font-semibold", isSold ? "text-muted-foreground" : "text-primary")}>
+                {formatYield(grossYield)}
+              </span>
             </div>
           </div>
           
           {/* CTA Button */}
-          <Button className="w-full" variant="default">
-            View Details
+          <Button 
+            className="w-full" 
+            variant={isSold ? "outline" : "default"}
+          >
+            {isSold ? "View History" : "View Details"}
           </Button>
         </CardContent>
       </Card>

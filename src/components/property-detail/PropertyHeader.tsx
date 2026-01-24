@@ -1,7 +1,7 @@
-import { MapPin, Calendar, Share2 } from "lucide-react";
+import { MapPin, Calendar, Share2, CheckCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Property, formatPrice, strategyLabels, strategyColors, propertyTypeLabels, listingStatusLabels } from "@/lib/propertyUtils";
+import { Property, formatPrice, strategyLabels, strategyColors, propertyTypeLabels, listingStatusLabels, getSoldInText } from "@/lib/propertyUtils";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -14,7 +14,7 @@ const statusColors: Record<string, string> = {
   available: "bg-emerald-500 text-white",
   reserved: "bg-amber-500 text-white",
   under_offer: "bg-blue-500 text-white",
-  sold: "bg-red-500 text-white",
+  sold: "bg-destructive text-destructive-foreground",
 };
 
 export default function PropertyHeader({ property }: PropertyHeaderProps) {
@@ -32,8 +32,17 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
     }
   };
 
+  const isSold = property.listing_status === "sold";
+  const soldInText = isSold && property.created_at 
+    ? getSoldInText(property.created_at, property.sold_at) 
+    : null;
+
   const addedDate = property.created_at 
     ? format(new Date(property.created_at), "dd/MM/yyyy")
+    : null;
+
+  const soldDate = property.sold_at 
+    ? format(new Date(property.sold_at), "dd/MM/yyyy")
     : null;
 
   return (
@@ -52,6 +61,13 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           <Badge variant="outline" className="text-sm">
             {propertyTypeLabels[property.property_type]}
           </Badge>
+          {/* Sold in X days achievement badge */}
+          {isSold && soldInText && (
+            <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-sm px-3 py-1">
+              <Clock className="h-3 w-3 mr-1" />
+              Sold in {soldInText}
+            </Badge>
+          )}
         </div>
         <div className="flex items-center gap-3">
           {property.property_reference && (
@@ -68,7 +84,12 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
       {/* Title & Price */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">{property.title}</h1>
+          <h1 className={cn(
+            "text-3xl font-bold",
+            isSold ? "text-muted-foreground" : "text-foreground"
+          )}>
+            {property.title}
+          </h1>
           <div className="flex items-center gap-4 mt-2 flex-wrap">
             <div className="flex items-center text-muted-foreground">
               <MapPin className="h-4 w-4 mr-1" />
@@ -76,7 +97,13 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
                 {property.property_address}, {property.property_city} {property.property_postcode}
               </span>
             </div>
-            {addedDate && (
+            {/* Show sold date for sold properties, added date for others */}
+            {isSold && soldDate ? (
+              <div className="flex items-center text-destructive text-sm font-medium">
+                <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                <span>Sold {soldDate}</span>
+              </div>
+            ) : addedDate && (
               <div className="flex items-center text-muted-foreground text-sm">
                 <Calendar className="h-3.5 w-3.5 mr-1" />
                 <span>Added {addedDate}</span>
@@ -85,13 +112,23 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           </div>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold text-primary">
+          <p className={cn(
+            "text-3xl font-bold",
+            isSold ? "text-muted-foreground line-through decoration-2" : "text-primary"
+          )}>
             {formatPrice(property.asking_price)}
           </p>
-          <p className="text-sm text-muted-foreground">
-            + Reservation Fee
-          </p>
-          {property.gross_yield_percentage && (
+          {!isSold && (
+            <p className="text-sm text-muted-foreground">
+              + Reservation Fee
+            </p>
+          )}
+          {isSold && (
+            <p className="text-sm font-medium text-destructive">
+              Sale Complete
+            </p>
+          )}
+          {property.gross_yield_percentage && !isSold && (
             <p className="text-sm font-medium text-emerald-600">
               {(property.gross_yield_percentage / 100).toFixed(1)}% Gross Yield
             </p>
@@ -105,7 +142,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
           {property.strategies.map((strategy) => (
             <Badge
               key={strategy}
-              className={cn("text-sm", strategyColors[strategy])}
+              className={cn("text-sm", strategyColors[strategy], isSold && "opacity-60")}
             >
               {strategyLabels[strategy]}
             </Badge>

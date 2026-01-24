@@ -1,17 +1,47 @@
 import { useState } from "react";
-import { Property } from "@/lib/propertyUtils";
+import { Property, listingStatusLabels } from "@/lib/propertyUtils";
 import { useEnhancePropertyContent, PropertyData } from "@/hooks/useEnhancePropertyContent";
 import { useUpdatePropertyContent } from "@/hooks/useProperties";
+import { useUpdatePropertyStatus } from "@/hooks/useUpdatePropertyStatus";
 import { EnhanceContentDialog } from "@/components/admin/EnhanceContentDialog";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Shield, Sparkles } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
+
+type ListingStatus = Database["public"]["Enums"]["listing_status"];
 
 interface AdminPropertyToolbarProps {
   property: Property;
 }
 
+const statusOptions: { value: ListingStatus; label: string }[] = [
+  { value: "available", label: "Available" },
+  { value: "reserved", label: "Reserved" },
+  { value: "under_offer", label: "Under Offer" },
+  { value: "sold", label: "Sold" },
+];
+
 export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
   const [showEnhanceDialog, setShowEnhanceDialog] = useState(false);
+  const [showSoldConfirm, setShowSoldConfirm] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<ListingStatus | null>(null);
   const [enhancedContent, setEnhancedContent] = useState<{
     title: string;
     description: string;
@@ -20,6 +50,7 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
 
   const enhanceMutation = useEnhancePropertyContent();
   const updateMutation = useUpdatePropertyContent();
+  const statusMutation = useUpdatePropertyStatus();
 
   const handleEnhanceWithAI = async () => {
     const propertyData: PropertyData = {
@@ -59,6 +90,23 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     setEnhancedContent(null);
   };
 
+  const handleStatusChange = (newStatus: ListingStatus) => {
+    if (newStatus === "sold") {
+      setPendingStatus(newStatus);
+      setShowSoldConfirm(true);
+    } else {
+      statusMutation.mutate({ propertyId: property.id, status: newStatus });
+    }
+  };
+
+  const confirmSold = () => {
+    if (pendingStatus) {
+      statusMutation.mutate({ propertyId: property.id, status: pendingStatus });
+    }
+    setShowSoldConfirm(false);
+    setPendingStatus(null);
+  };
+
   const originalContent = {
     title: property.title,
     description: property.property_description || "",
@@ -75,18 +123,65 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
               Admin Controls
             </span>
           </div>
-          <Button
-            onClick={handleEnhanceWithAI}
-            disabled={enhanceMutation.isPending}
-            variant="outline"
-            className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
-          >
-            <Sparkles className="h-4 w-4 mr-2" />
-            {enhanceMutation.isPending ? "Enhancing..." : "Enhance with AI"}
-          </Button>
+          
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Status Dropdown */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-amber-700 dark:text-amber-300">Status:</span>
+              <Select
+                value={property.listing_status}
+                onValueChange={(value) => handleStatusChange(value as ListingStatus)}
+                disabled={statusMutation.isPending}
+              >
+                <SelectTrigger className="w-[140px] bg-background border-amber-300 dark:border-amber-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Enhance with AI Button */}
+            <Button
+              onClick={handleEnhanceWithAI}
+              disabled={enhanceMutation.isPending}
+              variant="outline"
+              className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {enhanceMutation.isPending ? "Enhancing..." : "Enhance with AI"}
+            </Button>
+          </div>
         </div>
       </div>
 
+      {/* Sold Confirmation Dialog */}
+      <AlertDialog open={showSoldConfirm} onOpenChange={setShowSoldConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark Property as Sold?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark the property as sold and record today's date as the sale date. 
+              The property will no longer appear in public listings.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingStatus(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSold}>
+              Confirm Sale
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Enhance Content Dialog */}
       {enhancedContent && (
         <EnhanceContentDialog
           open={showEnhanceDialog}
