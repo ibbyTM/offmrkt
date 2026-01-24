@@ -21,6 +21,12 @@ export const sellerFormSchema = z.object({
   bathrooms: z.coerce.number().min(0).max(10).optional(),
   property_description: z.string().max(2000).optional(),
 
+  // Multi-unit property support
+  is_multi_unit: z.boolean().default(false),
+  building_name: z.string().optional(),
+  unit_from: z.coerce.number().min(1).optional(),
+  unit_to: z.coerce.number().min(1).optional(),
+
   // Status Information
   selling_reason: z.enum([
     "quick_sale",
@@ -63,6 +69,16 @@ export const sellerFormSchema = z.object({
   contact_phone: z.string().min(10, "Valid phone number is required"),
   is_owner: z.boolean().default(true),
   company_name: z.string().optional(),
+}).refine((data) => {
+  // If multi-unit is enabled, require building_name and unit range
+  if (data.is_multi_unit) {
+    return data.building_name && data.building_name.length >= 2 && 
+           data.unit_from && data.unit_to && data.unit_to >= data.unit_from;
+  }
+  return true;
+}, {
+  message: "Multi-unit properties require building name and valid unit range",
+  path: ["building_name"],
 });
 
 export type SellerFormValues = z.infer<typeof sellerFormSchema>;
