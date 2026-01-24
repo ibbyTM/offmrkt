@@ -1,82 +1,95 @@
 
 
-## Tighten RLS Policies for seller_submissions and mortgage_referrals
+## Add Rate Limiting to Seller Submission Form
 
-### Current State
+### Overview
+Implement rate limiting at the database level to prevent abuse of the property submission form. This will restrict users to a maximum of 5 submissions per 24-hour period.
 
-Both tables have overly permissive INSERT policies:
+### Why Database-Level Rate Limiting?
 
-| Table | Current Policy | Issue |
-|-------|---------------|-------|
-| `seller_submissions` | `WITH CHECK (true)` | Anyone (even unauthenticated) can insert |
-| `mortgage_referrals` | `WITH CHECK (true)` | Anyone (even unauthenticated) can insert |
+The seller submission form inserts directly to the `seller_submissions` table via the Supabase client. A database-level approach:
+- Guarantees enforcement regardless of how data is inserted
+- Requires no frontend code changes
+- Works with the existing RLS policies
+- Provides clear, consistent error messages
 
-### Analysis
+### Implementation
 
-**seller_submissions:**
-- The frontend `SellerForm.tsx` already blocks submissions if user is not logged in (line 225-233)
-- The insert statement includes `user_id: user.id` (line 263)
-- All SELECT/UPDATE/DELETE policies already require `auth.uid() = user_id`
+#### 1. Create Rate Limit Check Function
 
-**mortgage_referrals:**
-- The Edge Function `mortgage-enquiry/index.ts` requires authentication (lines 54-78)
-- The function extracts `userId` from claims and sets it on the insert (line 80, 90)
-- SELECT is restricted to admins only
-
-Both tables now have proper `user_id` tracking, making the `USING(true)` INSERT policies unnecessary and a security risk.
-
-### Solution
-
-Tighten the INSERT policies to require:
-1. User must be authenticated
-2. The `user_id` column must match the authenticated user's ID
-
-### Database Migration
+A database function that counts a user's recent submissions:
 
 ```sql
--- Tighten seller_submissions INSERT policy
-DROP POLICY IF EXISTS "Anyone can submit properties" ON seller_submissions;
-CREATE POLICY "Authenticated users can submit their own properties" 
-  ON seller_submissions
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+CREATE OR REPLACE FUNCTION check_seller_submission_rate_limit()
+RETURNS TRIGGER AS $$
+DECLARE
+  submission_count INTEGER;
+  max_submissions INTEGER := 5;
+  time_window INTERVAL := '24 hours';
+BEGIN
+  -- Count submissions by this user in the time window
+  SELECT COUNT(*) INTO submission_count
+  FROM seller_submissions
+  WHERE user_id = NEW.user_id
+    AND created_at > NOW() - time_window;
 
--- Tighten mortgage_referrals INSERT policy  
-DROP POLICY IF EXISTS "Anyone can log mortgage referrals" ON mortgage_referrals;
-CREATE POLICY "Authenticated users can log their own mortgage referrals" 
-  ON mortgage_referrals
-  FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  -- Check if limit exceeded
+  IF submission_count >= max_submissions THEN
+    RAISE EXCEPTION 'Rate limit exceeded. Maximum % submissions allowed per 24 hours.', max_submissions
+      USING ERRCODE = 'P0001';
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
-### Why This is Safe
+#### 2. Create Trigger
 
-| Concern | Resolution |
-|---------|------------|
-| Will existing flows break? | No - both flows already require auth and set user_id |
-| Edge function inserts? | Safe - edge function uses authenticated client and sets correct user_id |
-| Direct frontend inserts? | Safe - SellerForm requires login and passes user.id |
+Attach the function to run before each insert:
 
-### Security Improvements
+```sql
+CREATE TRIGGER enforce_seller_submission_rate_limit
+  BEFORE INSERT ON seller_submissions
+  FOR EACH ROW
+  EXECUTE FUNCTION check_seller_submission_rate_limit();
+```
 
-| Before | After |
-|--------|-------|
-| Unauthenticated users could insert garbage data | Only authenticated users can insert |
-| Anyone could insert with any/no user_id | user_id must match the authenticated user |
-| Bot/spam submissions possible | Authentication barrier prevents automated abuse |
+#### 3. Frontend Error Handling
 
-### Files Changed
+Update the `SellerForm.tsx` to display a user-friendly message when rate limited:
+
+```tsx
+// In the catch block of onSubmit
+if (error.message?.includes('Rate limit exceeded')) {
+  toast({
+    title: "Submission limit reached",
+    description: "You can submit up to 5 properties per day. Please try again tomorrow.",
+    variant: "destructive",
+  });
+  return;
+}
+```
+
+### Rate Limit Configuration
+
+| Setting | Value | Rationale |
+|---------|-------|-----------|
+| Max submissions | 5 | Generous for legitimate sellers with portfolios |
+| Time window | 24 hours | Rolling window prevents gaming |
+| Scope | Per user | Tied to authenticated user_id |
+
+### Benefits
+
+- **Prevents spam**: Limits automated or malicious bulk submissions
+- **Fair usage**: Legitimate sellers rarely submit more than 5 properties at once
+- **Clear feedback**: Users receive helpful error messages when limit is reached
+- **No frontend complexity**: Rate limiting is enforced server-side
+
+### Files to Create/Modify
 
 | File | Change |
 |------|--------|
-| Database Migration | Drop permissive policies, create restricted ones |
-
-### No Frontend Changes Required
-
-The existing frontend code already:
-- Requires authentication before submission
-- Passes the correct `user.id` to the insert
-- Will continue working with the tightened policies
+| Database Migration | Create rate limit function and trigger |
+| `src/components/seller/SellerForm.tsx` | Add user-friendly rate limit error handling |
 
