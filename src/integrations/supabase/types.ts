@@ -252,6 +252,36 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_leads: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          interest_type: string | null
+          phone: string | null
+          referrer_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          interest_type?: string | null
+          phone?: string | null
+          referrer_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          interest_type?: string | null
+          phone?: string | null
+          referrer_url?: string | null
+        }
+        Relationships: []
+      }
       mortgage_referrals: {
         Row: {
           annual_income: number | null
