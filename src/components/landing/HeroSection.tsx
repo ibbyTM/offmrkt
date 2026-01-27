@@ -227,14 +227,14 @@ export function HeroSection() {
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button asChild size="lg" variant="gradient" className="font-semibold text-base px-8 group">
-              <Link to="/register">
-                Get Started for Free
+              <Link to="/submit-property">
+                I Want to Sell
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="font-semibold text-base px-8">
-              <Link to="/properties">
-                Browse Properties
+              <Link to="/register">
+                I Want to Buy
               </Link>
             </Button>
           </div>
