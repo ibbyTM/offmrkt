@@ -1,8 +1,9 @@
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, Building2, Scale, Plus, 
-  Settings, HelpCircle, Shield, Heart, Clock, User
+  Settings, HelpCircle, Shield, Heart, Clock, User, LogOut
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
 import {
   Sidebar,
@@ -30,10 +31,17 @@ interface AppSidebarProps {
 export function AppSidebar({ children }: AppSidebarProps) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { selectedProperties } = useComparison();
   const { data: isAdmin } = useIsAdmin();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   const isDashboard = location.pathname === "/dashboard";
   const currentTab = searchParams.get("tab") || "overview";
@@ -175,6 +183,16 @@ export function AppSidebar({ children }: AppSidebarProps) {
             <SidebarMenuButton tooltip="Help & Support">
               <HelpCircle className="h-4 w-4" />
               <span>Help</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton 
+              onClick={handleSignOut}
+              tooltip="Log Out"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Log Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

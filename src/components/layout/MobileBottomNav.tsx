@@ -1,14 +1,16 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { 
   LayoutDashboard, Building2, Plus, Menu, 
-  Settings, HelpCircle, Shield, Scale 
+  Settings, HelpCircle, Shield, Scale, LogOut 
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useComparison } from "@/contexts/ComparisonContext";
 import { useIsAdmin } from "@/hooks/useAdminApplications";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
 const primaryNavItems = [
@@ -19,10 +21,18 @@ const primaryNavItems = [
 
 export function MobileBottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [moreOpen, setMoreOpen] = useState(false);
   const { selectedProperties } = useComparison();
   const { data: isAdmin } = useIsAdmin();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+    setMoreOpen(false);
+  };
 
   // Only show on mobile
   if (!isMobile) return null;
@@ -130,6 +140,17 @@ export function MobileBottomNav() {
             >
               <HelpCircle className="h-5 w-5" />
               <span>Help</span>
+            </button>
+
+            <Separator className="my-2" />
+
+            {/* Log Out */}
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-destructive/10 transition-colors w-full text-left text-destructive"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>Log Out</span>
             </button>
           </div>
         </SheetContent>
