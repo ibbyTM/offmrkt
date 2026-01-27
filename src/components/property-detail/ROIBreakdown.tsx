@@ -101,6 +101,12 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
               {leveragedCashflow >= 0 ? "+" : ""}{formatPrice(leveragedCashflow)}
             </span>
           </div>
+          <div className="flex justify-between pt-3 border-t border-border">
+            <span className="font-semibold text-foreground">Cash-on-Cash Return</span>
+            <span className="font-bold text-primary text-lg">
+              {cashOnCashReturn.toFixed(1)}%
+            </span>
+          </div>
         </div>
       </div>
 
