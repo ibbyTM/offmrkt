@@ -14,6 +14,7 @@ import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { AftercareSection } from "@/components/landing/AftercareSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { ContactSection } from "@/components/landing/ContactSection";
+import { FloatingLeadCapture } from "@/components/landing/FloatingLeadCapture";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
@@ -142,6 +143,7 @@ const Index = () => {
       <AftercareSection />
       <FAQSection />
       <ContactSection />
+      <FloatingLeadCapture />
     </Layout>
   );
 };
