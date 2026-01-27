@@ -1,8 +1,8 @@
 
 
-## Add Funnel Analytics Tab to Admin Panel
+## Add Leads Tab to Admin Panel
 
-Add a comprehensive analytics dashboard to the admin panel for tracking funnel performance, including conversion rates, traffic sources, drop-off metrics, and direct links to funnels.
+Add a dedicated "Leads" section to the admin panel for viewing all `landing_leads` submissions (from funnel forms and floating lead capture), with filtering by interest_type/source and date range, plus CSV export.
 
 ---
 
@@ -10,8 +10,10 @@ Add a comprehensive analytics dashboard to the admin panel for tracking funnel p
 
 | File | Purpose |
 |------|---------|
-| `src/components/admin/FunnelAnalyticsTab.tsx` | Main analytics dashboard component |
-| `src/hooks/useFunnelAnalytics.ts` | Hook to fetch and aggregate funnel metrics |
+| `src/hooks/useLandingLeads.ts` | Hook to fetch and filter landing_leads with export function |
+| `src/components/admin/LeadsTable.tsx` | Main table component with filters, empty state, and detail view |
+| `src/components/admin/LeadFilters.tsx` | Filter controls for interest type and date range |
+| `src/components/admin/LeadDetailDialog.tsx` | Dialog showing full lead details |
 
 ---
 
@@ -19,123 +21,84 @@ Add a comprehensive analytics dashboard to the admin panel for tracking funnel p
 
 | File | Change |
 |------|--------|
-| `src/pages/Admin.tsx` | Add "Funnels" section to sidebar and home cards, import and render FunnelAnalyticsTab |
+| `src/pages/Admin.tsx` | Add "Leads" to AdminSection type, sidebar, home card, and section rendering |
 
 ---
 
-### Component Design: FunnelAnalyticsTab
+### Data Structure
 
-The dashboard will include:
+The `landing_leads` table contains:
 
-#### 1. Overview Stats Cards
-Four metric cards at the top showing:
-- **Total Sessions** - All funnel visitors
-- **Total Conversions** - Lead captures + registrations
-- **Conversion Rate** - Conversions / Sessions percentage
-- **Avg. Steps Completed** - Average funnel progress
-
-#### 2. Funnel Performance Table
-Table listing all active funnels with:
-- Funnel name with link icon to open funnel in new tab
-- Type (seller/investor/onboard)
-- Variant
-- Sessions count
-- Conversions count
-- Conversion rate
-- "View Funnel" button that opens `/f/{slug}` in new tab
-
-#### 3. Traffic Sources Chart
-Bar chart showing top UTM sources:
-- utm_source breakdown (Google, Facebook, Direct, etc.)
-- Session count per source
-
-#### 4. Drop-off Funnel Visualization
-Horizontal bar chart showing:
-- Step 1 visitors (100%)
-- Step 2 visitors (% of step 1)
-- Step 3 visitors (% of step 1)
-- Step 4/Conversion (% of step 1)
-
-#### 5. Device Breakdown
-Pie chart or stats showing:
-- Desktop vs Mobile vs Tablet traffic
-
-#### 6. Recent Conversions List
-Simple list of recent conversions with:
-- Lead name/email
-- Funnel source
-- Timestamp
-- Conversion type
+| Column | Type | Description |
+|--------|------|-------------|
+| id | uuid | Primary key |
+| full_name | text | Lead's name |
+| email | text | Lead's email |
+| phone | text | Phone (optional) |
+| interest_type | text | Source/type: "quick-cash", "invest", "buy", "sell", "not_sure" |
+| referrer_url | text | Page URL where form was submitted |
+| created_at | timestamp | Submission time |
 
 ---
 
-### Data Hook: useFunnelAnalytics
+### Hook: useLandingLeads.ts
 
 ```typescript
-interface FunnelAnalytics {
-  // Overview metrics
-  totalSessions: number;
-  totalConversions: number;
-  conversionRate: number;
-  avgStepsCompleted: number;
-  
-  // Per-funnel breakdown
-  funnels: {
-    id: string;
-    slug: string;
-    name: string;
-    type: string;
-    variant: string;
-    sessions: number;
-    conversions: number;
-    conversionRate: number;
-  }[];
-  
-  // Traffic sources
-  trafficSources: {
-    source: string;
-    sessions: number;
-  }[];
-  
-  // Step drop-off
-  stepDropoff: {
-    step: number;
-    visitors: number;
-    percentage: number;
-  }[];
-  
-  // Device breakdown
-  devices: {
-    type: string;
-    sessions: number;
-  }[];
-  
-  // Recent conversions
-  recentConversions: {
-    id: string;
-    funnelName: string;
-    conversionType: string;
-    createdAt: string;
-  }[];
+interface LeadFilters {
+  interestType?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  search?: string;
 }
+
+// Queries landing_leads table with filters
+// Returns leads ordered by created_at descending
+// Includes export function for CSV download
 ```
 
-The hook will query:
-1. `funnel_definitions` - Get all funnels
-2. `funnel_sessions` - Aggregate session counts, group by funnel_id, utm_source, device_type
-3. `funnel_events` - Count events by step_number for drop-off analysis
-4. `funnel_conversions` - Count conversions per funnel, get recent list
+---
+
+### Component: LeadsTable.tsx
+
+Features:
+- Header row with filter toggle and export button
+- Collapsible filters panel
+- Table columns: Date, Name, Email, Phone, Source/Type, Referrer
+- Click row to open detail dialog
+- Empty state when no leads
+
+---
+
+### Component: LeadFilters.tsx
+
+Filter controls:
+- **Interest Type** - Dropdown with options: All, Seller, Investor, Quick Cash, Free Valuation, etc.
+- **Date From** - Date picker
+- **Date To** - Date picker
+- **Search** - Text input to search by name/email
+- **Clear All** - Reset filters button
+
+---
+
+### Component: LeadDetailDialog.tsx
+
+Shows full lead information:
+- Name, email, phone
+- Interest type with badge
+- Full referrer URL
+- Created timestamp
+- Quick actions: Copy email, Open in new tab
 
 ---
 
 ### Admin.tsx Updates
 
-1. Add `'funnels'` to `AdminSection` type
-2. Add funnel icon import: `import { Funnel } from "lucide-react"`
-3. Add sidebar menu item for Funnels
-4. Add home card for Funnels section
-5. Add section case for rendering FunnelAnalyticsTab
-6. Import and use the new components
+1. Add `'leads'` to `AdminSection` type
+2. Import `Mail` or `Inbox` icon from lucide-react
+3. Add sidebar menu item between "Mortgage Leads" and "Funnels"
+4. Add home card for Leads section showing lead count
+5. Add section case for rendering LeadsTable
+6. Import and fetch lead count for home badge
 
 ---
 
@@ -143,143 +106,85 @@ The hook will query:
 
 ```text
 +--------------------------------------------------+
-|  Funnel Analytics                                |
-|  Track conversion rates, traffic, and drop-offs  |
+|  Leads                                           |
+|  View all form submissions from landing pages    |
 +--------------------------------------------------+
 
-+------------+  +------------+  +------------+  +------------+
-|  Sessions  |  | Conversions|  | Conv. Rate |  | Avg Steps  |
-|    156     |  |     23     |  |   14.7%    |  |    2.3     |
-+------------+  +------------+  +------------+  +------------+
++----------------------------------+  +-------------+
+| [Filters ▼]                      |  | Export CSV  |
++----------------------------------+  +-------------+
 
+Filters (collapsible):
++----------------------------------------------------------+
+| Source/Type    | From Date     | To Date     | Search    |
+| [All types ▼]  | [Select date] | [Select]    | [______]  |
++----------------------------------------------------------+
+
+Table:
 +---------------------------------------------------------------+
-| FUNNEL PERFORMANCE                                    [Export]|
-|---------------------------------------------------------------|
-| Funnel            | Type    | Sessions | Conv | Rate | Action |
-|-------------------|---------|----------|------|------|--------|
-| Quick Cash Offer  | seller  |    89    |  12  | 13%  | [Link] |
-| Free Valuation    | seller  |    45    |   8  | 18%  | [Link] |
-| Off-Market Deals  | investor|    22    |   3  | 14%  | [Link] |
+| Date        | Name          | Email           | Phone  | Type |
+|-------------|---------------|-----------------|--------|------|
+| 27 Jan 2026 | John Smith    | john@email.com  | 07xxx  | sell |
+| 26 Jan 2026 | Sarah Jones   | sarah@test.com  | —      | invest|
 +---------------------------------------------------------------+
-
-+---------------------------+  +---------------------------+
-| TRAFFIC SOURCES           |  | DROP-OFF BY STEP          |
-|---------------------------|  |---------------------------|
-| ████████████ Google (45)  |  | Step 1 ██████████████ 100%|
-| ████████ Facebook (32)    |  | Step 2 ████████████   75% |
-| ████ Direct (18)          |  | Step 3 ██████████     60% |
-| ██ LinkedIn (8)           |  | Convert████████       48% |
-+---------------------------+  +---------------------------+
-
-+---------------------------+
-| DEVICE BREAKDOWN          |
-|---------------------------|
-|  🖥️ Desktop   62%         |
-|  📱 Mobile    35%         |
-|  📟 Tablet     3%         |
-+---------------------------+
-```
-
----
-
-### Technical Details
-
-**FunnelAnalyticsTab.tsx structure:**
-
-```tsx
-// Imports
-import { useState } from 'react';
-import { ExternalLink, Funnel, Users, Target, TrendingUp, Smartphone, Monitor, Tablet, ArrowDown } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
-import { useFunnelAnalytics } from '@/hooks/useFunnelAnalytics';
-
-// Component with:
-// - Loading skeleton state
-// - Error state
-// - Empty state (no funnels/sessions yet)
-// - Stats cards row
-// - Funnel performance table with external link buttons
-// - Charts grid (traffic sources, drop-off, devices)
-```
-
-**useFunnelAnalytics.ts hook:**
-
-```tsx
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-
-export function useFunnelAnalytics() {
-  return useQuery({
-    queryKey: ['funnel-analytics'],
-    queryFn: async () => {
-      // Fetch all data in parallel
-      const [funnelsResult, sessionsResult, eventsResult, conversionsResult] = await Promise.all([
-        supabase.from('funnel_definitions').select('*').eq('is_active', true),
-        supabase.from('funnel_sessions').select('*'),
-        supabase.from('funnel_events').select('*'),
-        supabase.from('funnel_conversions').select('*').order('created_at', { ascending: false }).limit(10),
-      ]);
-      
-      // Aggregate and compute metrics
-      // ... processing logic
-      
-      return analytics;
-    },
-  });
-}
-```
-
----
-
-### Direct Funnel Links
-
-Each funnel row will have an "Open" button that:
-- Uses the preview URL + `/f/{slug}` path
-- Opens in a new tab with `target="_blank" rel="noopener noreferrer"`
-- Shows an ExternalLink icon
-
-```tsx
-<Button
-  variant="outline"
-  size="sm"
-  asChild
->
-  <a
-    href={`/f/${funnel.slug}`}
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    <ExternalLink className="h-4 w-4 mr-2" />
-    Open Funnel
-  </a>
-</Button>
 ```
 
 ---
 
 ### Empty State
 
-When no funnel data exists yet, show an informative empty state:
-
 ```text
 +------------------------------------------+
 |                                          |
-|       📊 No funnel data yet              |
+|        📬 No leads yet                   |
 |                                          |
-|   Start driving traffic to your funnels  |
-|   to see analytics here.                 |
-|                                          |
-|   Quick links to your funnels:           |
-|   [Quick Cash] [Free Valuation] [...]    |
+|   Leads will appear here when visitors   |
+|   submit forms on your landing pages     |
+|   and funnels.                           |
 |                                          |
 +------------------------------------------+
 ```
 
-This ensures admins can still access and test funnels even before any analytics data exists.
+---
+
+### Technical Details
+
+**useLandingLeads.ts:**
+- Uses React Query with key `['admin-landing-leads', filters]`
+- Applies filters: `interest_type`, date range, search (ilike on name/email)
+- Export function creates CSV with all fields
+
+**LeadsTable.tsx:**
+- Follows same pattern as `MortgageReferralsTable`
+- Uses Collapsible for filter panel
+- Uses Table from shadcn/ui
+- Dialog for detail view
+
+**Admin.tsx changes:**
+- Add to type: `type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'leads' | 'funnels';`
+- Add hook call: `const { data: leads = [], isLoading: isLoadingLeads } = useLandingLeads();`
+- Add sidebar item with Inbox icon
+- Add home card showing `{leads.length} leads`
+
+---
+
+### Interest Type Badge Colors
+
+| Type | Color |
+|------|-------|
+| sell / quick-cash / free-valuation / landlord-exit | Green |
+| invest / off-market-deals / high-yield | Blue |
+| buy | Purple |
+| not_sure | Gray |
+
+---
+
+### Export CSV Columns
+
+1. Date
+2. Full Name
+3. Email
+4. Phone
+5. Interest Type
+6. Referrer URL
 
