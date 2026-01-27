@@ -24,6 +24,7 @@ import Terms from "./pages/Terms";
 import Cookies from "./pages/Cookies";
 import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
+import FunnelRouter from "./pages/funnels/FunnelRouter";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +62,9 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/cookies" element={<Cookies />} />
                 <Route path="/gdpr" element={<GDPR />} />
+                {/* Funnel routes - conversion-focused landing pages */}
+                <Route path="/f/:funnelSlug" element={<FunnelRouter />} />
+                <Route path="/f/:funnelSlug/:step" element={<FunnelRouter />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
