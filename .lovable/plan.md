@@ -1,215 +1,224 @@
 
 
-## Prominent "I Want to Buy" / "I Want to Sell" CTAs
+## Add Log Out Button to Account Page
 
-### Overview
+### Current State
 
-Add big, prominent dual-path CTAs throughout the landing page that clearly segment visitors into buyers/investors and sellers/vendors. The "I Want to Sell" path will be visually prioritized to push more sellers.
+A logout feature exists in the main **Header** component (visible in the top navigation bar), but it's missing from:
 
-### Integration Strategy
+1. **Account Settings tab** (`/dashboard?tab=settings`) - The main account management page
+2. **Sidebar footer** - The "Account" link goes to settings but no logout option
+3. **Mobile "More" menu** - Has Settings but no logout
 
-Rather than creating a separate component, we'll integrate the buy/sell CTAs into three key touchpoints:
+This creates an inconsistent experience where users on authenticated pages must scroll up or look for the header to log out.
 
-1. **Hero Section** - Replace generic CTAs with clear buy/sell paths
-2. **New Dual-Path Section** - A dedicated section after the hero with visual cards
-3. **Bottom CTA Section** - Update to emphasize sell path
+### Changes
 
-This creates a cohesive journey where visitors are constantly reminded of both options, with selling visually emphasized.
-
----
-
-### 1. Hero Section Updates
-
-Replace the current generic "Get Started for Free" / "Browse Properties" buttons with clear intent-based CTAs:
-
-```text
-Current:
-[Get Started for Free →]  [Browse Properties]
-
-New:
-[I Want to Sell →]  [I Want to Buy]
-     (primary)          (outline)
-```
-
-**Visual emphasis on "Sell":**
-- Primary gradient button for "Sell" 
-- Outline/secondary button for "Buy"
-- "Sell" button slightly larger or with a badge like "Get Cash Offers"
+Add a prominent "Log Out" button to the Account Settings page, and also add it to the sidebar footer and mobile bottom nav for easy access.
 
 ---
 
-### 2. New Dual-Path Section (after Hero)
+### 1. Account Settings Page
 
-Create a new `DualPathSection` component that appears right after the hero, featuring two large clickable cards:
+Add a "Log Out" card section at the bottom of the settings tab:
 
-```text
-+------------------------------------------+
-|                                          |
-|   Which describes you best?              |
-|                                          |
-|  +----------------+  +----------------+  |
-|  |                |  |                |  |
-|  |  I WANT TO     |  |  I WANT TO     |  |
-|  |    SELL        |  |    BUY         |  |
-|  |                |  |                |  |
-|  |  [Home Icon]   |  |  [Search Icon] |  |
-|  |                |  |                |  |
-|  |  Get instant   |  |  Access        |  |
-|  |  cash offers   |  |  exclusive     |  |
-|  |  for your      |  |  off-market    |  |
-|  |  property      |  |  deals         |  |
-|  |                |  |                |  |
-|  |  [Submit →]    |  |  [Browse →]    |  |
-|  |  ★ FEATURED    |  |                |  |
-|  +----------------+  +----------------+  |
-|                                          |
-+------------------------------------------+
-```
+| Before | After |
+|--------|-------|
+| Profile card only | Profile card + Log Out card |
 
-**Sell card visual priority:**
-- Larger size (60/40 split on desktop)
-- Primary border/accent color
-- "Featured" or "Quick Cash" badge
-- Appears first on mobile
+The log out section will include:
+- A warning-styled card with clear "Log Out" button
+- Brief description explaining what happens on logout
+- Uses the existing `signOut` function from AuthContext
 
 ---
 
-### 3. Update Bottom CTA Section
+### 2. Sidebar Footer
 
-Transform the existing CTASection to have a two-column layout:
+Add a logout button below the existing Account and Help links:
 
-```text
-+--------------------------------------------------+
-|                                                  |
-|  Ready to get started?                           |
-|                                                  |
-|  +---------------------+  +-------------------+  |
-|  | SELL YOUR PROPERTY  |  | INVEST IN DEALS  |  |
-|  |                     |  |                   |  |
-|  | Get cash offers in  |  | Browse exclusive  |  |
-|  | 24 hours from our   |  | off-market deals  |  |
-|  | verified investors  |  | across the UK     |  |
-|  |                     |  |                   |  |
-|  | [Submit Property →] |  | [Browse Now]      |  |
-|  +---------------------+  +-------------------+  |
-|                                                  |
-+--------------------------------------------------+
-```
+| Current | New |
+|---------|-----|
+| Account | Account |
+| Help | Help |
+| | **Log Out** |
 
 ---
 
-### 4. Floating Widget Update
+### 3. Mobile Bottom Nav "More" Menu
 
-Enhance the existing FloatingLeadCapture to default to "seller" interest:
+Add logout option at the bottom of the "More" sheet:
 
-- Pre-select "Selling a Property" in the interest dropdown
-- Update the button text to "Sell Your Property" when minimized
+| Current | New |
+|---------|-----|
+| Compare (if any) | Compare (if any) |
+| Admin (if admin) | Admin (if admin) |
+| Settings | Settings |
+| Help | Help |
+| | **Log Out** |
 
 ---
 
-### Implementation Files
+### Files to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/landing/HeroSection.tsx` | Update CTA buttons to "I Want to Sell" (primary) and "I Want to Buy" (outline) |
-| `src/components/landing/DualPathSection.tsx` | New component with two large clickable cards |
-| `src/pages/Index.tsx` | Add DualPathSection after HeroSection |
-| `src/components/landing/CTASection.tsx` | Transform to dual-column layout with sell emphasis |
-| `src/components/landing/FloatingLeadCapture.tsx` | Default to seller interest, update minimized button text |
+| `src/pages/Dashboard.tsx` | Add log out card to settings tab with `signOut` functionality |
+| `src/components/layout/AppSidebar.tsx` | Add logout button to sidebar footer |
+| `src/components/layout/MobileBottomNav.tsx` | Add logout option to "More" menu sheet |
 
 ---
 
 ### Technical Details
 
-**New Component: `DualPathSection.tsx`**
+**Dashboard.tsx - Settings Tab Updates:**
 
 ```tsx
-// Two-card layout with Framer Motion animations
-// Sell card: 55% width on desktop, primary accent, "Featured" badge
-// Buy card: 45% width on desktop, subtle styling
-// Mobile: Sell card stacks first, full width
+// Add to imports
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-<section className="py-16 bg-muted/30">
-  <div className="container">
-    <h2 className="text-center text-2xl font-bold mb-8">
-      Which describes you best?
-    </h2>
-    
-    <div className="grid md:grid-cols-[1.2fr_1fr] gap-6">
-      {/* Sell Card - Emphasized */}
-      <Card className="p-8 border-primary/30 bg-primary/5 relative">
-        <Badge className="absolute top-4 right-4">Quick Cash</Badge>
-        <Home className="h-12 w-12 text-primary mb-4" />
-        <h3 className="text-2xl font-bold mb-2">I Want to Sell</h3>
-        <p className="text-muted-foreground mb-6">
-          Get instant cash offers from our network of verified investors...
-        </p>
-        <Button asChild variant="gradient" size="lg">
-          <Link to="/submit-property">Submit Your Property →</Link>
-        </Button>
-      </Card>
-      
-      {/* Buy Card - Secondary */}
-      <Card className="p-8 border-border">
-        <Search className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-2xl font-bold mb-2">I Want to Buy</h3>
-        <p className="text-muted-foreground mb-6">
-          Access exclusive off-market deals before anyone else...
-        </p>
-        <Button asChild variant="outline" size="lg">
-          <Link to="/register">Browse Deals</Link>
-        </Button>
-      </Card>
+// Inside component
+const { user, investorStatus, signOut } = useAuth();
+const navigate = useNavigate();
+
+const handleSignOut = async () => {
+  await signOut();
+  navigate("/");
+};
+
+// In settings case, add after Profile card:
+<Card className="border-0 shadow-sm bg-card border-destructive/20">
+  <CardHeader>
+    <div className="flex items-center gap-3">
+      <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center">
+        <LogOut className="h-6 w-6 text-destructive" />
+      </div>
+      <div>
+        <CardTitle>Sign Out</CardTitle>
+        <CardDescription>Log out of your account</CardDescription>
+      </div>
     </div>
-  </div>
-</section>
+  </CardHeader>
+  <CardContent>
+    <p className="text-sm text-muted-foreground mb-4">
+      You'll need to sign in again to access your dashboard and saved properties.
+    </p>
+    <Button variant="destructive" onClick={handleSignOut}>
+      <LogOut className="h-4 w-4 mr-2" />
+      Log Out
+    </Button>
+  </CardContent>
+</Card>
 ```
 
-**HeroSection Updates:**
+**AppSidebar.tsx - Footer Updates:**
 
 ```tsx
-// Replace current CTA buttons (lines 228-240)
-<div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-  <Button asChild size="lg" variant="gradient" className="font-semibold text-base px-8 group">
-    <Link to="/submit-property">
-      I Want to Sell
-      <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </Link>
-  </Button>
-  <Button asChild size="lg" variant="outline" className="font-semibold text-base px-8">
-    <Link to="/register">
-      I Want to Buy
-    </Link>
-  </Button>
-</div>
+// Add to imports
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+
+// Inside component
+const { signOut } = useAuth();
+const navigate = useNavigate();
+
+const handleSignOut = async () => {
+  await signOut();
+  navigate("/");
+};
+
+// In SidebarFooter, add after Help:
+<SidebarMenuItem>
+  <SidebarMenuButton 
+    onClick={handleSignOut}
+    tooltip="Log Out"
+    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+  >
+    <LogOut className="h-4 w-4" />
+    <span>Log Out</span>
+  </SidebarMenuButton>
+</SidebarMenuItem>
 ```
 
-**FloatingLeadCapture Updates:**
+**MobileBottomNav.tsx - More Menu Updates:**
 
 ```tsx
-// Update default value
-defaultValues: {
-  interest_type: "seller", // Changed from "not_sure"
-}
+// Add to imports
+import { LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Update minimized button text
-<Button onClick={() => setIsExpanded(true)} ...>
-  <Building2 className="h-5 w-5" />
-  <span className="hidden sm:inline">Sell Your Property</span>
-  <span className="sm:hidden">Sell Now</span>
-</Button>
+// Inside component
+const { signOut } = useAuth();
+const navigate = useNavigate();
+
+const handleSignOut = async () => {
+  await signOut();
+  navigate("/");
+  setMoreOpen(false);
+};
+
+// In the More sheet, add after Help button:
+<Separator className="my-2" />
+<button
+  onClick={handleSignOut}
+  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-destructive/10 transition-colors w-full text-left text-destructive"
+>
+  <LogOut className="h-5 w-5" />
+  <span>Log Out</span>
+</button>
 ```
 
 ---
 
-### Visual Hierarchy Summary
+### Visual Result
 
-| Element | Sell Emphasis | Buy Emphasis |
-|---------|---------------|--------------|
-| Hero CTAs | Primary/Gradient button | Outline button |
-| Dual-Path Cards | 55% width, accent border, badge | 45% width, neutral |
-| Bottom CTA | Left column, primary styling | Right column, secondary |
-| Floating Widget | Default selection, primary CTA text | - |
+**Account Settings Page:**
+```text
++------------------------------------------+
+|  Profile Information                     |
+|  [User icon]  Your account details       |
+|  ----------------------------------------|
+|  Full Name: John Doe                     |
+|  Email: john@example.com                 |
+|  ----------------------------------------|
+|  Investor Status: Approved               |
+|  ----------------------------------------|
+|  [Edit Profile (Coming Soon)]            |
++------------------------------------------+
 
-This creates a consistent visual language that subtly pushes visitors toward the seller path while still providing a clear buying option.
++------------------------------------------+
+|  Sign Out                                |
+|  [Logout icon]  Log out of your account  |
+|  ----------------------------------------|
+|  You'll need to sign in again to         |
+|  access your dashboard and saved         |
+|  properties.                             |
+|                                          |
+|  [Log Out]  (red button)                 |
++------------------------------------------+
+```
+
+**Sidebar Footer:**
+```text
++-----------------------+
+| Account               |
+| Help                  |
+| Log Out  (subtle red) |
++-----------------------+
+```
+
+**Mobile More Menu:**
+```text
++-----------------------+
+| Compare Properties    |
+| Admin Panel           |
+| Settings              |
+| Help                  |
+| ─────────────────── |
+| Log Out  (red text)   |
++-----------------------+
+```
 
