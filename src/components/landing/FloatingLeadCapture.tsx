@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { MessageCircle, X, ArrowRight, Check, Loader2 } from "lucide-react";
+import { Building2, X, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +47,7 @@ export function FloatingLeadCapture() {
       full_name: "",
       email: "",
       phone: "",
-      interest_type: "not_sure",
+      interest_type: "seller",
     },
   });
 
@@ -219,11 +219,12 @@ export function FloatingLeadCapture() {
             <Button
               onClick={() => setIsExpanded(true)}
               size="lg"
+              variant="gradient"
               className="rounded-full shadow-lg h-14 px-6 gap-2"
             >
-              <MessageCircle className="h-5 w-5" />
-              <span className="hidden sm:inline">Get Exclusive Access</span>
-              <span className="sm:hidden">Get Started</span>
+              <Building2 className="h-5 w-5" />
+              <span className="hidden sm:inline">Sell Your Property</span>
+              <span className="sm:hidden">Sell Now</span>
             </Button>
           </motion.div>
         )}

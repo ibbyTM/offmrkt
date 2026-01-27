@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { ArrowRight, Home, TrendingUp } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { cn } from "@/lib/utils";
 
@@ -30,44 +31,78 @@ export function CTASection() {
       <div className="container relative">
         <div 
           className={cn(
-            "mx-auto max-w-3xl text-center transition-all duration-700",
+            "mx-auto max-w-4xl text-center transition-all duration-700 mb-12",
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
         >
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
-            <Sparkles className="h-4 w-4 text-white" />
-            <span className="text-sm font-medium text-white/90">Start investing today</span>
-          </div>
-          
-          <h2 className="mb-5 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
-            Ready to find your next investment?
+          <h2 className="mb-4 text-3xl font-bold text-white sm:text-4xl lg:text-5xl">
+            Ready to get started?
           </h2>
-          <p className="mb-10 text-white/80 text-lg max-w-xl mx-auto">
-            Join our network of verified investors and access exclusive off-market deals across the UK.
+          <p className="text-white/80 text-lg max-w-xl mx-auto">
+            Whether you're selling or investing, we're here to help you make the right move.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        </div>
+        
+        {/* Dual-column layout */}
+        <div 
+          className={cn(
+            "grid md:grid-cols-2 gap-6 max-w-4xl mx-auto transition-all duration-700 delay-200",
+            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+          )}
+        >
+          {/* Sell Card - Primary */}
+          <Card className="p-8 bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15 transition-all duration-300">
+            <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center mb-5">
+              <Home className="h-6 w-6 text-white" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-2">
+              Sell Your Property
+            </h3>
+            
+            <p className="text-white/70 mb-6 text-sm leading-relaxed">
+              Get cash offers in 24 hours from our verified investors. 
+              No fees, no chains, fast completions.
+            </p>
+            
             <Button 
               asChild 
               size="lg" 
-              className="bg-white text-primary hover:bg-white/90 font-bold text-base px-8 shadow-xl group"
+              className="w-full bg-white text-primary hover:bg-white/90 font-bold group"
             >
-              <Link to="/register">
-                Create Investor Account
+              <Link to="/submit-property">
+                Submit Property
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
+          </Card>
+
+          {/* Buy Card - Secondary */}
+          <Card className="p-8 bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-all duration-300">
+            <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-5">
+              <TrendingUp className="h-6 w-6 text-white/80" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-2">
+              Invest in Deals
+            </h3>
+            
+            <p className="text-white/70 mb-6 text-sm leading-relaxed">
+              Browse exclusive off-market deals across the UK 
+              with full investment analysis included.
+            </p>
+            
             <Button 
               asChild 
               size="lg" 
               variant="outline"
-              className="font-semibold border-white/30 bg-white/10 text-white hover:bg-white/20 hover:border-white/50 backdrop-blur-sm"
+              className="w-full border-white/30 bg-white/10 text-white hover:bg-white/20 hover:border-white/50 font-semibold"
             >
-              <Link to="/submit-property">
-                Submit a Property
+              <Link to="/register">
+                Browse Now
               </Link>
             </Button>
-          </div>
+          </Card>
         </div>
       </div>
     </section>

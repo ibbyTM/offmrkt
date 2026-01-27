@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Home } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { HeroSection } from "@/components/landing/HeroSection";
+import { DualPathSection } from "@/components/landing/DualPathSection";
 import { PartnerLogos } from "@/components/landing/PartnerLogos";
 import { TrustSection } from "@/components/landing/TrustSection";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
@@ -133,6 +134,7 @@ const Index = () => {
   return (
     <Layout>
       <HeroSection />
+      <DualPathSection />
       <PartnerLogos />
       <TrustSection />
       <BenefitsSection />
