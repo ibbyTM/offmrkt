@@ -17,9 +17,11 @@ import {
   type EnhancedContent,
 } from "@/hooks/useSellerSubmissions";
 import { useMortgageReferrals } from "@/hooks/useMortgageReferrals";
+import { useLandingLeads } from "@/hooks/useLandingLeads";
 import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
 import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
 import { MortgageReferralsTable } from "@/components/admin/MortgageReferralsTable";
+import { LeadsTable } from "@/components/admin/LeadsTable";
 import { InvestorCRMTab } from "@/components/crm/InvestorCRMTab";
 import { FunnelAnalyticsTab } from "@/components/admin/FunnelAnalyticsTab";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,9 +33,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3 } from "lucide-react";
+import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3, Inbox } from "lucide-react";
 
-type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'funnels';
+type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'leads' | 'funnels';
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -51,6 +53,9 @@ const Admin = () => {
 
   // Mortgage referrals state
   const { data: mortgageReferrals = [], isLoading: isLoadingReferrals } = useMortgageReferrals();
+
+  // Landing leads state
+  const { data: landingLeads = [], isLoading: isLoadingLeads } = useLandingLeads();
 
   const pendingApps = applications.filter((a) => a.status === "pending").length;
   const pendingSubs = submissions.filter((s) => s.admin_status === "pending").length;
@@ -124,6 +129,16 @@ const Admin = () => {
         </SidebarMenuItem>
         <SidebarMenuItem>
           <SidebarMenuButton 
+            isActive={currentSection === 'leads'}
+            onClick={() => setCurrentSection('leads')}
+            tooltip="Landing Leads"
+          >
+            <Inbox className="h-4 w-4" />
+            <span>Leads</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
             isActive={currentSection === 'funnels'}
             onClick={() => setCurrentSection('funnels')}
             tooltip="Funnel Analytics"
@@ -182,6 +197,8 @@ const Admin = () => {
         return { title: 'Property Submissions', subtitle: 'Properties submitted by sellers' };
       case 'mortgage-leads':
         return { title: 'Mortgage Leads', subtitle: 'All referrals sent to your mortgage broker' };
+      case 'leads':
+        return { title: 'Leads', subtitle: 'All form submissions from landing pages and funnels' };
       case 'funnels':
         return { title: 'Funnel Analytics', subtitle: 'Track conversion rates and traffic sources' };
       default:
@@ -308,6 +325,29 @@ const Admin = () => {
               </CardContent>
             </Card>
 
+            {/* Landing Leads Card */}
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
+              onClick={() => setCurrentSection('leads')}
+            >
+              <CardContent className="p-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="p-4 rounded-2xl bg-indigo-500/10">
+                      <Inbox className="h-10 w-10 text-indigo-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-1">Leads</h2>
+                      <p className="text-lg text-muted-foreground">Form submissions from landing pages</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                    {isLoadingLeads ? '...' : landingLeads.length} leads
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Funnels Card */}
             <Card 
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
@@ -389,6 +429,11 @@ const Admin = () => {
         {/* Mortgage Leads Section */}
         {currentSection === 'mortgage-leads' && (
           <MortgageReferralsTable />
+        )}
+
+        {/* Landing Leads Section */}
+        {currentSection === 'leads' && (
+          <LeadsTable />
         )}
 
         {/* Funnels Section */}
