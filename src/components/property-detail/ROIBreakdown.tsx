@@ -11,17 +11,12 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
   const annualRent = monthlyRent * 12;
   const grossYield = property.asking_price > 0 ? (annualRent / property.asking_price) * 100 : 0;
   
-  // Placeholder calculations
-  const estimatedCosts = Math.round(annualRent * 0.25); // 25% for costs
-  const netAnnualIncome = annualRent - estimatedCosts;
-  const netYield = property.asking_price > 0 ? (netAnnualIncome / property.asking_price) * 100 : 0;
-  
   // Leveraged scenario (75% LTV)
   const deposit = property.asking_price * 0.25;
   const mortgageAmount = property.asking_price * 0.75;
   const mortgageRate = 5.5; // 5.5% interest rate
   const annualMortgageCost = mortgageAmount * (mortgageRate / 100);
-  const leveragedCashflow = annualRent - estimatedCosts - annualMortgageCost;
+  const leveragedCashflow = annualRent - annualMortgageCost;
   const cashOnCashReturn = deposit > 0 ? (leveragedCashflow / deposit) * 100 : 0;
 
   const roiItems = [
@@ -35,13 +30,6 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
       icon: Percent,
       label: "Gross Yield",
       value: grossYield > 0 ? `${grossYield.toFixed(1)}%` : "—",
-      highlight: false,
-    },
-    {
-      icon: Calculator,
-      label: "Net Yield (est.)",
-      value: netYield > 0 ? `${netYield.toFixed(1)}%` : "—",
-      sublabel: "After 25% running costs",
       highlight: false,
     },
     {
@@ -104,10 +92,6 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
             <span className="font-medium text-emerald-600">+{formatPrice(annualRent)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Est. Running Costs (25%)</span>
-            <span className="font-medium text-red-500">-{formatPrice(estimatedCosts)}</span>
-          </div>
-          <div className="flex justify-between">
             <span className="text-muted-foreground">Mortgage Interest @ 5.5%</span>
             <span className="font-medium text-red-500">-{formatPrice(annualMortgageCost)}</span>
           </div>
@@ -121,8 +105,8 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
       </div>
 
       <p className="text-xs text-muted-foreground mt-4 p-3 bg-muted rounded-lg">
-        * These figures are estimates only. Actual returns may vary. Running costs include management, 
-        maintenance, insurance, and void periods. Consult a financial advisor before investing.
+        * These figures are estimates only. Actual returns may vary based on interest rates and 
+        market conditions. Consult a financial advisor before investing.
       </p>
     </div>
   );
