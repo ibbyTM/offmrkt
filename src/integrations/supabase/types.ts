@@ -71,6 +71,201 @@ export type Database = {
         }
         Relationships: []
       }
+      funnel_conversions: {
+        Row: {
+          conversion_type: string
+          created_at: string
+          funnel_id: string | null
+          id: string
+          lead_id: string | null
+          session_id: string | null
+          submission_id: string | null
+          user_id: string | null
+          value: number | null
+        }
+        Insert: {
+          conversion_type: string
+          created_at?: string
+          funnel_id?: string | null
+          id?: string
+          lead_id?: string | null
+          session_id?: string | null
+          submission_id?: string | null
+          user_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          conversion_type?: string
+          created_at?: string
+          funnel_id?: string | null
+          id?: string
+          lead_id?: string | null
+          session_id?: string | null
+          submission_id?: string | null
+          user_id?: string | null
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_conversions_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnel_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnel_conversions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "landing_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnel_conversions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "funnel_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funnel_conversions_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "seller_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnel_definitions: {
+        Row: {
+          config: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          type: Database["public"]["Enums"]["funnel_type"]
+          updated_at: string
+          variant: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          type: Database["public"]["Enums"]["funnel_type"]
+          updated_at?: string
+          variant?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          type?: Database["public"]["Enums"]["funnel_type"]
+          updated_at?: string
+          variant?: string
+        }
+        Relationships: []
+      }
+      funnel_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          session_id: string
+          step_number: number | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          step_number?: number | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          step_number?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "funnel_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funnel_sessions: {
+        Row: {
+          country: string | null
+          device_type: string | null
+          entered_at: string
+          funnel_id: string | null
+          id: string
+          last_activity_at: string
+          referrer_url: string | null
+          session_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          variant: string | null
+        }
+        Insert: {
+          country?: string | null
+          device_type?: string | null
+          entered_at?: string
+          funnel_id?: string | null
+          id?: string
+          last_activity_at?: string
+          referrer_url?: string | null
+          session_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          variant?: string | null
+        }
+        Update: {
+          country?: string | null
+          device_type?: string | null
+          entered_at?: string
+          funnel_id?: string | null
+          id?: string
+          last_activity_at?: string
+          referrer_url?: string | null
+          session_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          variant?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funnel_sessions_funnel_id_fkey"
+            columns: ["funnel_id"]
+            isOneToOne: false
+            referencedRelation: "funnel_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investor_applications: {
         Row: {
           admin_notes: string | null
@@ -788,6 +983,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "investor" | "pending"
+      funnel_type: "seller" | "investor" | "onboard"
       investment_strategy:
         | "cash_roi"
         | "brrr"
@@ -971,6 +1167,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "investor", "pending"],
+      funnel_type: ["seller", "investor", "onboard"],
       investment_strategy: [
         "cash_roi",
         "brrr",
