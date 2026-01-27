@@ -12,7 +12,7 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
   const [isCompanyPurchase, setIsCompanyPurchase] = useState(false);
 
   // Calculate placeholder ROI figures based on property data
-  const monthlyRent = property.estimated_rental_income || property.current_rental_income || 0;
+  const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
   const annualRent = monthlyRent * 12;
   const grossYield = property.asking_price > 0 ? (annualRent / property.asking_price) * 100 : 0;
   
@@ -32,7 +32,7 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
   const roiItems = [
     {
       icon: PoundSterling,
-      label: "Estimated Monthly Rent",
+      label: property.current_rental_income ? "Actual Monthly Rent" : "Estimated Monthly Rent",
       value: monthlyRent > 0 ? formatPrice(monthlyRent) + "/month" : "Not specified",
       highlight: false,
     },
