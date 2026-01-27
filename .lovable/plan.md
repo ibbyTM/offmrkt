@@ -1,31 +1,48 @@
 
 
-## Add Cash-on-Cash Return to Leveraged Breakdown
+## Add Legal Fees and Stamp Duty to Leveraged Investment Breakdown
 
-### The Issue
+### Overview
 
-The Cash-on-Cash Return (annual cashflow ÷ deposit) is already being calculated correctly and displayed in the summary cards at the top. However, it's **not shown in the detailed breakdown table** at the bottom where the cashflow is calculated step-by-step.
+Add two new cost lines to the leveraged scenario breakdown:
+1. **Legal Fees**: Fixed at £1,500
+2. **Stamp Duty**: 5% for personal purchase, 1% for company purchase (with a toggle)
 
-### Current vs Proposed
+These will be added to the total cash required (along with deposit), which will then be used to calculate the Cash-on-Cash Return.
 
-The leveraged scenario breakdown currently ends with "Annual Cashflow". You want to add the final yield calculation:
-
-| Current Breakdown | Proposed Breakdown |
-|------------------|-------------------|
-| Purchase Price | Purchase Price |
-| Deposit (25%) | Deposit (25%) |
-| Mortgage Amount | Mortgage Amount |
-| Annual Rent | Annual Rent |
-| Mortgage Interest | Mortgage Interest |
-| **Annual Cashflow** | Annual Cashflow |
-| *(ends here)* | **Cash-on-Cash Return = 27.1%** |
-
-### Visual Result
+### New Calculation Logic
 
 ```text
-Annual Cashflow                    +£6,780
-─────────────────────────────────────────
-Cash-on-Cash Return                 27.1%
+Total Cash Required = Deposit + Legal Fees + Stamp Duty
+
+Cash-on-Cash Return = Annual Cashflow ÷ Total Cash Required
+```
+
+For a £100,000 property:
+- Deposit (25%): £25,000
+- Legal Fees: £1,500  
+- Stamp Duty (5% personal): £5,000
+- **Total Cash Required**: £31,500
+
+### Visual Layout
+
+```text
+Leveraged Investment Scenario
+────────────────────────────────────────────────
+Purchase Price                        £100,000
+Deposit (25%)                          £25,000
+Legal Fees                              £1,500
+Stamp Duty (5%)                         £5,000
+  [ ] Purchasing through a company (1% SDLT)
+────────────────────────────────────────────────
+Total Cash Required                    £31,500
+Mortgage Amount (75% LTV)              £75,000
+────────────────────────────────────────────────
+Annual Rent                           +£12,000
+Mortgage Interest @ 5.5%               -£4,125
+────────────────────────────────────────────────
+Annual Cashflow                        +£7,875
+Cash-on-Cash Return                      25.0%
 ```
 
 ---
@@ -34,31 +51,73 @@ Cash-on-Cash Return                 27.1%
 
 **File: `src/components/property-detail/ROIBreakdown.tsx`**
 
-Add a new row after the "Annual Cashflow" row (after line 103):
+1. **Add state for company purchase toggle**:
+   ```tsx
+   import { useState } from "react";
+   import { Switch } from "@/components/ui/switch";
+   import { Label } from "@/components/ui/label";
+   
+   const [isCompanyPurchase, setIsCompanyPurchase] = useState(false);
+   ```
 
-```tsx
-<div className="flex justify-between pt-3 border-t border-border">
-  <span className="font-semibold text-foreground">Annual Cashflow</span>
-  <span className={`font-bold ${leveragedCashflow >= 0 ? "text-emerald-600" : "text-red-500"}`}>
-    {leveragedCashflow >= 0 ? "+" : ""}{formatPrice(leveragedCashflow)}
-  </span>
-</div>
-{/* Add this new row */}
-<div className="flex justify-between">
-  <span className="font-semibold text-foreground">Cash-on-Cash Return</span>
-  <span className="font-bold text-primary text-lg">
-    {cashOnCashReturn.toFixed(1)}%
-  </span>
-</div>
-```
+2. **Add new calculations** (after deposit calculation):
+   ```tsx
+   const legalFees = 1500;
+   const stampDutyRate = isCompanyPurchase ? 0.01 : 0.05;
+   const stampDuty = property.asking_price * stampDutyRate;
+   const totalCashRequired = deposit + legalFees + stampDuty;
+   ```
+
+3. **Update Cash-on-Cash calculation** to use total cash required:
+   ```tsx
+   // Before
+   const cashOnCashReturn = deposit > 0 ? (leveragedCashflow / deposit) * 100 : 0;
+   
+   // After
+   const cashOnCashReturn = totalCashRequired > 0 ? (leveragedCashflow / totalCashRequired) * 100 : 0;
+   ```
+
+4. **Add new rows to the breakdown table** (after Deposit row):
+   ```tsx
+   <div className="flex justify-between">
+     <span className="text-muted-foreground">Legal Fees</span>
+     <span className="font-medium">{formatPrice(legalFees)}</span>
+   </div>
+   <div className="flex justify-between">
+     <span className="text-muted-foreground">
+       Stamp Duty ({isCompanyPurchase ? "1%" : "5%"})
+     </span>
+     <span className="font-medium">{formatPrice(stampDuty)}</span>
+   </div>
+   <div className="flex items-center justify-between py-2">
+     <Label htmlFor="company-purchase" className="text-xs text-muted-foreground">
+       Purchasing through a company (1% SDLT)
+     </Label>
+     <Switch
+       id="company-purchase"
+       checked={isCompanyPurchase}
+       onCheckedChange={setIsCompanyPurchase}
+     />
+   </div>
+   <div className="flex justify-between pt-2 border-t border-dashed border-border">
+     <span className="font-medium text-foreground">Total Cash Required</span>
+     <span className="font-medium">{formatPrice(totalCashRequired)}</span>
+   </div>
+   ```
 
 ### File to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/property-detail/ROIBreakdown.tsx` | Add Cash-on-Cash Return row at the bottom of the leveraged scenario breakdown |
+| `src/components/property-detail/ROIBreakdown.tsx` | Add legal fees, stamp duty with company toggle, update cash-on-cash calculation |
 
 ### Result
 
-The detailed breakdown will now conclude with the final yield percentage (27.1% in your example), making it clear how the return on investment is calculated from the deposit and annual cashflow.
+The breakdown will now show:
+- Legal fees (£1,500 fixed)
+- Stamp duty (5% personal / 1% company with toggle)
+- Total cash required (deposit + fees + duty)
+- Cash-on-Cash Return calculated against the true total investment
+
+This gives a more accurate picture of the actual return on money invested.
 
