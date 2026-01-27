@@ -1,28 +1,31 @@
 
 
-## Remove Running Costs from Leveraged Investment Scenario
+## Add Cash-on-Cash Return to Leveraged Breakdown
 
-### Overview
+### The Issue
 
-Simplify the "Leveraged Investment Scenario" breakdown by removing the running costs line. The section will only show mortgage-related deductions, making the cashflow calculation cleaner.
+The Cash-on-Cash Return (annual cashflow ÷ deposit) is already being calculated correctly and displayed in the summary cards at the top. However, it's **not shown in the detailed breakdown table** at the bottom where the cashflow is calculated step-by-step.
 
-### Current vs New Display
+### Current vs Proposed
 
-| Current | After Change |
-|---------|--------------|
+The leveraged scenario breakdown currently ends with "Annual Cashflow". You want to add the final yield calculation:
+
+| Current Breakdown | Proposed Breakdown |
+|------------------|-------------------|
 | Purchase Price | Purchase Price |
 | Deposit (25%) | Deposit (25%) |
-| Mortgage Amount (75% LTV) | Mortgage Amount (75% LTV) |
+| Mortgage Amount | Mortgage Amount |
 | Annual Rent | Annual Rent |
-| **Est. Running Costs (25%)** | *(removed)* |
-| Mortgage Interest @ 5.5% | Mortgage Interest @ 5.5% |
-| Annual Cashflow | Annual Cashflow |
+| Mortgage Interest | Mortgage Interest |
+| **Annual Cashflow** | Annual Cashflow |
+| *(ends here)* | **Cash-on-Cash Return = 27.1%** |
 
-### Cashflow Calculation Change
+### Visual Result
 
 ```text
-Before: Annual Cashflow = Rent - Running Costs - Mortgage Interest
-After:  Annual Cashflow = Rent - Mortgage Interest
+Annual Cashflow                    +£6,780
+─────────────────────────────────────────
+Cash-on-Cash Return                 27.1%
 ```
 
 ---
@@ -31,45 +34,31 @@ After:  Annual Cashflow = Rent - Mortgage Interest
 
 **File: `src/components/property-detail/ROIBreakdown.tsx`**
 
-1. **Remove unused variables** (lines 15-17):
-   - Delete `estimatedCosts` calculation
-   - Delete `netAnnualIncome` calculation
-   - Delete `netYield` calculation
+Add a new row after the "Annual Cashflow" row (after line 103):
 
-2. **Update cashflow calculation** (line 24):
-   ```tsx
-   // Before
-   const leveragedCashflow = annualRent - estimatedCosts - annualMortgageCost;
-   
-   // After
-   const leveragedCashflow = annualRent - annualMortgageCost;
-   ```
-
-3. **Remove "Net Yield" card** from the `roiItems` array (lines 40-46) since it references running costs
-
-4. **Remove the running costs row** from the breakdown table (lines 106-109):
-   ```tsx
-   // Delete this block
-   <div className="flex justify-between">
-     <span className="text-muted-foreground">Est. Running Costs (25%)</span>
-     <span className="font-medium text-red-500">-{formatPrice(estimatedCosts)}</span>
-   </div>
-   ```
-
-5. **Update disclaimer text** (lines 123-126) to remove mention of running costs:
-   ```tsx
-   // Before
-   "* These figures are estimates only. Actual returns may vary. Running costs include management, 
-   maintenance, insurance, and void periods. Consult a financial advisor before investing."
-   
-   // After
-   "* These figures are estimates only. Actual returns may vary based on interest rates and 
-   market conditions. Consult a financial advisor before investing."
-   ```
+```tsx
+<div className="flex justify-between pt-3 border-t border-border">
+  <span className="font-semibold text-foreground">Annual Cashflow</span>
+  <span className={`font-bold ${leveragedCashflow >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+    {leveragedCashflow >= 0 ? "+" : ""}{formatPrice(leveragedCashflow)}
+  </span>
+</div>
+{/* Add this new row */}
+<div className="flex justify-between">
+  <span className="font-semibold text-foreground">Cash-on-Cash Return</span>
+  <span className="font-bold text-primary text-lg">
+    {cashOnCashReturn.toFixed(1)}%
+  </span>
+</div>
+```
 
 ### File to Modify
 
 | File | Change |
 |------|--------|
-| `src/components/property-detail/ROIBreakdown.tsx` | Remove running costs line, update cashflow calc, update disclaimer |
+| `src/components/property-detail/ROIBreakdown.tsx` | Add Cash-on-Cash Return row at the bottom of the leveraged scenario breakdown |
+
+### Result
+
+The detailed breakdown will now conclude with the final yield percentage (27.1% in your example), making it clear how the return on investment is calculated from the deposit and annual cashflow.
 
