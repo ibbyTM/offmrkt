@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { 
   Loader2, Heart, Clock, CheckCircle, Building, Building2, 
-  LayoutDashboard, Rocket, TrendingUp, Settings, User
+  LayoutDashboard, Rocket, TrendingUp, Settings, User, LogOut
 } from "lucide-react";
 import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -35,8 +35,9 @@ interface Reservation {
 }
 
 const Dashboard = () => {
-  const { user, investorStatus } = useAuth();
+  const { user, investorStatus, signOut } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const currentTab = searchParams.get("tab") || "overview";
   const [savedProperties, setSavedProperties] = useState<SavedProperty[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -302,6 +303,36 @@ const Dashboard = () => {
                 <Separator />
                 <Button variant="outline" disabled>
                   Edit Profile (Coming Soon)
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Sign Out Card */}
+            <Card className="border-0 shadow-sm bg-card border-destructive/20">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center">
+                    <LogOut className="h-6 w-6 text-destructive" />
+                  </div>
+                  <div>
+                    <CardTitle>Sign Out</CardTitle>
+                    <CardDescription>Log out of your account</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  You'll need to sign in again to access your dashboard and saved properties.
+                </p>
+                <Button 
+                  variant="destructive" 
+                  onClick={async () => {
+                    await signOut();
+                    navigate("/");
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Log Out
                 </Button>
               </CardContent>
             </Card>
