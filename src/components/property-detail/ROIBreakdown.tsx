@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { TrendingUp, Calculator, PoundSterling, Percent } from "lucide-react";
 import { Property, formatPrice } from "@/lib/propertyUtils";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface ROIBreakdownProps {
   property: Property;
 }
 
 export default function ROIBreakdown({ property }: ROIBreakdownProps) {
+  const [isCompanyPurchase, setIsCompanyPurchase] = useState(false);
+
   // Calculate placeholder ROI figures based on property data
   const monthlyRent = property.estimated_rental_income || property.current_rental_income || 0;
   const annualRent = monthlyRent * 12;
@@ -13,11 +18,16 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
   
   // Leveraged scenario (75% LTV)
   const deposit = property.asking_price * 0.25;
+  const legalFees = 1500;
+  const stampDutyRate = isCompanyPurchase ? 0.01 : 0.05;
+  const stampDuty = property.asking_price * stampDutyRate;
+  const totalCashRequired = deposit + legalFees + stampDuty;
+  
   const mortgageAmount = property.asking_price * 0.75;
   const mortgageRate = 5.5; // 5.5% interest rate
   const annualMortgageCost = mortgageAmount * (mortgageRate / 100);
   const leveragedCashflow = annualRent - annualMortgageCost;
-  const cashOnCashReturn = deposit > 0 ? (leveragedCashflow / deposit) * 100 : 0;
+  const cashOnCashReturn = totalCashRequired > 0 ? (leveragedCashflow / totalCashRequired) * 100 : 0;
 
   const roiItems = [
     {
@@ -82,6 +92,30 @@ export default function ROIBreakdown({ property }: ROIBreakdownProps) {
           <div className="flex justify-between">
             <span className="text-muted-foreground">Deposit (25%)</span>
             <span className="font-medium">{formatPrice(deposit)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Legal Fees</span>
+            <span className="font-medium">{formatPrice(legalFees)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">
+              Stamp Duty ({isCompanyPurchase ? "1%" : "5%"})
+            </span>
+            <span className="font-medium">{formatPrice(stampDuty)}</span>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <Label htmlFor="company-purchase" className="text-xs text-muted-foreground">
+              Purchasing through a company (1% SDLT)
+            </Label>
+            <Switch
+              id="company-purchase"
+              checked={isCompanyPurchase}
+              onCheckedChange={setIsCompanyPurchase}
+            />
+          </div>
+          <div className="flex justify-between pt-2 border-t border-dashed border-border">
+            <span className="font-medium text-foreground">Total Cash Required</span>
+            <span className="font-medium">{formatPrice(totalCashRequired)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Mortgage Amount (75% LTV)</span>
