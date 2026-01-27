@@ -21,6 +21,7 @@ import { ApplicationsTable } from "@/components/admin/ApplicationsTable";
 import { SubmissionsTable } from "@/components/admin/SubmissionsTable";
 import { MortgageReferralsTable } from "@/components/admin/MortgageReferralsTable";
 import { InvestorCRMTab } from "@/components/crm/InvestorCRMTab";
+import { FunnelAnalyticsTab } from "@/components/admin/FunnelAnalyticsTab";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -30,9 +31,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield } from "lucide-react";
+import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3 } from "lucide-react";
 
-type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads';
+type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'funnels';
 
 const Admin = () => {
   const { user, loading: authLoading } = useAuth();
@@ -121,6 +122,16 @@ const Admin = () => {
             <span>Mortgage Leads</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            isActive={currentSection === 'funnels'}
+            onClick={() => setCurrentSection('funnels')}
+            tooltip="Funnel Analytics"
+          >
+            <BarChart3 className="h-4 w-4" />
+            <span>Funnels</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );
@@ -171,6 +182,8 @@ const Admin = () => {
         return { title: 'Property Submissions', subtitle: 'Properties submitted by sellers' };
       case 'mortgage-leads':
         return { title: 'Mortgage Leads', subtitle: 'All referrals sent to your mortgage broker' };
+      case 'funnels':
+        return { title: 'Funnel Analytics', subtitle: 'Track conversion rates and traffic sources' };
       default:
         return { title: 'Admin Panel', subtitle: 'Manage investors, properties, and leads' };
     }
@@ -294,6 +307,29 @@ const Admin = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Funnels Card */}
+            <Card 
+              className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
+              onClick={() => setCurrentSection('funnels')}
+            >
+              <CardContent className="p-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-6">
+                    <div className="p-4 rounded-2xl bg-orange-500/10">
+                      <BarChart3 className="h-10 w-10 text-orange-500" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-1">Funnel Analytics</h2>
+                      <p className="text-lg text-muted-foreground">Track conversions and traffic sources</p>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                    View →
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </AppLayout>
@@ -353,6 +389,11 @@ const Admin = () => {
         {/* Mortgage Leads Section */}
         {currentSection === 'mortgage-leads' && (
           <MortgageReferralsTable />
+        )}
+
+        {/* Funnels Section */}
+        {currentSection === 'funnels' && (
+          <FunnelAnalyticsTab />
         )}
       </div>
     </AppLayout>
