@@ -25,6 +25,7 @@ import Cookies from "./pages/Cookies";
 import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import FunnelRouter from "./pages/funnels/FunnelRouter";
+import LogoGenerator from "./pages/LogoGenerator";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/cookies" element={<Cookies />} />
                 <Route path="/gdpr" element={<GDPR />} />
+                <Route path="/logo-generator" element={<LogoGenerator />} />
                 {/* Funnel routes - conversion-focused landing pages */}
                 <Route path="/f/:funnelSlug" element={<FunnelRouter />} />
                 <Route path="/f/:funnelSlug/:step" element={<FunnelRouter />} />
