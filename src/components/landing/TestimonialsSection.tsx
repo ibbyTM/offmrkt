@@ -8,7 +8,7 @@ const testimonials = [
     handle: "@JamesMitchell",
     avatar: "JM",
     rating: 5,
-    quote: "OffMrkt completely changed how I approach property investment. Found my first BTL within a week of signing up.",
+    quote: "Off The Markets completely changed how I approach property investment. Found my first BTL within a week of signing up.",
   },
   {
     name: "Sarah Williams",
@@ -22,14 +22,14 @@ const testimonials = [
     handle: "@DavidChenProp",
     avatar: "DC",
     rating: 5,
-    quote: "I've built a portfolio of 6 properties in under 2 years using OffMrkt. The early access to deals is a game-changer.",
+    quote: "I've built a portfolio of 6 properties in under 2 years using Off The Markets. The early access to deals is a game-changer.",
   },
   {
     name: "Emma Thompson",
     handle: "@EmmaT_Landlord",
     avatar: "ET",
     rating: 5,
-    quote: "As a first-time investor, the support from the OffMrkt team was invaluable. They guided me through every step.",
+    quote: "As a first-time investor, the support from the Off The Markets team was invaluable. They guided me through every step.",
   },
   {
     name: "Michael Roberts",
@@ -75,8 +75,8 @@ export function TestimonialsSection() {
             Customers love our platform
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of satisfied investors who have found their perfect 
-            properties through OffMrkt.
+            Join thousands of satisfied investors who have found their perfect
+            properties through Off The Markets.
           </p>
         </motion.div>
 

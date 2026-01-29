@@ -81,7 +81,7 @@ export default function Privacy() {
                 <section id="introduction" className="scroll-mt-24 mb-10">
                   <h2 className="text-2xl font-bold text-foreground">1. Introduction</h2>
                   <p className="text-muted-foreground">
-                    Welcome to OffMrkt ("we", "our", or "us"). We are committed to protecting your personal data 
+                    Welcome to Off The Markets ("we", "our", or "us"). We are committed to protecting your personal data 
                     and respecting your privacy. This Privacy Policy explains how we collect, use, and safeguard 
                     your information when you visit our website and use our property investment platform.
                   </p>
@@ -210,13 +210,13 @@ export default function Privacy() {
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-3 text-muted-foreground">
                       <Mail className="h-5 w-5 text-primary" />
-                      <a href="mailto:privacy@offmrkt.co.uk" className="hover:text-primary">
-                        privacy@offmrkt.co.uk
+                      <a href="mailto:privacy@offthemarkets.co.uk" className="hover:text-primary">
+                        privacy@offthemarkets.co.uk
                       </a>
                     </div>
                     <div className="flex items-center gap-3 text-muted-foreground">
                       <MapPin className="h-5 w-5 text-primary" />
-                      <span>OffMrkt Ltd, London, United Kingdom</span>
+                      <span>Off The Markets Ltd, London, United Kingdom</span>
                     </div>
                   </div>
                   <p className="text-muted-foreground mt-4">

@@ -75,7 +75,7 @@ const GDPR = () => {
               <section id="introduction" className="mb-12">
                 <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
                 <p>
-                  This GDPR Policy explains how OffMrkt ("we", "us", or "our") complies with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. This policy supplements our Privacy Policy and provides detailed information about your rights and our obligations under data protection law.
+                  This GDPR Policy explains how Off The Markets ("we", "us", or "our") complies with the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018. This policy supplements our Privacy Policy and provides detailed information about your rights and our obligations under data protection law.
                 </p>
                 <p>
                   We are committed to protecting your personal data and being transparent about how we collect, use, and safeguard your information. This policy applies to all personal data we process, whether you are a property investor, property seller, or website visitor.
@@ -88,16 +88,16 @@ const GDPR = () => {
               <section id="data-controller" className="mb-12">
                 <h2 className="text-2xl font-bold mb-4">2. Data Controller</h2>
                 <p>
-                  OffMrkt is the data controller responsible for your personal data. This means we determine the purposes and means of processing your personal data.
+                  Off The Markets is the data controller responsible for your personal data. This means we determine the purposes and means of processing your personal data.
                 </p>
                 <div className="bg-muted/50 p-6 rounded-lg my-6">
                   <h4 className="font-semibold mb-3">Data Controller Details</h4>
                   <ul className="list-none space-y-2 pl-0">
-                    <li><strong>Company Name:</strong> OffMrkt Ltd</li>
+                    <li><strong>Company Name:</strong> Off The Markets Ltd</li>
                     <li><strong>Registered Address:</strong> [Company Address]</li>
                     <li><strong>Company Registration Number:</strong> [Registration Number]</li>
                     <li><strong>ICO Registration Number:</strong> [ICO Number]</li>
-                    <li><strong>Email:</strong> privacy@offmrkt.co.uk</li>
+                    <li><strong>Email:</strong> privacy@offthemarkets.co.uk</li>
                   </ul>
                 </div>
               </section>
@@ -109,8 +109,8 @@ const GDPR = () => {
                 </p>
                 <div className="bg-muted/50 p-6 rounded-lg my-6">
                   <ul className="list-none space-y-2 pl-0">
-                    <li><strong>Email:</strong> dpo@offmrkt.co.uk</li>
-                    <li><strong>Post:</strong> Data Protection Lead, OffMrkt Ltd, [Company Address]</li>
+                    <li><strong>Email:</strong> dpo@offthemarkets.co.uk</li>
+                    <li><strong>Post:</strong> Data Protection Lead, Off The Markets Ltd, [Company Address]</li>
                   </ul>
                 </div>
                 <p>
@@ -268,8 +268,8 @@ const GDPR = () => {
 
                 <h3 className="text-xl font-semibold mt-6 mb-3">How to Submit a Request</h3>
                 <ol>
-                  <li><strong>Email:</strong> Send your request to dpo@offmrkt.co.uk with "DSAR Request" in the subject line</li>
-                  <li><strong>Post:</strong> Write to Data Protection Lead, OffMrkt Ltd, [Company Address]</li>
+                  <li><strong>Email:</strong> Send your request to dpo@offthemarkets.co.uk with "DSAR Request" in the subject line</li>
+                  <li><strong>Post:</strong> Write to Data Protection Lead, Off The Markets Ltd, [Company Address]</li>
                   <li><strong>Account:</strong> For basic access, you can view and download your data through your account settings</li>
                 </ol>
 
@@ -420,7 +420,7 @@ const GDPR = () => {
 
                 <h3 className="text-xl font-semibold mt-6 mb-3">Internal Complaints</h3>
                 <p>
-                  Contact our Data Protection Lead at dpo@offmrkt.co.uk. We aim to respond to complaints within 10 working days and resolve them within 30 days.
+                  Contact our Data Protection Lead at dpo@offthemarkets.co.uk. We aim to respond to complaints within 10 working days and resolve them within 30 days.
                 </p>
 
                 <h3 className="text-xl font-semibold mt-6 mb-3">Supervisory Authority</h3>
@@ -444,9 +444,9 @@ const GDPR = () => {
                 </p>
                 <div className="bg-muted/50 p-6 rounded-lg my-6">
                   <ul className="list-none space-y-2 pl-0 mb-0">
-                    <li><strong>Data Protection Lead:</strong> dpo@offmrkt.co.uk</li>
-                    <li><strong>General Privacy Queries:</strong> privacy@offmrkt.co.uk</li>
-                    <li><strong>Post:</strong> Data Protection Lead, OffMrkt Ltd, [Company Address]</li>
+                    <li><strong>Data Protection Lead:</strong> dpo@offthemarkets.co.uk</li>
+                    <li><strong>General Privacy Queries:</strong> privacy@offthemarkets.co.uk</li>
+                    <li><strong>Post:</strong> Data Protection Lead, Off The Markets Ltd, [Company Address]</li>
                   </ul>
                 </div>
                 <p>

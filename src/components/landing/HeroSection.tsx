@@ -54,8 +54,8 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
                     <div className="w-2 h-2 rounded-full bg-green-400" />
                   </div>
                   <div className="flex-1 mx-3">
-                    <div className="bg-background rounded px-2 py-0.5 text-[10px] text-muted-foreground max-w-[140px] mx-auto truncate">
-                      offmrkt.com/dashboard
+                    <div className="bg-background rounded px-2 py-0.5 text-[10px] text-muted-foreground max-w-[160px] mx-auto truncate">
+                      offthemarkets.com/dashboard
                     </div>
                   </div>
                 </div>

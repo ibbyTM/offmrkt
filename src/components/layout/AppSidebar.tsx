@@ -21,7 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useComparison } from "@/contexts/ComparisonContext";
 import { useIsAdmin } from "@/hooks/useAdminApplications";
-import logo from "@/assets/offmrkt-logo.png";
+import logo from "@/assets/offthemarkets-logo.png";
 
 interface AppSidebarProps {
   children?: React.ReactNode;
@@ -64,7 +64,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center justify-center p-2">
           <Link to="/">
-            <img src={logo} alt="OffMrkt" className="h-10" />
+            <img src={logo} alt="Off The Markets" className="h-10" />
           </Link>
         </div>
       </SidebarHeader>

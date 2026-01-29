@@ -5,7 +5,7 @@ import { Menu, X, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import logo from "@/assets/offmrkt-logo.png";
+import logo from "@/assets/offthemarkets-logo.png";
 
 const navLinks = [
   { href: "/properties", label: "Browse Deals" },
@@ -118,7 +118,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="OffMrkt" className="h-14 w-auto object-cover object-center" />
+          <img src={logo} alt="Off The Markets" className="h-14 w-auto object-cover object-center" />
         </Link>
 
         {/* Desktop Navigation */}

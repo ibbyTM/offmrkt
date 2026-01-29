@@ -28,7 +28,7 @@ const defaultTestimonials: Testimonial[] = [
     rating: 5,
   },
   {
-    quote: "After months on the market with no offers, OffMrkt gave me a fair cash offer and completed within 2 weeks.",
+    quote: "After months on the market with no offers, Off The Markets gave me a fair cash offer and completed within 2 weeks.",
     author: "James Wilson",
     location: "Birmingham",
     rating: 5,
