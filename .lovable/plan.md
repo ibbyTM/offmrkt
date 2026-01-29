@@ -1,66 +1,65 @@
 
+## Update Branding: New Logo + Favicon
 
-## Generate "Off The Markets" Logo Concept
-
-Create an AI-powered logo generation feature using the abstract M-as-roof approach with teal/navy brand colors.
-
----
-
-### Approach
-
-Use Lovable's built-in AI image generation (Gemini) to create logo concepts. I'll build a simple edge function to generate the logo and display the result.
+Replace the current "Off The Markets" logo with your new design featuring the M-as-roof icon, and update the favicon to use the icon-only version.
 
 ---
 
-### What Will Be Generated
+### Overview
 
-**Design Brief for AI:**
-- Abstract "M" letterform shaped like a roof/house silhouette
-- Clean, minimal, geometric style
-- Teal (#14B8A6) and navy (#1E3A5A) color palette
-- Professional typography for "Off The Markets" wordmark
-- White/transparent background for versatility
-- Modern, sophisticated aesthetic matching premium property investment brand
+Your new logo assets will be used across the entire application:
+- **Full wordmark** (`Untitled_design_4.png`) → Headers, footers, sidebar
+- **Icon only** (`OTM_favicon.PNG`) → Browser favicon
+
+For mobile/header use, I'll display just the icon + "Off The Markets" text (without the "UK Property Investment" tagline) as you requested.
 
 ---
 
-### Files to Create/Update
+### Files to Update
 
-| File | Purpose |
-|------|---------|
-| `supabase/functions/generate-logo/index.ts` | Edge function to call Gemini image generation API |
-| `src/pages/LogoGenerator.tsx` | Simple page to trigger generation and display results |
-| `src/App.tsx` | Add route for the logo generator page |
+| File | Change |
+|------|--------|
+| `public/favicon.png` | Copy `OTM_favicon.PNG` as favicon |
+| `src/assets/offthemarkets-logo.png` | Replace with `Untitled_design_4.png` |
+| `index.html` | Update favicon reference to `/favicon.png` |
+| `src/components/layout/Header.tsx` | Adjust logo sizing for new design |
+| `src/components/layout/Footer.tsx` | Adjust logo sizing |
+| `src/components/layout/AppSidebar.tsx` | Adjust logo sizing |
+| `src/components/funnels/FunnelLayout.tsx` | Adjust logo sizing, remove `dark:invert` |
 
 ---
 
 ### Implementation Details
 
-**1. Edge Function (generate-logo)**
+**1. Copy Asset Files**
+- Copy `user-uploads://OTM_favicon.PNG` → `public/favicon.png`
+- Copy `user-uploads://Untitled_design_4.png` → `src/assets/offthemarkets-logo.png`
 
-```typescript
-// Uses Lovable AI Gateway with google/gemini-2.5-flash-image
-// Prompt engineered for logo design with specific brand requirements
-// Returns base64 image data
+**2. Update Favicon Reference**
+
+```html
+<!-- index.html -->
+<link rel="icon" type="image/png" href="/favicon.png">
 ```
 
-**2. Logo Generator Page**
+**3. Adjust Logo Display**
 
-- Simple UI with a "Generate Logo" button
-- Displays generated logo concepts
-- Option to download or save preferred design
+Since your new logo has the icon integrated, I'll ensure proper sizing:
 
-**3. Generation Prompt**
+- **Header**: `h-10` (40px height) for clean desktop display
+- **Footer**: `h-12` (48px) for prominent branding
+- **Sidebar**: `h-8` (32px) for compact sidebar header
+- **Funnel Layout**: `h-8` (32px) for minimal funnel header
 
-The AI will be prompted to create:
-> "A minimalist logo for 'Off The Markets' property investment brand. The design features an abstract letter M transformed into a roof/house silhouette. Use a sophisticated teal (#14B8A6) and navy (#1E3A5A) color palette. Clean geometric lines, modern sans-serif typography. Professional, premium aesthetic suitable for a luxury property marketplace. White background, vector-style clarity."
+**4. Remove Dark Mode Invert**
+
+Your new logo uses navy/teal colors which work on both light and dark backgrounds, so the `dark:invert` class in FunnelLayout will be removed.
 
 ---
 
-### Technical Notes
+### Visual Result
 
-- Uses `google/gemini-2.5-flash-image` model (or Pro for higher quality)
-- No API key required - uses Lovable's built-in AI gateway
-- Generated images can be downloaded and used as the new logo asset
-- Multiple variations can be generated to find the best concept
-
+After implementation:
+- Browser tab shows your M-as-roof icon
+- All headers display the full wordmark with icon
+- Consistent branding across public pages, dashboard, and funnels
