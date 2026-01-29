@@ -16,7 +16,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
@@ -63,13 +62,10 @@ export function AppSidebar({ children }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center justify-between p-2">
-          {!isCollapsed && (
-            <Link to="/">
-              <img src={logo} alt="OffMrkt" className="h-10" />
-            </Link>
-          )}
-          <SidebarTrigger />
+        <div className="flex items-center justify-center p-2">
+          <Link to="/">
+            <img src={logo} alt="OffMrkt" className="h-10" />
+          </Link>
         </div>
       </SidebarHeader>
 
