@@ -86,11 +86,11 @@ export default function Terms() {
                 <section id="acceptance" className="scroll-mt-24 mb-10">
                   <h2 className="text-2xl font-bold text-foreground">1. Acceptance of Terms</h2>
                   <p className="text-muted-foreground">
-                    By accessing or using the OffMrkt platform ("Platform"), you agree to be bound by these 
+                    By accessing or using the Off The Markets platform ("Platform"), you agree to be bound by these 
                     Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Platform.
                   </p>
                   <p className="text-muted-foreground">
-                    These Terms constitute a legally binding agreement between you and OffMrkt Ltd ("we", "our", "us"). 
+                    These Terms constitute a legally binding agreement between you and Off The Markets Ltd ("we", "our", "us"). 
                     We reserve the right to modify these Terms at any time. Your continued use of the Platform 
                     after any changes constitutes acceptance of the new Terms.
                   </p>
@@ -99,7 +99,7 @@ export default function Terms() {
                 <section id="platform-description" className="scroll-mt-24 mb-10">
                   <h2 className="text-2xl font-bold text-foreground">2. Platform Description</h2>
                   <p className="text-muted-foreground">
-                    OffMrkt is an off-market property investment platform that connects serious property investors 
+                    Off The Markets is an off-market property investment platform that connects serious property investors
                     with exclusive below-market-value investment opportunities across the UK. Our services include:
                   </p>
                   <ul className="list-disc pl-6 text-muted-foreground space-y-2">
@@ -239,7 +239,7 @@ export default function Terms() {
                   <h2 className="text-2xl font-bold text-foreground">10. Intellectual Property</h2>
                   <p className="text-muted-foreground">
                     All content on the Platform, including but not limited to text, graphics, logos, images, 
-                    software, and data compilations, is the property of OffMrkt or its content suppliers and 
+                    software, and data compilations, is the property of Off The Markets or its content suppliers and 
                     is protected by intellectual property laws.
                   </p>
                   <p className="text-muted-foreground mt-4">
@@ -264,7 +264,7 @@ export default function Terms() {
                 <section id="liability" className="scroll-mt-24 mb-10">
                   <h2 className="text-2xl font-bold text-foreground">12. Limitation of Liability</h2>
                   <p className="text-muted-foreground">
-                    To the maximum extent permitted by law, OffMrkt shall not be liable for any indirect, 
+                    To the maximum extent permitted by law, Off The Markets shall not be liable for any indirect, 
                     incidental, special, consequential, or punitive damages arising from your use of the Platform.
                   </p>
                   <p className="text-muted-foreground mt-4">
@@ -299,13 +299,13 @@ export default function Terms() {
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-3 text-muted-foreground">
                       <Mail className="h-5 w-5 text-primary" />
-                      <a href="mailto:legal@offmrkt.co.uk" className="hover:text-primary">
-                        legal@offmrkt.co.uk
+                      <a href="mailto:legal@offthemarkets.co.uk" className="hover:text-primary">
+                        legal@offthemarkets.co.uk
                       </a>
                     </div>
                     <div className="flex items-center gap-3 text-muted-foreground">
                       <MapPin className="h-5 w-5 text-primary" />
-                      <span>OffMrkt Ltd, London, United Kingdom</span>
+                      <span>Off The Markets Ltd, London, United Kingdom</span>
                     </div>
                   </div>
                 </section>

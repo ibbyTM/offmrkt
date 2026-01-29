@@ -157,7 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
         message: data.message || null,
         
         // Metadata
-        source: "offmrkt_mortgage_page",
+        source: "offthemarkets_mortgage_page",
         submitted_at: new Date().toISOString(),
       };
 

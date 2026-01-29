@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useFunnel } from '@/contexts/FunnelContext';
-import logo from '@/assets/offmrkt-logo.png';
+import logo from '@/assets/offthemarkets-logo.png';
 
 interface FunnelLayoutProps {
   children: ReactNode;
@@ -71,7 +71,7 @@ export function FunnelLayout({
             <Link to="/" className="flex items-center">
               <img
                 src={logo}
-                alt="OffMrkt"
+                alt="Off The Markets"
                 className="h-8 w-auto dark:invert"
               />
             </Link>
@@ -104,7 +104,7 @@ export function FunnelLayout({
       <footer className="py-4 border-t bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} OffMrkt. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Off The Markets. All rights reserved.</p>
             <div className="flex gap-4">
               <Link to="/privacy" className="hover:text-foreground transition-colors">
                 Privacy

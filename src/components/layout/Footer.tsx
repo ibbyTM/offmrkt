@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/offmrkt-logo.png";
+import logo from "@/assets/offthemarkets-logo.png";
 
 const footerLinks = {
   platform: [
@@ -32,7 +32,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <img src={logo} alt="OffMrkt" className="h-14 w-auto object-cover object-center" />
+              <img src={logo} alt="Off The Markets" className="h-14 w-auto object-cover object-center" />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Connecting verified investors with quality property investment opportunities.
@@ -94,7 +94,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {currentYear} OffMrkt. All rights reserved.
+            © {currentYear} Off The Markets. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <a
