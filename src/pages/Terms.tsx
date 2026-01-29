@@ -299,8 +299,8 @@ export default function Terms() {
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-3 text-muted-foreground">
                       <Mail className="h-5 w-5 text-primary" />
-                      <a href="mailto:legal@offthemarkets.co.uk" className="hover:text-primary">
-                        legal@offthemarkets.co.uk
+                      <a href="mailto:legal@off-the-markets.co.uk" className="hover:text-primary">
+                        legal@off-the-markets.co.uk
                       </a>
                     </div>
                     <div className="flex items-center gap-3 text-muted-foreground">

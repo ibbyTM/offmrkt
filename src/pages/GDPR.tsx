@@ -97,7 +97,7 @@ const GDPR = () => {
                     <li><strong>Registered Address:</strong> [Company Address]</li>
                     <li><strong>Company Registration Number:</strong> [Registration Number]</li>
                     <li><strong>ICO Registration Number:</strong> [ICO Number]</li>
-                    <li><strong>Email:</strong> privacy@offthemarkets.co.uk</li>
+                    <li><strong>Email:</strong> privacy@off-the-markets.co.uk</li>
                   </ul>
                 </div>
               </section>
@@ -109,7 +109,7 @@ const GDPR = () => {
                 </p>
                 <div className="bg-muted/50 p-6 rounded-lg my-6">
                   <ul className="list-none space-y-2 pl-0">
-                    <li><strong>Email:</strong> dpo@offthemarkets.co.uk</li>
+                    <li><strong>Email:</strong> dpo@off-the-markets.co.uk</li>
                     <li><strong>Post:</strong> Data Protection Lead, Off The Markets Ltd, [Company Address]</li>
                   </ul>
                 </div>
@@ -268,7 +268,7 @@ const GDPR = () => {
 
                 <h3 className="text-xl font-semibold mt-6 mb-3">How to Submit a Request</h3>
                 <ol>
-                  <li><strong>Email:</strong> Send your request to dpo@offthemarkets.co.uk with "DSAR Request" in the subject line</li>
+                  <li><strong>Email:</strong> Send your request to dpo@off-the-markets.co.uk with "DSAR Request" in the subject line</li>
                   <li><strong>Post:</strong> Write to Data Protection Lead, Off The Markets Ltd, [Company Address]</li>
                   <li><strong>Account:</strong> For basic access, you can view and download your data through your account settings</li>
                 </ol>
@@ -420,7 +420,7 @@ const GDPR = () => {
 
                 <h3 className="text-xl font-semibold mt-6 mb-3">Internal Complaints</h3>
                 <p>
-                  Contact our Data Protection Lead at dpo@offthemarkets.co.uk. We aim to respond to complaints within 10 working days and resolve them within 30 days.
+                  Contact our Data Protection Lead at dpo@off-the-markets.co.uk. We aim to respond to complaints within 10 working days and resolve them within 30 days.
                 </p>
 
                 <h3 className="text-xl font-semibold mt-6 mb-3">Supervisory Authority</h3>
@@ -444,8 +444,8 @@ const GDPR = () => {
                 </p>
                 <div className="bg-muted/50 p-6 rounded-lg my-6">
                   <ul className="list-none space-y-2 pl-0 mb-0">
-                    <li><strong>Data Protection Lead:</strong> dpo@offthemarkets.co.uk</li>
-                    <li><strong>General Privacy Queries:</strong> privacy@offthemarkets.co.uk</li>
+                    <li><strong>Data Protection Lead:</strong> dpo@off-the-markets.co.uk</li>
+                    <li><strong>General Privacy Queries:</strong> privacy@off-the-markets.co.uk</li>
                     <li><strong>Post:</strong> Data Protection Lead, Off The Markets Ltd, [Company Address]</li>
                   </ul>
                 </div>
