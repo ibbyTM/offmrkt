@@ -274,8 +274,8 @@ export default function Cookies() {
                   </p>
                   <div className="mt-4 flex items-center gap-3 text-muted-foreground">
                     <Mail className="h-5 w-5 text-primary" />
-                    <a href="mailto:privacy@offthemarkets.co.uk" className="hover:text-primary">
-                      privacy@offthemarkets.co.uk
+                    <a href="mailto:privacy@off-the-markets.co.uk" className="hover:text-primary">
+                      privacy@off-the-markets.co.uk
                     </a>
                   </div>
                 </section>
