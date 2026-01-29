@@ -32,7 +32,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <img src={logo} alt="Off The Markets" className="h-14 w-auto object-cover object-center" />
+              <img src={logo} alt="Off The Markets" className="h-12 w-auto" />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Connecting verified investors with quality property investment opportunities.

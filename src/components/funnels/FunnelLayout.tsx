@@ -72,7 +72,7 @@ export function FunnelLayout({
               <img
                 src={logo}
                 alt="Off The Markets"
-                className="h-8 w-auto dark:invert"
+                className="h-8 w-auto"
               />
             </Link>
           )}
