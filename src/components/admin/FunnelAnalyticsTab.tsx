@@ -108,7 +108,7 @@ export function FunnelAnalyticsTab() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Sessions"
           value={data?.totalSessions || 0}
@@ -158,58 +158,60 @@ export function FunnelAnalyticsTab() {
                   ))}
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Funnel</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Variant</TableHead>
-                      <TableHead className="text-right">Sessions</TableHead>
-                      <TableHead className="text-right">Conversions</TableHead>
-                      <TableHead className="text-right">Rate</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data?.funnels.map((funnel) => (
-                      <TableRow key={funnel.id}>
-                        <TableCell className="font-medium">{funnel.name}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary" className="capitalize">
-                            {funnel.type}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{funnel.variant}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">{funnel.sessions}</TableCell>
-                        <TableCell className="text-right">{funnel.conversions}</TableCell>
-                        <TableCell className="text-right">
-                          <span className={funnel.conversionRate >= 10 ? 'text-green-600 font-medium' : ''}>
-                            {funnel.conversionRate.toFixed(1)}%
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="ghost" size="sm" asChild>
-                            <a
-                              href={`/f/${funnel.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto -mx-6">
+                  <Table className="min-w-[700px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="pl-6 whitespace-nowrap">Funnel</TableHead>
+                        <TableHead className="whitespace-nowrap hidden sm:table-cell">Type</TableHead>
+                        <TableHead className="whitespace-nowrap hidden md:table-cell">Variant</TableHead>
+                        <TableHead className="text-right whitespace-nowrap">Sessions</TableHead>
+                        <TableHead className="text-right whitespace-nowrap">Conv.</TableHead>
+                        <TableHead className="text-right whitespace-nowrap">Rate</TableHead>
+                        <TableHead className="text-right pr-6 whitespace-nowrap">Action</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {data?.funnels.map((funnel) => (
+                        <TableRow key={funnel.id}>
+                          <TableCell className="font-medium pl-6 whitespace-nowrap">{funnel.name}</TableCell>
+                          <TableCell className="hidden sm:table-cell">
+                            <Badge variant="secondary" className="capitalize">
+                              {funnel.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge variant="outline">{funnel.variant}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right whitespace-nowrap">{funnel.sessions}</TableCell>
+                          <TableCell className="text-right whitespace-nowrap">{funnel.conversions}</TableCell>
+                          <TableCell className="text-right whitespace-nowrap">
+                            <span className={funnel.conversionRate >= 10 ? 'text-green-600 font-medium' : ''}>
+                              {funnel.conversionRate.toFixed(1)}%
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right pr-6">
+                            <Button variant="ghost" size="sm" asChild>
+                              <a
+                                href={`/f/${funnel.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
 
           {/* Charts Grid */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
             {/* Traffic Sources */}
             <Card>
               <CardHeader>

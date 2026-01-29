@@ -140,45 +140,47 @@ export function LeadsTable() {
 
           {/* Table */}
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {leads.map((lead) => {
-                  const badgeInfo = getInterestTypeBadge(lead.interest_type);
-                  return (
-                    <TableRow
-                      key={lead.id}
-                      className="cursor-pointer"
-                      onClick={() => handleRowClick(lead)}
-                    >
-                      <TableCell className="font-medium">
-                        {format(new Date(lead.created_at), "dd MMM yyyy")}
-                      </TableCell>
-                      <TableCell>{lead.full_name}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {lead.email}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {lead.phone || "—"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={badgeInfo.className}>
-                          {badgeInfo.label}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[600px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Date</TableHead>
+                    <TableHead className="whitespace-nowrap">Name</TableHead>
+                    <TableHead className="whitespace-nowrap hidden sm:table-cell">Email</TableHead>
+                    <TableHead className="whitespace-nowrap hidden md:table-cell">Phone</TableHead>
+                    <TableHead className="whitespace-nowrap">Type</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {leads.map((lead) => {
+                    const badgeInfo = getInterestTypeBadge(lead.interest_type);
+                    return (
+                      <TableRow
+                        key={lead.id}
+                        className="cursor-pointer"
+                        onClick={() => handleRowClick(lead)}
+                      >
+                        <TableCell className="font-medium whitespace-nowrap">
+                          {format(new Date(lead.created_at), "dd MMM yyyy")}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">{lead.full_name}</TableCell>
+                        <TableCell className="text-muted-foreground hidden sm:table-cell">
+                          {lead.email}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground hidden md:table-cell">
+                          {lead.phone || "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={badgeInfo.className}>
+                            {badgeInfo.label}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </>
       )}

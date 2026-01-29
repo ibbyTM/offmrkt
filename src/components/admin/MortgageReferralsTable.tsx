@@ -112,17 +112,17 @@ export const MortgageReferralsTable = () => {
       ) : (
         <Card>
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Investor</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Budget Range</TableHead>
-                  <TableHead>Timeline</TableHead>
-                  <TableHead>AIP</TableHead>
-                  <TableHead>Experience</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className="whitespace-nowrap">Date</TableHead>
+                  <TableHead className="whitespace-nowrap">Investor</TableHead>
+                  <TableHead className="whitespace-nowrap hidden sm:table-cell">Contact</TableHead>
+                  <TableHead className="whitespace-nowrap hidden md:table-cell">Budget Range</TableHead>
+                  <TableHead className="whitespace-nowrap hidden lg:table-cell">Timeline</TableHead>
+                  <TableHead className="whitespace-nowrap hidden lg:table-cell">AIP</TableHead>
+                  <TableHead className="whitespace-nowrap hidden xl:table-cell">Experience</TableHead>
+                  <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -134,11 +134,11 @@ export const MortgageReferralsTable = () => {
                         : "—"}
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">
+                      <div className="font-medium whitespace-nowrap">
                         {referral.investor_name || "Anonymous"}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <div className="flex flex-col gap-1">
                         {referral.investor_email && (
                           <a
@@ -147,7 +147,7 @@ export const MortgageReferralsTable = () => {
                             onClick={(e) => e.stopPropagation()}
                           >
                             <Mail className="h-3 w-3" />
-                            {referral.investor_email}
+                            <span className="truncate max-w-[150px]">{referral.investor_email}</span>
                           </a>
                         )}
                         {referral.investor_phone && (
@@ -165,19 +165,19 @@ export const MortgageReferralsTable = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap">
+                    <TableCell className="whitespace-nowrap hidden md:table-cell">
                       {referral.min_budget || referral.max_budget
                         ? `${formatCurrency(referral.min_budget)} - ${formatCurrency(referral.max_budget)}`
                         : "—"}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       {referral.purchase_timeline ? (
                         <Badge variant="outline">{referral.purchase_timeline}</Badge>
                       ) : (
                         "—"
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       {referral.mortgage_approved !== null ? (
                         referral.mortgage_approved ? (
                           <Badge className="bg-green-500 hover:bg-green-600">
@@ -194,7 +194,7 @@ export const MortgageReferralsTable = () => {
                         "—"
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden xl:table-cell">
                       {referral.investment_experience === "first_time" && (
                         <Badge variant="outline">First-time</Badge>
                       )}

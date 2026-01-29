@@ -217,31 +217,31 @@ const Admin = () => {
         pageIcon={<Shield className="h-5 w-5 text-primary" />}
         sidebarContent={adminSidebarContent}
       >
-        <div className="p-6 max-w-4xl mx-auto">
-          <div className="grid gap-6">
+        <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+          <div className="grid gap-4 sm:gap-6">
             {/* Applications Card */}
             <Card 
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
               onClick={() => setCurrentSection('applications')}
             >
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-primary/10">
-                      <Users className="h-10 w-10 text-primary" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-3 sm:p-4 rounded-2xl bg-primary/10 shrink-0">
+                      <Users className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">Investor Applications</h2>
-                      <p className="text-lg text-muted-foreground">Review and approve new investors</p>
+                      <h2 className="text-lg sm:text-2xl font-bold mb-1">Investor Applications</h2>
+                      <p className="text-sm sm:text-lg text-muted-foreground">Review and approve new investors</p>
                     </div>
                   </div>
                   {pendingApps > 0 ? (
-                    <Badge className="text-lg px-4 py-2 bg-amber-500 hover:bg-amber-500">
-                      <Clock className="h-5 w-5 mr-2" />
+                    <Badge className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-500 hover:bg-amber-500 w-fit">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       {pendingApps} need review
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-lg px-4 py-2">
+                    <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 w-fit">
                       All reviewed ✓
                     </Badge>
                   )}
@@ -254,18 +254,18 @@ const Admin = () => {
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
               onClick={() => setCurrentSection('crm')}
             >
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-purple-500/10">
-                      <UserCog className="h-10 w-10 text-purple-500" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-3 sm:p-4 rounded-2xl bg-purple-500/10 shrink-0">
+                      <UserCog className="h-8 w-8 sm:h-10 sm:w-10 text-purple-500" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">Investor Database</h2>
-                      <p className="text-lg text-muted-foreground">View all investors and add contacts</p>
+                      <h2 className="text-lg sm:text-2xl font-bold mb-1">Investor Database</h2>
+                      <p className="text-sm sm:text-lg text-muted-foreground">View all investors and add contacts</p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 w-fit">
                     {isLoadingApps ? '...' : applications.length} investors
                   </Badge>
                 </div>
@@ -277,24 +277,24 @@ const Admin = () => {
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
               onClick={() => setCurrentSection('submissions')}
             >
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-green-500/10">
-                      <Building className="h-10 w-10 text-green-500" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-3 sm:p-4 rounded-2xl bg-green-500/10 shrink-0">
+                      <Building className="h-8 w-8 sm:h-10 sm:w-10 text-green-500" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">Property Submissions</h2>
-                      <p className="text-lg text-muted-foreground">Review properties from sellers</p>
+                      <h2 className="text-lg sm:text-2xl font-bold mb-1">Property Submissions</h2>
+                      <p className="text-sm sm:text-lg text-muted-foreground">Review properties from sellers</p>
                     </div>
                   </div>
                   {pendingSubs > 0 ? (
-                    <Badge className="text-lg px-4 py-2 bg-amber-500 hover:bg-amber-500">
-                      <Clock className="h-5 w-5 mr-2" />
+                    <Badge className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 bg-amber-500 hover:bg-amber-500 w-fit">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       {pendingSubs} need review
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="text-lg px-4 py-2">
+                    <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 w-fit">
                       All reviewed ✓
                     </Badge>
                   )}
@@ -307,18 +307,18 @@ const Admin = () => {
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
               onClick={() => setCurrentSection('mortgage-leads')}
             >
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-blue-500/10">
-                      <Banknote className="h-10 w-10 text-blue-500" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-3 sm:p-4 rounded-2xl bg-blue-500/10 shrink-0">
+                      <Banknote className="h-8 w-8 sm:h-10 sm:w-10 text-blue-500" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">Mortgage Leads</h2>
-                      <p className="text-lg text-muted-foreground">View broker referrals with investor details</p>
+                      <h2 className="text-lg sm:text-2xl font-bold mb-1">Mortgage Leads</h2>
+                      <p className="text-sm sm:text-lg text-muted-foreground">View broker referrals with investor details</p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 w-fit">
                     {isLoadingReferrals ? '...' : mortgageReferrals.length} leads
                   </Badge>
                 </div>
@@ -330,18 +330,18 @@ const Admin = () => {
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
               onClick={() => setCurrentSection('leads')}
             >
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-indigo-500/10">
-                      <Inbox className="h-10 w-10 text-indigo-500" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-3 sm:p-4 rounded-2xl bg-indigo-500/10 shrink-0">
+                      <Inbox className="h-8 w-8 sm:h-10 sm:w-10 text-indigo-500" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">Leads</h2>
-                      <p className="text-lg text-muted-foreground">Form submissions from landing pages</p>
+                      <h2 className="text-lg sm:text-2xl font-bold mb-1">Leads</h2>
+                      <p className="text-sm sm:text-lg text-muted-foreground">Form submissions from landing pages</p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 w-fit">
                     {isLoadingLeads ? '...' : landingLeads.length} leads
                   </Badge>
                 </div>
@@ -353,18 +353,18 @@ const Admin = () => {
               className="cursor-pointer hover:shadow-lg transition-all hover:scale-[1.01] border-2"
               onClick={() => setCurrentSection('funnels')}
             >
-              <CardContent className="p-8">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="p-4 rounded-2xl bg-orange-500/10">
-                      <BarChart3 className="h-10 w-10 text-orange-500" />
+              <CardContent className="p-4 sm:p-6 md:p-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="p-3 sm:p-4 rounded-2xl bg-orange-500/10 shrink-0">
+                      <BarChart3 className="h-8 w-8 sm:h-10 sm:w-10 text-orange-500" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold mb-1">Funnel Analytics</h2>
-                      <p className="text-lg text-muted-foreground">Track conversions and traffic sources</p>
+                      <h2 className="text-lg sm:text-2xl font-bold mb-1">Funnel Analytics</h2>
+                      <p className="text-sm sm:text-lg text-muted-foreground">Track conversions and traffic sources</p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-lg px-4 py-2">
+                  <Badge variant="secondary" className="text-sm sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 w-fit">
                     View →
                   </Badge>
                 </div>
@@ -384,7 +384,7 @@ const Admin = () => {
       pageIcon={<Shield className="h-5 w-5 text-primary" />}
       sidebarContent={adminSidebarContent}
     >
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Applications Section */}
         {currentSection === 'applications' && (
           <div className="space-y-6">

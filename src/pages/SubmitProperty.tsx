@@ -9,7 +9,7 @@ const SubmitProperty = () => {
       pageSubtitle="Connect with verified investors ready to buy"
       pageIcon={<Building2 className="h-5 w-5 text-primary" />}
     >
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <SellerForm />
       </div>
     </AppLayout>
