@@ -164,11 +164,11 @@ export const ApplicationsTable = ({
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-wrap items-center gap-3 shrink-0">
+                  <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
                     <Button
                       variant="outline"
                       size="lg"
-                      className="text-base"
+                      className="text-base w-full sm:w-auto"
                       onClick={() => setSelectedApplication(application)}
                     >
                       <Eye className="h-5 w-5 mr-2" />
@@ -179,7 +179,7 @@ export const ApplicationsTable = ({
                       <>
                         <Button
                           size="lg"
-                          className="bg-green-600 hover:bg-green-700 text-base px-6"
+                          className="bg-green-600 hover:bg-green-700 text-base px-6 w-full sm:w-auto"
                           onClick={() => onUpdateStatus(application.id, "approved")}
                           disabled={isUpdating}
                         >
@@ -195,7 +195,7 @@ export const ApplicationsTable = ({
                         <Button
                           variant="destructive"
                           size="lg"
-                          className="text-base px-6"
+                          className="text-base px-6 w-full sm:w-auto"
                           onClick={() => onUpdateStatus(application.id, "rejected")}
                           disabled={isUpdating}
                         >

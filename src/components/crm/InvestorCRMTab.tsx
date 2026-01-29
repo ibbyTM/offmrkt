@@ -64,12 +64,12 @@ export const InvestorCRMTab = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-base sm:text-lg text-muted-foreground">
             {isLoading ? 'Loading...' : `${allEntries.length} total contacts`}
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button size="lg" onClick={() => setShowAddContact(true)} className="text-base">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
+          <Button size="lg" onClick={() => setShowAddContact(true)} className="text-base w-full sm:w-auto">
             <UserPlus className="h-5 w-5 mr-2" />
             Add New Contact
           </Button>

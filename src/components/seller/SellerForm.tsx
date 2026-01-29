@@ -420,7 +420,7 @@ export function SellerForm() {
               {index < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-px w-8 sm:w-16 md:w-24 mx-2",
+                    "h-px w-4 sm:w-12 md:w-20 mx-1 sm:mx-2",
                     currentStep > step.id ? "bg-primary" : "bg-border"
                   )}
                 />
