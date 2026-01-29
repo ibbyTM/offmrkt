@@ -1,6 +1,5 @@
-import { Search, Grid3X3, List, Filter, ChevronDown, Plus, Download } from "lucide-react";
+import { Grid3X3, List, Filter, Plus, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -10,74 +9,45 @@ import {
 } from "@/components/ui/select";
 
 interface PropertiesToolbarProps {
-  searchValue: string;
-  onSearchChange: (value: string) => void;
   viewMode: "grid" | "list";
   onViewModeChange: (mode: "grid" | "list") => void;
   sortBy: string;
   onSortChange: (value: string) => void;
   onFilterClick: () => void;
   activeFilterCount: number;
+  resultsCount: number;
+  isLoading?: boolean;
 }
 
 export function PropertiesToolbar({
-  searchValue,
-  onSearchChange,
   viewMode,
   onViewModeChange,
   sortBy,
   onSortChange,
   onFilterClick,
   activeFilterCount,
+  resultsCount,
+  isLoading,
 }: PropertiesToolbarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3 px-6 py-4 border-b border-border bg-background">
-      {/* Search */}
-      <div className="relative flex-1 min-w-[200px] max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search properties..."
-          value={searchValue}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9"
-        />
-      </div>
+    <div className="flex flex-wrap items-center gap-3 px-6 py-3 border-b border-border bg-background">
+      {/* Results Count */}
+      <span className="text-sm text-muted-foreground">
+        {isLoading ? "Loading..." : `${resultsCount} properties`}
+      </span>
 
-      {/* Save Search */}
-      <Button variant="outline" size="sm">
-        Save Search
-        <ChevronDown className="ml-1 h-4 w-4" />
-      </Button>
-
-      {/* View Mode Toggle */}
-      <div className="flex items-center gap-1 border border-border rounded-md p-1">
-        <Button
-          variant={viewMode === "grid" ? "secondary" : "ghost"}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => onViewModeChange("grid")}
-        >
-          <Grid3X3 className="h-4 w-4" />
-        </Button>
-        <Button
-          variant={viewMode === "list" ? "secondary" : "ghost"}
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => onViewModeChange("list")}
-        >
-          <List className="h-4 w-4" />
-        </Button>
-      </div>
+      {/* Spacer */}
+      <div className="flex-1" />
 
       {/* Filter Button (mobile/tablet) */}
-      <Button 
-        variant="outline" 
-        size="sm" 
+      <Button
+        variant="outline"
+        size="sm"
         onClick={onFilterClick}
         className="lg:hidden"
       >
         <Filter className="mr-2 h-4 w-4" />
-        Filter
+        Filters
         {activeFilterCount > 0 && (
           <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
             {activeFilterCount}
@@ -87,7 +57,7 @@ export function PropertiesToolbar({
 
       {/* Sort */}
       <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="w-[160px]">
+        <SelectTrigger className="w-[160px] h-9">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
         <SelectContent>
@@ -99,17 +69,35 @@ export function PropertiesToolbar({
         </SelectContent>
       </Select>
 
-      {/* Actions - pushed to right */}
-      <div className="flex items-center gap-2 ml-auto">
-        <Button variant="outline" size="sm">
-          <Download className="mr-2 h-4 w-4" />
-          Export
+      {/* View Mode Toggle */}
+      <div className="flex items-center gap-1 border border-border rounded-md p-1">
+        <Button
+          variant={viewMode === "grid" ? "secondary" : "ghost"}
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => onViewModeChange("grid")}
+        >
+          <Grid3X3 className="h-4 w-4" />
         </Button>
-        <Button size="sm">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Property
+        <Button
+          variant={viewMode === "list" ? "secondary" : "ghost"}
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => onViewModeChange("list")}
+        >
+          <List className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Actions */}
+      <Button variant="outline" size="sm" className="h-9">
+        <Download className="mr-2 h-4 w-4" />
+        Export
+      </Button>
+      <Button size="sm" className="h-9">
+        <Plus className="mr-2 h-4 w-4" />
+        Add Property
+      </Button>
     </div>
   );
 }

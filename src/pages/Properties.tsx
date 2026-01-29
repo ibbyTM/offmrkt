@@ -4,13 +4,9 @@ import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from "@/components/ui/sidebar";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyFiltersPanel, PropertyFilters } from "@/components/properties/PropertyFilters";
+import { PropertyFilterBar } from "@/components/properties/PropertyFilterBar";
 import { PropertiesToolbar } from "@/components/properties/PropertiesToolbar";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useProperties } from "@/hooks/useProperties";
@@ -143,38 +139,32 @@ const Properties = () => {
     return count;
   }, [filters]);
 
-  // Sidebar filters content
-  const filtersContent = (
-    <SidebarGroup>
-      <SidebarGroupLabel>Filters</SidebarGroupLabel>
-      <SidebarGroupContent className="px-2">
-        <PropertyFiltersPanel
-          filters={filters}
-          onFiltersChange={setFilters}
-          cities={cities}
-        />
-      </SidebarGroupContent>
-    </SidebarGroup>
-  );
-
   return (
     <AppLayout
       pageTitle="Properties"
       pageSubtitle={isLoading ? "Loading properties..." : `${filteredProperties.length} deals available`}
       pageIcon={<Building className="h-5 w-5 text-primary" />}
-      sidebarContent={filtersContent}
       showComparisonBar
     >
+      {/* Horizontal Filter Bar (hidden on mobile, shown on lg+) */}
+      <div className="hidden lg:block">
+        <PropertyFilterBar
+          filters={filters}
+          onFiltersChange={setFilters}
+          cities={cities}
+        />
+      </div>
+
       {/* Toolbar */}
       <PropertiesToolbar
-        searchValue={filters.search}
-        onSearchChange={(val) => setFilters({ ...filters, search: val })}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         sortBy={sortBy}
         onSortChange={setSortBy}
         onFilterClick={() => setMobileFiltersOpen(true)}
         activeFilterCount={activeFilterCount}
+        resultsCount={filteredProperties.length}
+        isLoading={isLoading}
       />
 
       {/* Mobile Filter Sheet */}
