@@ -1,104 +1,66 @@
 
 
-## Fix "Start Fresh" Functionality in Submit Property Form
+## Generate "Off The Markets" Logo Concept
 
-Fix the bug where clicking "Start Fresh" doesn't properly clear the draft because the auto-save effects immediately re-save empty values to localStorage.
-
----
-
-### Root Cause
-
-When `clearDraft()` is called, it removes the draft from localStorage and resets the form. However, two `useEffect` hooks immediately fire:
-
-1. **Form watch subscription** (lines 152-162) - triggers when `form.reset()` changes values
-2. **Photos/step effect** (lines 165-173) - triggers when `currentStep` and `photos` change
-
-These effects immediately re-save the empty form state to localStorage, so on the next page load, the draft appears again (with blank values).
+Create an AI-powered logo generation feature using the abstract M-as-roof approach with teal/navy brand colors.
 
 ---
 
-### Solution
+### Approach
 
-Add a `skipAutoSave` ref flag that prevents the auto-save effects from running during the clear operation.
+Use Lovable's built-in AI image generation (Gemini) to create logo concepts. I'll build a simple edge function to generate the logo and display the result.
 
 ---
 
-### File to Update
+### What Will Be Generated
 
-| File | Change |
-|------|--------|
-| `src/components/seller/SellerForm.tsx` | Add skip flag to prevent auto-save during clear |
+**Design Brief for AI:**
+- Abstract "M" letterform shaped like a roof/house silhouette
+- Clean, minimal, geometric style
+- Teal (#14B8A6) and navy (#1E3A5A) color palette
+- Professional typography for "Off The Markets" wordmark
+- White/transparent background for versatility
+- Modern, sophisticated aesthetic matching premium property investment brand
+
+---
+
+### Files to Create/Update
+
+| File | Purpose |
+|------|---------|
+| `supabase/functions/generate-logo/index.ts` | Edge function to call Gemini image generation API |
+| `src/pages/LogoGenerator.tsx` | Simple page to trigger generation and display results |
+| `src/App.tsx` | Add route for the logo generator page |
 
 ---
 
 ### Implementation Details
 
-**1. Add a ref to track when auto-save should be skipped:**
+**1. Edge Function (generate-logo)**
 
-```tsx
-const skipAutoSaveRef = useRef(false);
+```typescript
+// Uses Lovable AI Gateway with google/gemini-2.5-flash-image
+// Prompt engineered for logo design with specific brand requirements
+// Returns base64 image data
 ```
 
-**2. Update the form watch effect to check the flag:**
+**2. Logo Generator Page**
 
-```tsx
-useEffect(() => {
-  const subscription = form.watch((values) => {
-    if (skipAutoSaveRef.current) return; // Skip if clearing
-    
-    const draft: SavedDraft = {
-      values: values as SellerFormValues,
-      photos,
-      currentStep,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-  });
-  return () => subscription.unsubscribe();
-}, [form, photos, currentStep]);
-```
+- Simple UI with a "Generate Logo" button
+- Displays generated logo concepts
+- Option to download or save preferred design
 
-**3. Update the photos/step save effect similarly:**
+**3. Generation Prompt**
 
-```tsx
-useEffect(() => {
-  if (skipAutoSaveRef.current) return; // Skip if clearing
-  
-  const values = form.getValues();
-  const draft: SavedDraft = { values, photos, currentStep };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-}, [photos, currentStep, form]);
-```
-
-**4. Update `clearDraft()` to use the flag:**
-
-```tsx
-const clearDraft = () => {
-  skipAutoSaveRef.current = true; // Prevent auto-save
-  
-  localStorage.removeItem(STORAGE_KEY);
-  setHasDraft(false);
-  setCurrentStep(1);
-  setPhotos([]);
-  form.reset();
-  
-  toast({
-    title: "Draft cleared",
-    description: "Your saved progress has been removed.",
-  });
-  
-  // Re-enable auto-save after a tick (once all effects have run)
-  setTimeout(() => {
-    skipAutoSaveRef.current = false;
-  }, 0);
-};
-```
+The AI will be prompted to create:
+> "A minimalist logo for 'Off The Markets' property investment brand. The design features an abstract letter M transformed into a roof/house silhouette. Use a sophisticated teal (#14B8A6) and navy (#1E3A5A) color palette. Clean geometric lines, modern sans-serif typography. Professional, premium aesthetic suitable for a luxury property marketplace. White background, vector-style clarity."
 
 ---
 
-### Why This Works
+### Technical Notes
 
-- The ref is synchronous and doesn't trigger re-renders
-- Setting `skipAutoSaveRef.current = true` before state changes prevents all auto-save effects
-- The `setTimeout` with 0ms delay ensures the flag is reset after React has processed all the state updates and effects
-- New user input after clearing will properly save as a new draft
+- Uses `google/gemini-2.5-flash-image` model (or Pro for higher quality)
+- No API key required - uses Lovable's built-in AI gateway
+- Generated images can be downloaded and used as the new logo asset
+- Multiple variations can be generated to find the best concept
 
