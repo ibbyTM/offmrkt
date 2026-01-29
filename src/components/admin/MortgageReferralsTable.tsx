@@ -37,6 +37,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formatCurrency = (amount: number | null) => {
   if (!amount) return "—";
@@ -47,10 +48,126 @@ const formatCurrency = (amount: number | null) => {
   }).format(amount);
 };
 
+function ReferralCard({ referral, onClick }: { referral: MortgageReferral; onClick: () => void }) {
+  return (
+    <Card 
+      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={onClick}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <span className="font-semibold">
+            {referral.investor_name || "Anonymous"}
+          </span>
+          <span className="text-sm text-muted-foreground">
+            {referral.created_at
+              ? format(new Date(referral.created_at), "dd MMM")
+              : "—"}
+          </span>
+        </div>
+        
+        {/* Contact info */}
+        <div className="flex flex-col gap-1 mb-3">
+          {referral.investor_email && (
+            <a
+              href={`mailto:${referral.investor_email}`}
+              className="text-sm text-primary hover:underline flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Mail className="h-3 w-3" />
+              <span className="truncate">{referral.investor_email}</span>
+            </a>
+          )}
+          {referral.investor_phone && (
+            <a
+              href={`tel:${referral.investor_phone}`}
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Phone className="h-3 w-3" />
+              {referral.investor_phone}
+            </a>
+          )}
+        </div>
+
+        {/* Budget Range */}
+        {(referral.min_budget || referral.max_budget) && (
+          <p className="text-sm text-muted-foreground mb-2">
+            Budget: {formatCurrency(referral.min_budget)} - {formatCurrency(referral.max_budget)}
+          </p>
+        )}
+
+        {/* Badges row */}
+        <div className="flex flex-wrap gap-2">
+          {referral.purchase_timeline && (
+            <Badge variant="outline">{referral.purchase_timeline}</Badge>
+          )}
+          {referral.mortgage_approved !== null && (
+            referral.mortgage_approved ? (
+              <Badge className="bg-green-500 hover:bg-green-600">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                AIP
+              </Badge>
+            ) : (
+              <Badge variant="secondary">
+                <XCircle className="h-3 w-3 mr-1" />
+                No AIP
+              </Badge>
+            )
+          )}
+          {referral.investment_experience === "first_time" && (
+            <Badge variant="outline">First-time</Badge>
+          )}
+          {referral.investment_experience === "some_experience" && (
+            <Badge variant="outline">1-3 properties</Badge>
+          )}
+          {referral.investment_experience === "experienced" && (
+            <Badge variant="outline">4+ properties</Badge>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MobileReferralsList({ referrals, onSelect }: { referrals: MortgageReferral[]; onSelect: (referral: MortgageReferral) => void }) {
+  return (
+    <div className="space-y-3">
+      {referrals.map((referral) => (
+        <ReferralCard key={referral.id} referral={referral} onClick={() => onSelect(referral)} />
+      ))}
+    </div>
+  );
+}
+
+function MobileLoadingSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[...Array(5)].map((_, i) => (
+        <Card key={i}>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-2">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-4 w-12" />
+            </div>
+            <Skeleton className="h-4 w-48 mb-1" />
+            <Skeleton className="h-4 w-32 mb-3" />
+            <div className="flex gap-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 export const MortgageReferralsTable = () => {
   const [filters, setFilters] = useState<FilterType>({});
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedReferral, setSelectedReferral] = useState<MortgageReferral | null>(null);
+  const isMobile = useIsMobile();
 
   const { data: referrals = [], isLoading } = useMortgageReferrals(filters);
 
@@ -59,6 +176,15 @@ export const MortgageReferralsTable = () => {
   };
 
   if (isLoading) {
+    if (isMobile) {
+      return (
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-full" />
+          <MobileLoadingSkeleton />
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-4">
         <Skeleton className="h-12 w-full" />
@@ -109,6 +235,8 @@ export const MortgageReferralsTable = () => {
             </p>
           </CardContent>
         </Card>
+      ) : isMobile ? (
+        <MobileReferralsList referrals={referrals} onSelect={setSelectedReferral} />
       ) : (
         <Card>
           <div className="overflow-x-auto">

@@ -8,8 +8,20 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { useFunnelAnalytics } from '@/hooks/useFunnelAnalytics';
 import { formatDistanceToNow } from 'date-fns';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+
+interface FunnelData {
+  id: string;
+  name: string;
+  slug: string;
+  type: string;
+  variant: string;
+  sessions: number;
+  conversions: number;
+  conversionRate: number;
+}
 
 function StatCard({ title, value, subtitle, icon: Icon, isLoading }: {
   title: string;
@@ -83,8 +95,92 @@ function EmptyState({ funnels }: { funnels: { slug: string; name: string }[] }) 
   );
 }
 
+function FunnelCard({ funnel }: { funnel: FunnelData }) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <div className="font-semibold">{funnel.name}</div>
+          <Badge variant="secondary" className="capitalize">
+            {funnel.type}
+          </Badge>
+        </div>
+        
+        {/* Stats grid */}
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <div className="text-center p-2 bg-muted/50 rounded">
+            <div className="text-lg font-semibold">{funnel.sessions}</div>
+            <div className="text-xs text-muted-foreground">Sessions</div>
+          </div>
+          <div className="text-center p-2 bg-muted/50 rounded">
+            <div className="text-lg font-semibold">{funnel.conversions}</div>
+            <div className="text-xs text-muted-foreground">Conv.</div>
+          </div>
+          <div className="text-center p-2 bg-muted/50 rounded">
+            <div className={`text-lg font-semibold ${funnel.conversionRate >= 10 ? 'text-green-600' : ''}`}>
+              {funnel.conversionRate.toFixed(1)}%
+            </div>
+            <div className="text-xs text-muted-foreground">Rate</div>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Badge variant="outline">{funnel.variant}</Badge>
+          <Button variant="ghost" size="sm" asChild>
+            <a
+              href={`/f/${funnel.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open
+              <ExternalLink className="ml-1 h-3 w-3" />
+            </a>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MobileFunnelsList({ funnels }: { funnels: FunnelData[] }) {
+  return (
+    <div className="space-y-3">
+      {funnels.map((funnel) => (
+        <FunnelCard key={funnel.id} funnel={funnel} />
+      ))}
+    </div>
+  );
+}
+
+function MobileLoadingSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[1, 2, 3].map((i) => (
+        <Card key={i}>
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-2">
+              <Skeleton className="h-5 w-32" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              {[1, 2, 3].map((j) => (
+                <Skeleton key={j} className="h-14 w-full" />
+              ))}
+            </div>
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-8 w-16" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 export function FunnelAnalyticsTab() {
   const { data, isLoading, error } = useFunnelAnalytics();
+  const isMobile = useIsMobile();
 
   if (error) {
     return (
@@ -144,7 +240,7 @@ export function FunnelAnalyticsTab() {
         <EmptyState funnels={data?.funnels || []} />
       ) : (
         <>
-          {/* Funnel Performance Table */}
+          {/* Funnel Performance Table / Cards */}
           <Card>
             <CardHeader>
               <CardTitle>Funnel Performance</CardTitle>
@@ -152,11 +248,17 @@ export function FunnelAnalyticsTab() {
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
-                </div>
+                isMobile ? (
+                  <MobileLoadingSkeleton />
+                ) : (
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
+                    ))}
+                  </div>
+                )
+              ) : isMobile ? (
+                <MobileFunnelsList funnels={data?.funnels || []} />
               ) : (
                 <div className="overflow-x-auto -mx-6">
                   <Table className="min-w-[700px]">
