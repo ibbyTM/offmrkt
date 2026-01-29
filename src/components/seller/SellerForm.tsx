@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, Link } from "react-router-dom";
@@ -74,6 +74,7 @@ export function SellerForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
+  const skipAutoSaveRef = useRef(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -151,6 +152,8 @@ export function SellerForm() {
   // Save draft to localStorage on changes
   useEffect(() => {
     const subscription = form.watch((values) => {
+      if (skipAutoSaveRef.current) return; // Skip if clearing
+      
       const draft: SavedDraft = {
         values: values as SellerFormValues,
         photos,
@@ -163,6 +166,8 @@ export function SellerForm() {
 
   // Also save when photos or step changes
   useEffect(() => {
+    if (skipAutoSaveRef.current) return; // Skip if clearing
+    
     const values = form.getValues();
     const draft: SavedDraft = {
       values,
@@ -173,15 +178,23 @@ export function SellerForm() {
   }, [photos, currentStep, form]);
 
   const clearDraft = () => {
+    skipAutoSaveRef.current = true; // Prevent auto-save during clear
+    
     localStorage.removeItem(STORAGE_KEY);
     setHasDraft(false);
     setCurrentStep(1);
     setPhotos([]);
     form.reset();
+    
     toast({
       title: "Draft cleared",
       description: "Your saved progress has been removed.",
     });
+    
+    // Re-enable auto-save after React has processed all state updates
+    setTimeout(() => {
+      skipAutoSaveRef.current = false;
+    }, 0);
   };
 
   const validateCurrentStep = async () => {
