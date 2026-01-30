@@ -172,7 +172,7 @@ const Dashboard = () => {
                           {reservation.property.title}
                         </Link>
                         <p className="text-sm text-muted-foreground">
-                          {reservation.property.property_address}, {reservation.property.property_city}
+                          {reservation.property.property_city} {reservation.property.property_postcode}
                         </p>
                         <p className="text-lg font-bold text-primary mt-1">
                           £{reservation.property.asking_price.toLocaleString()}

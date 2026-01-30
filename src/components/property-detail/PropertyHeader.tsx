@@ -94,7 +94,7 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
             <div className="flex items-center text-muted-foreground">
               <MapPin className="h-4 w-4 mr-1" />
               <span>
-                {property.property_address}, {property.property_city} {property.property_postcode}
+                {property.property_city} {property.property_postcode}
               </span>
             </div>
             {/* Show sold date for sold properties, added date for others */}

@@ -87,7 +87,7 @@ export default function Mortgage() {
                       <div>
                         <h3 className="font-semibold text-lg">{property.title}</h3>
                         <p className="text-muted-foreground text-sm">
-                          {property.property_address}, {property.property_city} {property.property_postcode}
+                          {property.property_city} {property.property_postcode}
                         </p>
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
