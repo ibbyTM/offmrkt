@@ -1,65 +1,96 @@
 
-## Update Branding: New Logo + Favicon
+## Hide Door Numbers from Property Displays
 
-Replace the current "Off The Markets" logo with your new design featuring the M-as-roof icon, and update the favicon to use the icon-only version.
+Remove street-level address details (door numbers) from public-facing property displays while maintaining full address data in the database for admin/operational purposes.
 
 ---
 
-### Overview
+### Summary
 
-Your new logo assets will be used across the entire application:
-- **Full wordmark** (`Untitled_design_4.png`) → Headers, footers, sidebar
-- **Icon only** (`OTM_favicon.PNG`) → Browser favicon
-
-For mobile/header use, I'll display just the icon + "Off The Markets" text (without the "UK Property Investment" tagline) as you requested.
+Currently, several pages display the full `property_address` field (e.g., "123 Example Street") alongside city and postcode. To protect property privacy and maintain a professional marketplace feel, we'll replace these with city and postcode only, matching the pattern already used in property cards.
 
 ---
 
 ### Files to Update
 
-| File | Change |
+| File | Current Display | New Display |
+|------|-----------------|-------------|
+| `src/components/property-detail/PropertyHeader.tsx` | `{property.property_address}, {property.property_city} {property.property_postcode}` | `{property.property_city} {property.property_postcode}` |
+| `src/pages/Mortgage.tsx` | `{property.property_address}, {property.property_city} {property.property_postcode}` | `{property.property_city} {property.property_postcode}` |
+| `src/pages/Dashboard.tsx` | `{reservation.property.property_address}, {reservation.property.property_city}` | `{reservation.property.property_city} {reservation.property.property_postcode}` |
+
+---
+
+### Files NOT Changed
+
+| File | Reason |
 |------|--------|
-| `public/favicon.png` | Copy `OTM_favicon.PNG` as favicon |
-| `src/assets/offthemarkets-logo.png` | Replace with `Untitled_design_4.png` |
-| `index.html` | Update favicon reference to `/favicon.png` |
-| `src/components/layout/Header.tsx` | Adjust logo sizing for new design |
-| `src/components/layout/Footer.tsx` | Adjust logo sizing |
-| `src/components/layout/AppSidebar.tsx` | Adjust logo sizing |
-| `src/components/funnels/FunnelLayout.tsx` | Adjust logo sizing, remove `dark:invert` |
+| `MortgageEnquiryDialog.tsx` | Address is sent to backend for mortgage broker - they need full details |
+| `AdminPropertyToolbar.tsx` | Admin-only AI enhancement feature - needs full address |
+| `Properties.tsx` | Only used for search functionality, not display |
+| `SubmissionDetailDialog.tsx` | Admin-facing submission review |
+| `SubmissionsTable.tsx` | Admin-facing submission list |
+| `MyListingsTab.tsx` | Shows seller's own submissions - they know the address |
 
 ---
 
 ### Implementation Details
 
-**1. Copy Asset Files**
-- Copy `user-uploads://OTM_favicon.PNG` → `public/favicon.png`
-- Copy `user-uploads://Untitled_design_4.png` → `src/assets/offthemarkets-logo.png`
+**1. PropertyHeader.tsx (Property Detail Page)**
 
-**2. Update Favicon Reference**
-
-```html
-<!-- index.html -->
-<link rel="icon" type="image/png" href="/favicon.png">
+Change from:
+```tsx
+<span>
+  {property.property_address}, {property.property_city} {property.property_postcode}
+</span>
 ```
 
-**3. Adjust Logo Display**
+To:
+```tsx
+<span>
+  {property.property_city} {property.property_postcode}
+</span>
+```
 
-Since your new logo has the icon integrated, I'll ensure proper sizing:
+**2. Mortgage.tsx (Mortgage Calculator Page)**
 
-- **Header**: `h-10` (40px height) for clean desktop display
-- **Footer**: `h-12` (48px) for prominent branding
-- **Sidebar**: `h-8` (32px) for compact sidebar header
-- **Funnel Layout**: `h-8` (32px) for minimal funnel header
+Change from:
+```tsx
+<p className="text-muted-foreground text-sm">
+  {property.property_address}, {property.property_city} {property.property_postcode}
+</p>
+```
 
-**4. Remove Dark Mode Invert**
+To:
+```tsx
+<p className="text-muted-foreground text-sm">
+  {property.property_city} {property.property_postcode}
+</p>
+```
 
-Your new logo uses navy/teal colors which work on both light and dark backgrounds, so the `dark:invert` class in FunnelLayout will be removed.
+**3. Dashboard.tsx (User Reservations)**
+
+Change from:
+```tsx
+<p className="text-sm text-muted-foreground">
+  {reservation.property.property_address}, {reservation.property.property_city}
+</p>
+```
+
+To:
+```tsx
+<p className="text-sm text-muted-foreground">
+  {reservation.property.property_city} {reservation.property.property_postcode}
+</p>
+```
 
 ---
 
-### Visual Result
+### Result
 
 After implementation:
-- Browser tab shows your M-as-roof icon
-- All headers display the full wordmark with icon
-- Consistent branding across public pages, dashboard, and funnels
+- Property detail pages will show "Birmingham B1 1AA" instead of "123 Example Street, Birmingham B1 1AA"
+- Mortgage page property info will be privacy-focused
+- User dashboard reservations will show location without street details
+- Admin areas retain full address access
+- Backend operations continue to store and use full address data
