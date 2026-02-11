@@ -1,38 +1,66 @@
 
-## Fix Mortgage Page: Prioritize Current Rent Over Estimated Rent
+## Audit: Rent Priority Across All Files
 
-### Problem
-The mortgage page only shows `estimated_rental_income` with the label "Est. Monthly Rent", ignoring the `current_rental_income` field entirely. This contradicts the project-wide rule: always use actual rent first, falling back to estimated only when unavailable.
+### Results
 
-### Change
+Most files already correctly prioritize `current_rental_income` over `estimated_rental_income`. Only **2 files** have issues:
 
-**File: `src/pages/Mortgage.tsx` (lines 106-110)**
+---
 
-Replace the current block that only checks `estimated_rental_income` with logic that:
-1. First checks `current_rental_income` (actual rent) -- if available, displays it with label **"Monthly Rent"**
-2. Falls back to `estimated_rental_income` -- if used, displays it with label **"Est. Monthly Rent"**
-3. Shows nothing if neither is available
+### Issue 1: `src/components/dashboard/MarketPulse.tsx` (line 62-65)
+
+**Problem**: Gross yield calculation only uses `estimated_rental_income`, completely ignoring `current_rental_income`.
 
 ```tsx
-// Before
-{property.estimated_rental_income && (
-  <div>
-    <p className="text-muted-foreground">Est. Monthly Rent</p>
-    <p className="font-semibold text-lg">{formatPrice(property.estimated_rental_income)}</p>
-  </div>
-)}
+// Current (broken)
+const grossYield = property.gross_yield_percentage || 
+  (property.estimated_rental_income && property.asking_price 
+    ? ((property.estimated_rental_income * 12) / property.asking_price) * 100 
+    : null);
 
-// After
-{(property.current_rental_income || property.estimated_rental_income) && (
-  <div>
-    <p className="text-muted-foreground">
-      {property.current_rental_income ? "Monthly Rent" : "Est. Monthly Rent"}
-    </p>
-    <p className="font-semibold text-lg">
-      {formatPrice(property.current_rental_income || property.estimated_rental_income || 0)}
-    </p>
-  </div>
-)}
+// Fixed
+const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
+const grossYield = property.gross_yield_percentage || 
+  (monthlyRent > 0 && property.asking_price 
+    ? ((monthlyRent * 12) / property.asking_price) * 100 
+    : null);
 ```
 
-This matches the pattern used in `ROIBreakdown.tsx`, `PropertyCard.tsx`, and `MortgageCalculatorSection.tsx`.
+---
+
+### Issue 2: `src/components/comparison/ComparisonTable.tsx` (lines 47-48)
+
+**Problem**: Two separate rows show "Monthly Rent" (estimated only) and "Current Monthly Rent" (current only) instead of a single unified row that prioritizes current rent.
+
+```tsx
+// Current (broken) - two separate rows
+{ label: "Monthly Rent", getValue: (p) => p.estimated_rental_income, ... },
+{ label: "Current Monthly Rent", getValue: (p) => p.current_rental_income, ... },
+
+// Fixed - single unified row with priority logic
+{ label: "Monthly Rent", getValue: (p) => p.current_rental_income || p.estimated_rental_income, format: "currency", highlightBest: "highest" },
+```
+
+---
+
+### Already Correct (no changes needed)
+
+These files all use the `current_rental_income || estimated_rental_income` pattern correctly:
+
+- `src/pages/Mortgage.tsx` -- just fixed
+- `src/components/properties/PropertyCard.tsx`
+- `src/components/property-detail/FinancialStatsGrid.tsx`
+- `src/components/property-detail/ROIBreakdown.tsx`
+- `src/components/landing/FeaturedPropertyCard.tsx`
+- `src/components/landing/FeaturedPropertiesSection.tsx`
+- `src/components/comparison/MortgageCalculatorSection.tsx`
+- `src/components/comparison/ComparisonTable.tsx` (the `calculateGrossYield` function and "Annual Rent" row)
+- `supabase/functions/analyze-property/index.ts`
+- `src/components/property-detail/AdminPropertyToolbar.tsx` (passes both values, no priority needed)
+
+### Summary
+
+| File | Fix |
+|------|-----|
+| `MarketPulse.tsx` | Use `current_rental_income \|\| estimated_rental_income` for yield calc |
+| `ComparisonTable.tsx` | Merge two rent rows into one with priority logic |
