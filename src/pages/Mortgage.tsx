@@ -103,10 +103,14 @@ export default function Mortgage() {
                           <p className="text-muted-foreground">Mortgage Needed</p>
                           <p className="font-semibold text-lg">{formatPrice(mortgageNeeded)}</p>
                         </div>
-                        {property.estimated_rental_income && (
+                        {(property.current_rental_income || property.estimated_rental_income) && (
                           <div>
-                            <p className="text-muted-foreground">Est. Monthly Rent</p>
-                            <p className="font-semibold text-lg">{formatPrice(property.estimated_rental_income)}</p>
+                            <p className="text-muted-foreground">
+                              {property.current_rental_income ? "Monthly Rent" : "Est. Monthly Rent"}
+                            </p>
+                            <p className="font-semibold text-lg">
+                              {formatPrice(property.current_rental_income || property.estimated_rental_income || 0)}
+                            </p>
                           </div>
                         )}
                       </div>
