@@ -59,9 +59,10 @@ export function MarketPulse() {
       {/* Property Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {featuredProperties.map((property) => {
+          const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
           const grossYield = property.gross_yield_percentage || 
-            (property.estimated_rental_income && property.asking_price 
-              ? ((property.estimated_rental_income * 12) / property.asking_price) * 100 
+            (monthlyRent > 0 && property.asking_price 
+              ? ((monthlyRent * 12) / property.asking_price) * 100 
               : null);
 
           return (

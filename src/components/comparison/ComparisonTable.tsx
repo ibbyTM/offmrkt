@@ -44,8 +44,7 @@ const metricRows: MetricRow[] = [
   { label: "Cash ROI", getValue: (p) => p.cash_roi_percentage, format: "percentage", highlightBest: "highest" },
   { label: "Leveraged ROI", getValue: (p) => p.leveraged_roi_percentage, format: "percentage", highlightBest: "highest" },
   { label: "Market Discount", getValue: (p) => p.market_discount_percentage, format: "percentage", highlightBest: "highest" },
-  { label: "Monthly Rent", getValue: (p) => p.estimated_rental_income, format: "currency", highlightBest: "highest" },
-  { label: "Current Monthly Rent", getValue: (p) => p.current_rental_income, format: "currency", highlightBest: "highest" },
+  { label: "Monthly Rent", getValue: (p) => p.current_rental_income || p.estimated_rental_income, format: "currency", highlightBest: "highest" },
   { label: "Annual Rent", getValue: (p) => {
     const monthlyRent = p.current_rental_income || p.estimated_rental_income || 0;
     return monthlyRent > 0 ? monthlyRent * 12 : null;
