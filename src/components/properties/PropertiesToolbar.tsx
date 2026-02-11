@@ -1,4 +1,5 @@
 import { Grid3X3, List, Filter, Plus, Download } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -94,9 +95,11 @@ export function PropertiesToolbar({
         <Download className="mr-2 h-4 w-4" />
         Export
       </Button>
-      <Button size="sm" className="h-9">
-        <Plus className="mr-2 h-4 w-4" />
-        Add Property
+      <Button size="sm" className="h-9" asChild>
+        <Link to="/submit-property">
+          <Plus className="mr-2 h-4 w-4" />
+          Add Property
+        </Link>
       </Button>
     </div>
   );
