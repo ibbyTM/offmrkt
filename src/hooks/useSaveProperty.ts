@@ -15,6 +15,8 @@ export function useSaveProperty(propertyId: string) {
       return;
     }
 
+    let cancelled = false;
+
     const checkIfSaved = async () => {
       const { data } = await supabase
         .from("saved_properties")
@@ -23,10 +25,13 @@ export function useSaveProperty(propertyId: string) {
         .eq("property_id", propertyId)
         .maybeSingle();
 
-      setIsSaved(!!data);
+      if (!cancelled) {
+        setIsSaved(!!data);
+      }
     };
 
     checkIfSaved();
+    return () => { cancelled = true; };
   }, [user, propertyId]);
 
   const toggleSave = async () => {

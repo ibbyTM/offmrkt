@@ -84,7 +84,7 @@ export function useFunnelTracking() {
     if (sessionId && funnelSlug) {
       trackEvent('page_view', { stepNumber: currentStep });
     }
-  }, [sessionId, funnelSlug]);
+  }, [sessionId, funnelSlug, trackEvent]);
 
   const trackEvent = useCallback(
     async (eventType: string, options: TrackEventOptions = {}) => {

@@ -17,8 +17,8 @@ export const getSoldInText = (createdAt: string, soldAt: string | null): string 
   
   const weeks = Math.floor(days / 7);
   if (weeks === 1) return "1 week";
-  if (weeks < 4) return `${weeks} weeks`;
-  
+  if (days < 30) return `${weeks} weeks`;
+
   const months = Math.floor(days / 30);
   return `${months} month${months !== 1 ? "s" : ""}`;
 };

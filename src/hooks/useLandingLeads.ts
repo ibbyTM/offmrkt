@@ -73,7 +73,7 @@ export function exportLeadsToCSV(leads: LandingLead[]) {
 
   const csvContent = [
     headers.join(","),
-    ...rows.map((row) => row.map((cell) => `"${cell}"`).join(",")),
+    ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")),
   ].join("\n");
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
