@@ -34,7 +34,7 @@ serve(async (req) => {
     // Call Ideal Postcodes Autocomplete API
     const url = `https://api.ideal-postcodes.co.uk/v1/autocomplete/addresses?api_key=${apiKey}&query=${encodeURIComponent(query)}&limit=6`;
     
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
     const data = await response.json();
 
     if (!response.ok) {

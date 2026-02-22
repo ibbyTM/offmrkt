@@ -59,22 +59,27 @@ export function useLandingLeads(filters: LeadFilters = {}) {
   });
 }
 
-export function exportLeadsToCSV(leads: LandingLead[]) {
+/** Pure function — builds RFC 4180 CSV content from a list of leads. */
+export function buildLeadsCsvContent(leads: LandingLead[]): string {
   const headers = ["Date", "Full Name", "Email", "Phone", "Interest Type", "Referrer URL"];
-  
+
   const rows = leads.map((lead) => [
     format(new Date(lead.created_at), "yyyy-MM-dd HH:mm"),
     lead.full_name,
     lead.email,
-    lead.phone || "",
-    lead.interest_type || "",
-    lead.referrer_url || "",
+    lead.phone ?? "",
+    lead.interest_type ?? "",
+    lead.referrer_url ?? "",
   ]);
 
-  const csvContent = [
+  return [
     headers.join(","),
     ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")),
   ].join("\n");
+}
+
+export function exportLeadsToCSV(leads: LandingLead[]) {
+  const csvContent = buildLeadsCsvContent(leads);
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);

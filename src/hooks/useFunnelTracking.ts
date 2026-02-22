@@ -4,7 +4,7 @@ import { useFunnel, getDeviceType } from '@/contexts/FunnelContext';
 
 interface TrackEventOptions {
   stepNumber?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export function useFunnelTracking() {
@@ -30,8 +30,8 @@ export function useFunnelTracking() {
 
     try {
       // Check if session already exists
-      const { data: existingSession } = await (supabase
-        .from('funnel_sessions') as any)
+      const { data: existingSession } = await supabase
+        .from('funnel_sessions')
         .select('id')
         .eq('session_id', sessionId)
         .maybeSingle();
@@ -39,16 +39,16 @@ export function useFunnelTracking() {
       if (existingSession) {
         dbSessionIdRef.current = existingSession.id;
         // Update last activity
-        await (supabase
-          .from('funnel_sessions') as any)
+        await supabase
+          .from('funnel_sessions')
           .update({ last_activity_at: new Date().toISOString() })
           .eq('id', existingSession.id);
         return existingSession.id;
       }
 
       // Create new session
-      const { data: newSession, error } = await (supabase
-        .from('funnel_sessions') as any)
+      const { data: newSession, error } = await supabase
+        .from('funnel_sessions')
         .insert({
           session_id: sessionId,
           funnel_id: funnelId,
@@ -92,7 +92,7 @@ export function useFunnelTracking() {
       if (!dbSessionId) return;
 
       try {
-        await (supabase.from('funnel_events') as any).insert({
+        await supabase.from('funnel_events').insert({
           session_id: dbSessionId,
           event_type: eventType,
           step_number: options.stepNumber ?? currentStep,
@@ -100,8 +100,8 @@ export function useFunnelTracking() {
         });
 
         // Update session last activity
-        await (supabase
-          .from('funnel_sessions') as any)
+        await supabase
+          .from('funnel_sessions')
           .update({ last_activity_at: new Date().toISOString() })
           .eq('id', dbSessionId);
       } catch (error) {
@@ -121,37 +121,29 @@ export function useFunnelTracking() {
       if (!dbSessionId) return;
 
       try {
-        const conversionData: Record<string, any> = {
+        await supabase.from('funnel_conversions').insert({
           session_id: dbSessionId,
-          funnel_id: funnelId,
+          funnel_id: funnelId ?? null,
           conversion_type: conversionType,
-          value,
-        };
+          value: value ?? null,
+          lead_id: conversionType === 'lead' ? (entityId ?? null) : null,
+          submission_id: conversionType === 'submission' ? (entityId ?? null) : null,
+          user_id: conversionType === 'registration' ? (entityId ?? null) : null,
+        });
 
-        // Set the appropriate foreign key based on conversion type
-        if (conversionType === 'lead' && entityId) {
-          conversionData.lead_id = entityId;
-        } else if (conversionType === 'submission' && entityId) {
-          conversionData.submission_id = entityId;
-        } else if (conversionType === 'registration' && entityId) {
-          conversionData.user_id = entityId;
-        }
-
-        await (supabase.from('funnel_conversions') as any).insert(conversionData);
-
-      // Also track as event
-      await trackEvent('conversion', {
-        metadata: { conversion_type: conversionType, entity_id: entityId, conversion_value: value },
-      });
-    } catch (error) {
-      console.error('Error tracking conversion:', error);
-    }
-  },
-  [ensureSession, funnelId, trackEvent]
-);
+        // Also track as event
+        await trackEvent('conversion', {
+          metadata: { conversion_type: conversionType, entity_id: entityId, conversion_value: value },
+        });
+      } catch (error) {
+        console.error('Error tracking conversion:', error);
+      }
+    },
+    [ensureSession, funnelId, trackEvent]
+  );
 
   const trackStepComplete = useCallback(
-    async (stepNumber: number, stepData?: Record<string, any>) => {
+    async (stepNumber: number, stepData?: Record<string, unknown>) => {
       await trackEvent('step_complete', {
         stepNumber,
         metadata: stepData,
@@ -161,7 +153,7 @@ export function useFunnelTracking() {
   );
 
   const trackFormSubmit = useCallback(
-    async (formData?: Record<string, any>) => {
+    async (formData?: Record<string, unknown>) => {
       await trackEvent('form_submit', {
         metadata: formData,
       });

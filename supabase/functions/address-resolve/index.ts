@@ -34,7 +34,7 @@ serve(async (req) => {
     // Resolve UDPRN to full address details
     const url = `https://api.ideal-postcodes.co.uk/v1/udprn/${udprn}?api_key=${apiKey}`;
     
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
     const data = await response.json();
 
     if (!response.ok || !data.result) {
