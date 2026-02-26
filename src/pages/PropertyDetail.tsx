@@ -3,6 +3,7 @@ import { useProperty } from "@/hooks/useProperties";
 import { useIsAdmin } from "@/hooks/useAdminApplications";
 import { Layout } from "@/components/layout/Layout";
 import PropertyGallery from "@/components/property-detail/PropertyGallery";
+import FloorPlans from "@/components/property-detail/FloorPlans";
 import PropertyHeader from "@/components/property-detail/PropertyHeader";
 import PropertyQuickSpecs from "@/components/property-detail/PropertyQuickSpecs";
 import FinancialStatsGrid from "@/components/property-detail/FinancialStatsGrid";
@@ -81,7 +82,6 @@ export default function PropertyDetail() {
           <div className="lg:col-span-2 space-y-8">
             <PropertyGallery
               photos={property.photo_urls || []}
-              floorPlanUrls={property.floor_plan_urls || []}
               title={property.title}
             />
             
@@ -92,6 +92,8 @@ export default function PropertyDetail() {
             <FinancialStatsGrid property={property} />
             
             <PropertyDescription description={property.property_description} />
+
+            <FloorPlans floorPlanUrls={property.floor_plan_urls || []} />
             
             <InvestmentHighlights property={property} />
 

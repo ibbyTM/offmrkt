@@ -1,20 +1,17 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Image as ImageIcon, Grid3X3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface PropertyGalleryProps {
   photos: string[];
-  floorPlanUrls?: string[];
   title: string;
 }
 
-export default function PropertyGallery({ photos, floorPlanUrls = [], title }: PropertyGalleryProps) {
+export default function PropertyGallery({ photos, title }: PropertyGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   
-  // Combine floor plans first, then photos
-  const allImages = [...floorPlanUrls, ...photos];
-  const floorPlanCount = floorPlanUrls.length;
+  const allImages = photos;
   
   const hasImages = allImages.length > 0;
   const maxVisibleThumbnails = 6;
@@ -38,25 +35,15 @@ export default function PropertyGallery({ photos, floorPlanUrls = [], title }: P
     );
   }
 
-  const isFloorPlan = currentIndex < floorPlanCount;
-
   return (
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative rounded-xl overflow-hidden bg-muted">
         <img
           src={allImages[currentIndex]}
-          alt={`${title} - ${isFloorPlan ? "Floor Plan" : "Photo"} ${currentIndex + 1}`}
+          alt={`${title} - Photo ${currentIndex + 1}`}
           className="w-full aspect-[3/2] object-cover"
         />
-        
-        {/* Floor plan badge */}
-        {isFloorPlan && (
-          <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-lg flex items-center gap-2">
-            <Grid3X3 className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">Floor Plan</span>
-          </div>
-        )}
         
         {allImages.length > 1 && (
           <>
@@ -88,7 +75,6 @@ export default function PropertyGallery({ photos, floorPlanUrls = [], title }: P
       {allImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2">
           {allImages.slice(0, maxVisibleThumbnails).map((image, index) => {
-            const isThumbFloorPlan = index < floorPlanCount;
             const isLastVisible = index === maxVisibleThumbnails - 1 && remainingCount > 0;
             
             return (
@@ -107,11 +93,6 @@ export default function PropertyGallery({ photos, floorPlanUrls = [], title }: P
                   alt={`${title} - Thumbnail ${index + 1}`}
                   className="w-20 h-16 object-cover"
                 />
-                {isThumbFloorPlan && (
-                  <div className="absolute inset-0 bg-primary/10 flex items-center justify-center">
-                    <Grid3X3 className="h-4 w-4 text-primary" />
-                  </div>
-                )}
                 {isLastVisible && (
                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                     <span className="text-white font-semibold text-sm">+{remainingCount}</span>
