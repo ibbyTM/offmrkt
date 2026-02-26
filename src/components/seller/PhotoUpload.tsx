@@ -8,9 +8,21 @@ interface PhotoUploadProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
   maxPhotos?: number;
+  label?: string;
+  inputId?: string;
+  accept?: string;
+  storagePath?: string;
 }
 
-export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUploadProps) {
+export function PhotoUpload({ 
+  photos, 
+  onPhotosChange, 
+  maxPhotos = 10,
+  label = "photos",
+  inputId = "photo-input",
+  accept = "image/*",
+  storagePath = "submissions",
+}: PhotoUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const { toast } = useToast();
@@ -18,7 +30,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
   const uploadFile = async (file: File): Promise<string | null> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `submissions/${fileName}`;
+    const filePath = `${storagePath}/${fileName}`;
 
     const { error } = await supabase.storage
       .from('property-photos')
@@ -50,8 +62,14 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
     }
 
     const filesToUpload = Array.from(files).slice(0, remainingSlots);
+    const allowedTypes = accept.split(',').map(t => t.trim());
     const validFiles = filesToUpload.filter(file => {
-      if (!file.type.startsWith('image/')) {
+      const isAllowed = allowedTypes.some(type => {
+        if (type === 'image/*') return file.type.startsWith('image/');
+        if (type === '.pdf') return file.type === 'application/pdf';
+        return file.type === type;
+      });
+      if (!isAllowed) {
         toast({
           title: "Invalid file type",
           description: `${file.name} is not an image file.`,
@@ -143,12 +161,12 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={() => document.getElementById('photo-input')?.click()}
+        onClick={() => document.getElementById(inputId)?.click()}
       >
         <input
-          id="photo-input"
+          id={inputId}
           type="file"
-          accept="image/*"
+          accept={accept}
           multiple
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
@@ -161,10 +179,10 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
           </div>
           <div>
             <p className="font-medium text-foreground">
-              {isUploading ? "Uploading..." : "Drag and drop photos here"}
+              {isUploading ? "Uploading..." : `Drag and drop ${label} here`}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              or click to browse (max {maxPhotos} photos, 5MB each)
+              or click to browse (max {maxPhotos} {label}, 5MB each)
             </p>
           </div>
         </div>
@@ -205,7 +223,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
           {photos.length < maxPhotos && (
             <div
               className="aspect-square rounded-lg border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all"
-              onClick={() => document.getElementById('photo-input')?.click()}
+              onClick={() => document.getElementById(inputId)?.click()}
             >
               <ImageIcon className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -214,7 +232,7 @@ export function PhotoUpload({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUpl
       )}
 
       <p className="text-xs text-muted-foreground">
-        {photos.length} of {maxPhotos} photos uploaded
+        {photos.length} of {maxPhotos} {label} uploaded
       </p>
     </div>
   );

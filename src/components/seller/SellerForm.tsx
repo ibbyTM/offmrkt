@@ -64,6 +64,7 @@ const steps = [
 interface SavedDraft {
   values: SellerFormValues;
   photos: string[];
+  floorPlans: string[];
   currentStep: number;
 }
 
@@ -71,6 +72,7 @@ export function SellerForm() {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [floorPlans, setFloorPlans] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
@@ -115,6 +117,7 @@ export function SellerForm() {
         const draft: SavedDraft = JSON.parse(savedDraft);
         form.reset(draft.values);
         setPhotos(draft.photos || []);
+        setFloorPlans(draft.floorPlans || []);
         setCurrentStep(draft.currentStep || 1);
         setHasDraft(true);
       } catch (e) {
@@ -157,12 +160,13 @@ export function SellerForm() {
       const draft: SavedDraft = {
         values: values as SellerFormValues,
         photos,
+        floorPlans,
         currentStep,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     });
     return () => subscription.unsubscribe();
-  }, [form, photos, currentStep]);
+  }, [form, photos, floorPlans, currentStep]);
 
   // Also save when photos or step changes
   useEffect(() => {
@@ -172,10 +176,11 @@ export function SellerForm() {
     const draft: SavedDraft = {
       values,
       photos,
+      floorPlans,
       currentStep,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
-  }, [photos, currentStep, form]);
+  }, [photos, floorPlans, currentStep, form]);
 
   const clearDraft = () => {
     skipAutoSaveRef.current = true; // Prevent auto-save during clear
@@ -184,6 +189,7 @@ export function SellerForm() {
     setHasDraft(false);
     setCurrentStep(1);
     setPhotos([]);
+    setFloorPlans([]);
     form.reset();
     
     toast({
@@ -269,11 +275,12 @@ export function SellerForm() {
         has_epc: data.has_epc,
         has_gas_safety: data.has_gas_safety,
         has_eicr: data.has_eicr,
-        has_floor_plans: data.has_floor_plans,
+        has_floor_plans: data.has_floor_plans || floorPlans.length > 0,
         epc_rating: data.epc_rating || null,
         current_monthly_rent: data.current_monthly_rent || null,
         estimated_monthly_rent: data.estimated_monthly_rent || null,
         photo_urls: photos.length > 0 ? photos : null,
+        floor_plan_urls: floorPlans.length > 0 ? floorPlans : [],
         contact_name: data.contact_name,
         contact_email: data.contact_email,
         contact_phone: data.contact_phone,
@@ -379,6 +386,7 @@ export function SellerForm() {
             setIsSubmitted(false);
             setCurrentStep(1);
             setPhotos([]);
+            setFloorPlans([]);
             form.reset();
           }}>
             Submit Another Property
@@ -919,7 +927,29 @@ export function SellerForm() {
                 photos={photos}
                 onPhotosChange={setPhotos}
                 maxPhotos={60}
+                inputId="photo-input"
+                label="photos"
               />
+
+              {/* Floor Plans Upload */}
+              <div className="pt-6 border-t border-border">
+                <h3 className="text-lg font-semibold text-foreground mb-1">Floor Plans</h3>
+                <p className="text-sm text-muted-foreground mb-4">Upload floor plan images or PDFs (optional)</p>
+                <PhotoUpload
+                  photos={floorPlans}
+                  onPhotosChange={(files) => {
+                    setFloorPlans(files);
+                    if (files.length > 0) {
+                      form.setValue("has_floor_plans", true);
+                    }
+                  }}
+                  maxPhotos={10}
+                  inputId="floor-plan-input"
+                  label="floor plans"
+                  accept="image/*,.pdf"
+                  storagePath="floor-plans"
+                />
+              </div>
 
               <div className="rounded-lg bg-accent/50 p-4">
                 <p className="text-sm font-medium text-foreground mb-2">Photo Tips:</p>
