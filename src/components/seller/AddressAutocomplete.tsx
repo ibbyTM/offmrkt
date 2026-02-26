@@ -7,7 +7,11 @@ import { cn } from "@/lib/utils";
 interface AddressSuggestion {
   id: string;
   address: string;
-  udprn: string;
+  street: string;
+  city: string;
+  postcode: string;
+  county: string;
+  country: string;
 }
 
 interface ResolvedAddress {
@@ -95,35 +99,16 @@ export function AddressAutocomplete({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSelect = async (suggestion: AddressSuggestion) => {
+  const handleSelect = (suggestion: AddressSuggestion) => {
     setIsOpen(false);
-    setIsLoading(true);
-    onChange(suggestion.address.split(",")[0]); // Set first part as street address
-
-    try {
-      const { data, error } = await supabase.functions.invoke("address-resolve", {
-        body: { udprn: suggestion.udprn },
-      });
-
-      if (error || !data.address) {
-        console.error("Address resolve error:", error);
-        // Fallback: parse from suggestion string
-        const parts = suggestion.address.split(",").map((p) => p.trim());
-        onAddressSelect({
-          street: parts[0] || "",
-          city: parts[parts.length - 2] || "",
-          postcode: parts[parts.length - 1] || "",
-          county: "",
-          country: "England",
-        });
-      } else {
-        onAddressSelect(data.address);
-      }
-    } catch (err) {
-      console.error("Address resolve failed:", err);
-    } finally {
-      setIsLoading(false);
-    }
+    onChange(suggestion.street || suggestion.address.split(",")[0]);
+    onAddressSelect({
+      street: suggestion.street,
+      city: suggestion.city,
+      postcode: suggestion.postcode,
+      county: suggestion.county,
+      country: suggestion.country,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
