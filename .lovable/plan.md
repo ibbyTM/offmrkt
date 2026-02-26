@@ -1,29 +1,23 @@
 
 
-## Add Photo and Floor Plan Editing to Edit Submission Dialog
+## Fix Gross Yield Display Bug
 
-### Overview
-Add the ability to add/remove property photos and floor plans when editing an existing submission, using the existing `PhotoUpload` component.
+### Problem
+The gross yield percentage is stored in the database as a whole number (e.g. `8` means 8%), but several components incorrectly divide it by 100, causing yields to display as `0.1%` instead of `8.0%`.
 
-### Changes
+### Root Cause
+Inconsistent interpretation of the `gross_yield_percentage` column across the codebase. Some components correctly treat `8` as `8%`, while others mistakenly divide by 100, showing `0.08%`.
 
-**File: `src/components/dashboard/EditSubmissionDialog.tsx`**
+### Files to Fix
 
-1. Import the `PhotoUpload` component and add `useState` import
-2. Add two state variables: `photos` (string[]) and `floorPlans` (string[]), initialized from the submission's existing `photo_urls` and `floor_plan_urls` in the `useEffect`
-3. Add two `PhotoUpload` sections to the form (below the description field, before the action buttons):
-   - **Property Photos** -- reuses `PhotoUpload` with default settings (max 10, images only, `storagePath="submissions"`)
-   - **Floor Plans** -- reuses `PhotoUpload` with `accept="image/*,.pdf"`, `storagePath="floor-plans"`, `inputId="edit-floor-plan-input"`, `label="floor plans"`
-4. Include `photo_urls` and `floor_plan_urls` in the update payload sent on save, and auto-set `has_floor_plans` based on whether any floor plans exist
+**1. `src/components/property-detail/PropertyHeader.tsx` (line 133)**
+- Change `(property.gross_yield_percentage / 100).toFixed(1)%` to `formatYield(property.gross_yield_percentage)`
 
-No database or backend changes needed -- `photo_urls` and `floor_plan_urls` columns already exist on `seller_submissions`, and the `updateSubmission` mutation already accepts any `TablesUpdate` fields.
+**2. `src/components/property-detail/PropertyCTAs.tsx` (line 42)**
+- Change `(property.gross_yield_percentage / 100).toFixed(1)%` to `formatYield(property.gross_yield_percentage)`
 
-### Technical Details
+**3. `src/components/property-detail/InvestmentHighlights.tsx` (lines 17-18)**
+- Fix the threshold check from `> 800` to `> 8`
+- Fix the display from `(property.gross_yield_percentage / 100).toFixed(1)%` to use `formatYield`
 
-| Area | Detail |
-|------|--------|
-| Component reused | `PhotoUpload` with its existing `label`, `inputId`, `accept`, `storagePath` props |
-| State management | Two `useState<string[]>` hooks, synced from submission via `useEffect` |
-| Storage | Same buckets/paths as the initial submission form (`submissions/` and `floor-plans/`) |
-| Files changed | 1 file: `EditSubmissionDialog.tsx` |
-
+All three files will use the existing `formatYield` utility from `propertyUtils.ts` which already handles the formatting correctly.
