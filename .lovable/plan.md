@@ -1,33 +1,41 @@
 
 
-## Fix "Add Property" Button on Properties Page
+## Add Floor Plan Upload to Property Submission
 
-### Problem
-The "Add Property" button in the properties toolbar does nothing when clicked because it has no `onClick` handler or navigation link attached.
+### Overview
+Allow sellers to upload floor plan images/PDFs alongside their property photos. The existing form has a "has floor plans" checkbox but no actual upload capability.
 
-### Fix
+### Changes
 
-**File: `src/components/properties/PropertiesToolbar.tsx`**
+**1. Database Migration**
+- Add `floor_plan_urls text[] DEFAULT '{}'` column to `seller_submissions` table
+- Update the `sync_submission_to_property` trigger function to sync `floor_plan_urls` from submissions to properties
 
-Wrap the "Add Property" button with a React Router `Link` to navigate to `/submit-property` (the existing property submission page).
+**2. Seller Form (SellerForm.tsx)**
+- Add `floorPlans` state (similar to `photos` state) persisted in the localStorage draft
+- In Step 4 (Photos), add a second `PhotoUpload` component below the existing one for floor plans, with its own label ("Floor Plans") and a lower max (e.g. 10)
+- Auto-set `has_floor_plans` to true when floor plan files are uploaded
+- Include `floor_plan_urls` in the submission payload sent to the database
 
-- Import `Link` from `react-router-dom`
-- Change the button to use `asChild` with a `Link` wrapper pointing to `/submit-property`
+**3. PhotoUpload Component**
+- Add optional props for customizing the label text, accepted file types, and input ID so it can be reused for floor plans without conflicting with the photo uploader
+- Allow PDF files in addition to images when used for floor plans
+- Upload floor plans to a `floor-plans/` subfolder in the existing `property-photos` bucket
 
-```tsx
-// Before
-<Button size="sm" className="h-9">
-  <Plus className="mr-2 h-4 w-4" />
-  Add Property
-</Button>
+**4. Edit Submission Dialog (EditSubmissionDialog.tsx)**
+- Not changed in this pass (floor plans are uploaded during initial submission; editing floor plans can be added later if needed)
 
-// After
-<Button size="sm" className="h-9" asChild>
-  <Link to="/submit-property">
-    <Plus className="mr-2 h-4 w-4" />
-    Add Property
-  </Link>
-</Button>
-```
+**5. Draft Persistence**
+- Add `floorPlans` array to the `SavedDraft` interface so floor plan uploads survive page refreshes
 
-This is a single-line change -- no new components or routes needed since `/submit-property` already exists with the `SellerForm`.
+### Technical Details
+
+| Area | Detail |
+|------|--------|
+| New DB column | `floor_plan_urls text[] DEFAULT '{}'::text[]` on `seller_submissions` |
+| Trigger update | `sync_submission_to_property` maps `NEW.floor_plan_urls` to `floor_plan_urls` on `properties` |
+| Storage | Reuse `property-photos` bucket with `floor-plans/` prefix |
+| Component reuse | `PhotoUpload` gets optional `label`, `inputId`, `accept`, and `storagePath` props |
+| File types | Images + PDF for floor plans |
+| Max uploads | 10 floor plans per submission |
+
