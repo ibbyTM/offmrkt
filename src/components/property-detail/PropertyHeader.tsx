@@ -1,7 +1,7 @@
 import { MapPin, Calendar, Share2, CheckCircle, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Property, formatPrice, strategyLabels, strategyColors, propertyTypeLabels, listingStatusLabels, getSoldInText } from "@/lib/propertyUtils";
+import { Property, formatPrice, formatYield, strategyLabels, strategyColors, propertyTypeLabels, listingStatusLabels, getSoldInText } from "@/lib/propertyUtils";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -129,9 +129,9 @@ export default function PropertyHeader({ property }: PropertyHeaderProps) {
             </p>
           )}
           {property.gross_yield_percentage && !isSold && (
-            <p className="text-sm font-medium text-emerald-600">
-              {(property.gross_yield_percentage / 100).toFixed(1)}% Gross Yield
-            </p>
+             <p className="text-sm font-medium text-emerald-600">
+               {formatYield(property.gross_yield_percentage)} Gross Yield
+             </p>
           )}
         </div>
       </div>

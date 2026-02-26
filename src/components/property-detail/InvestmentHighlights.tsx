@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { Property } from "@/lib/propertyUtils";
+import { Property, formatYield } from "@/lib/propertyUtils";
 
 interface InvestmentHighlightsProps {
   property: Property;
@@ -14,8 +14,8 @@ export default function InvestmentHighlights({ property }: InvestmentHighlightsP
       highlights.push("Tenant in situ – immediate income");
     }
     
-    if (property.gross_yield_percentage && property.gross_yield_percentage > 800) {
-      highlights.push(`Strong gross yield of ${(property.gross_yield_percentage / 100).toFixed(1)}%`);
+    if (property.gross_yield_percentage && property.gross_yield_percentage > 8) {
+      highlights.push(`Strong gross yield of ${formatYield(property.gross_yield_percentage)}`);
     }
     
     if (property.market_discount_percentage && property.market_discount_percentage > 0) {

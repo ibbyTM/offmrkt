@@ -1,7 +1,7 @@
 import { Heart, ShieldCheck, UserPlus, Building2, Mail, Phone, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Property, formatPrice, listingStatusLabels } from "@/lib/propertyUtils";
+import { Property, formatPrice, formatYield, listingStatusLabels } from "@/lib/propertyUtils";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSaveProperty } from "@/hooks/useSaveProperty";
@@ -39,7 +39,7 @@ export default function PropertyCTAs({ property }: PropertyCTAsProps) {
         </p>
         {property.gross_yield_percentage && (
           <p className="text-sm text-muted-foreground mt-1">
-            {(property.gross_yield_percentage / 100).toFixed(1)}% Gross Yield
+            {formatYield(property.gross_yield_percentage)} Gross Yield
           </p>
         )}
       </div>
