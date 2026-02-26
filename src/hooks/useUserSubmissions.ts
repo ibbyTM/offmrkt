@@ -52,6 +52,14 @@ export function useUserSubmissions() {
 
   const deleteSubmission = useMutation({
     mutationFn: async (id: string) => {
+      // First delete any linked property to avoid foreign key constraint
+      const { error: propError } = await supabase
+        .from("properties")
+        .delete()
+        .eq("submission_id", id);
+
+      if (propError) throw propError;
+
       const { error } = await supabase
         .from("seller_submissions")
         .delete()
