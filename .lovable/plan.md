@@ -1,26 +1,25 @@
 
 
-## Move Floor Plans Below Description (Rightmove Style)
+## Fix Floor Plans to Support PDF Files
 
-### Overview
-Remove floor plans from the main photo gallery and display them in their own section below the property description, similar to how Rightmove presents them.
+### Problem
+The floor plan for this property was uploaded as a PDF file, but the `FloorPlans` component only renders `<img>` tags, which cannot display PDFs. This results in a broken image icon.
+
+### Solution
+Update `FloorPlans.tsx` to detect whether each floor plan URL is a PDF or an image, and render accordingly:
+- **Images** (jpg, png, webp, etc.): Continue using `<img>` tags as before
+- **PDFs**: Render an `<iframe>` or a styled link/button that opens the PDF in a new tab, with a PDF icon placeholder in the grid
 
 ### Changes
 
-**1. PropertyGallery.tsx**
-- Remove floor plan integration -- only show property photos (no more combining floor plans into `allImages`)
-- Remove floor plan badge, `floorPlanUrls` prop, and `Grid3X3` icon usage
-- Simplify the component back to a photos-only gallery
+**File: `src/components/property-detail/FloorPlans.tsx`**
 
-**2. PropertyDetail.tsx**
-- Stop passing `floorPlanUrls` to `PropertyGallery`
-- Add the existing `FloorPlans` component (already exists at `src/components/property-detail/FloorPlans.tsx`) directly below `PropertyDescription`
-- Pass `property.floor_plan_urls` to it
+1. Add a helper function to check if a URL ends with `.pdf`
+2. For PDF files in the grid: show a styled card with a FileText icon and "View Floor Plan (PDF)" button that opens in a new tab
+3. For PDF files in the lightbox dialog: embed using `<iframe>` or `<object>` for inline viewing, with a fallback "Open in new tab" link
+4. For image files: keep existing behavior unchanged (thumbnail + click-to-expand lightbox)
 
-**3. No changes needed to FloorPlans.tsx**
-- The standalone `FloorPlans` component already exists with a clean card layout, click-to-expand lightbox, and "View Full Size" button -- it just needs to be wired in
-
-### Result
-- Photo gallery shows only property photos (first photo as hero)
-- Floor plans appear in their own dedicated section below the description with click-to-expand functionality, matching the Rightmove pattern
-
+### Technical Detail
+- Use `lucide-react` `FileText` icon for the PDF placeholder card
+- Detect PDF by checking if the URL string ends with `.pdf` (case-insensitive)
+- The lightbox for PDFs will use an `<object>` tag with PDF type for inline viewing, plus a direct download/open link as fallback
