@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,6 +30,7 @@ import {
 import { useUserSubmissions, SellerSubmission } from "@/hooks/useUserSubmissions";
 import { Loader2 } from "lucide-react";
 import { AddressAutocomplete } from "@/components/seller/AddressAutocomplete";
+import { PhotoUpload } from "@/components/seller/PhotoUpload";
 
 const editSchema = z.object({
   property_address: z.string().min(5, "Address must be at least 5 characters"),
@@ -75,7 +76,8 @@ const propertyTypeLabels: Record<string, string> = {
 
 export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDialogProps) {
   const { updateSubmission } = useUserSubmissions();
-  
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [floorPlans, setFloorPlans] = useState<string[]>([]);
   const form = useForm<EditFormValues>({
     resolver: zodResolver(editSchema),
     defaultValues: {
@@ -107,6 +109,8 @@ export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDial
         current_monthly_rent: submission.current_monthly_rent || undefined,
         estimated_monthly_rent: submission.estimated_monthly_rent || undefined,
       });
+      setPhotos(submission.photo_urls || []);
+      setFloorPlans(submission.floor_plan_urls || []);
     }
   }, [submission, form]);
 
@@ -126,6 +130,9 @@ export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDial
         property_description: data.property_description || null,
         current_monthly_rent: data.current_monthly_rent || null,
         estimated_monthly_rent: data.estimated_monthly_rent || null,
+        photo_urls: photos,
+        floor_plan_urls: floorPlans,
+        has_floor_plans: floorPlans.length > 0,
         admin_status: "pending",
         admin_notes: null,
       },
@@ -319,6 +326,33 @@ export function EditSubmissionDialog({ submission, onClose }: EditSubmissionDial
                 </FormItem>
               )}
             />
+
+
+            {/* Property Photos */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Property Photos</label>
+              <PhotoUpload
+                photos={photos}
+                onPhotosChange={setPhotos}
+                maxPhotos={10}
+                storagePath="submissions"
+                inputId="edit-photo-input"
+              />
+            </div>
+
+            {/* Floor Plans */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Floor Plans</label>
+              <PhotoUpload
+                photos={floorPlans}
+                onPhotosChange={setFloorPlans}
+                maxPhotos={10}
+                label="floor plans"
+                accept="image/*,.pdf"
+                storagePath="floor-plans"
+                inputId="edit-floor-plan-input"
+              />
+            </div>
 
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-4">
