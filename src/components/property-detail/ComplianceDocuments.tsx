@@ -1,4 +1,4 @@
-import { FileCheck, FileX, Download } from "lucide-react";
+import { FileCheck, FileX } from "lucide-react";
 import { Property } from "@/lib/propertyUtils";
 import { cn } from "@/lib/utils";
 
@@ -47,11 +47,6 @@ export default function ComplianceDocuments({ property }: ComplianceDocumentsPro
                 </div>
               </div>
               
-              {isAvailable && (
-                <button className="p-2 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-lg transition-colors">
-                  <Download className="h-4 w-4 text-emerald-600" />
-                </button>
-              )}
             </div>
           );
         })}
