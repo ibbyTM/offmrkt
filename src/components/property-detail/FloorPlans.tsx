@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback } from "react";
-import { Maximize2, FileText, Minimize2 } from "lucide-react";
+import { useState, useRef, useCallback, useEffect } from "react";
+import { Maximize2, FileText, Minimize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +13,8 @@ interface FloorPlansProps {
 }
 
 const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "bmp", "svg"]);
+const MIN_SCALE = 1;
+const MAX_SCALE = 5;
 
 function getFileType(url: string): "image" | "pdf" | "unknown" {
   try {
@@ -21,9 +23,13 @@ function getFileType(url: string): "image" | "pdf" | "unknown" {
     if (ext === "pdf") return "pdf";
     if (IMAGE_EXTENSIONS.has(ext)) return "image";
   } catch {
-    // malformed URL – fall through
+    // malformed URL
   }
   return "unknown";
+}
+
+function getTouchDistance(t1: React.Touch, t2: React.Touch) {
+  return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
 }
 
 export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
@@ -31,6 +37,22 @@ export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const viewerRef = useRef<HTMLDivElement>(null);
+
+  // Zoom & pan state
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const isPanning = useRef(false);
+  const panStart = useRef({ x: 0, y: 0 });
+  const translateStart = useRef({ x: 0, y: 0 });
+  const pinchStartDist = useRef<number | null>(null);
+  const pinchStartScale = useRef(1);
+
+  const resetZoom = useCallback(() => {
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+  }, []);
+
+  const isZoomed = scale > 1.05;
 
   const handleImageError = useCallback((url: string) => {
     setFailedImages((prev) => new Set(prev).add(url));
@@ -51,10 +73,67 @@ export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
     }
   }, []);
 
-  // Listen for fullscreen exit via Escape
   const handleFullscreenChange = useCallback(() => {
     if (!document.fullscreenElement) setIsFullscreen(false);
   }, []);
+
+  // --- Wheel zoom ---
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
+    setScale((prev) => {
+      const next = prev - e.deltaY * 0.002;
+      return Math.min(MAX_SCALE, Math.max(MIN_SCALE, next));
+    });
+  }, []);
+
+  // --- Touch pinch ---
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      pinchStartDist.current = getTouchDistance(e.touches[0], e.touches[1]);
+      pinchStartScale.current = scale;
+    }
+  }, [scale]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.touches.length === 2 && pinchStartDist.current !== null) {
+      const dist = getTouchDistance(e.touches[0], e.touches[1]);
+      const ratio = dist / pinchStartDist.current;
+      const next = pinchStartScale.current * ratio;
+      setScale(Math.min(MAX_SCALE, Math.max(MIN_SCALE, next)));
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    pinchStartDist.current = null;
+  }, []);
+
+  // --- Pointer pan ---
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (scale <= 1) return;
+    isPanning.current = true;
+    panStart.current = { x: e.clientX, y: e.clientY };
+    translateStart.current = { ...translate };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, [scale, translate]);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isPanning.current) return;
+    const dx = e.clientX - panStart.current.x;
+    const dy = e.clientY - panStart.current.y;
+    setTranslate({
+      x: translateStart.current.x + dx / scale,
+      y: translateStart.current.y + dy / scale,
+    });
+  }, [scale]);
+
+  const handlePointerUp = useCallback(() => {
+    isPanning.current = false;
+  }, []);
+
+  // Reset zoom when plan changes or dialog closes
+  useEffect(() => {
+    resetZoom();
+  }, [selectedPlan, resetZoom]);
 
   if (floorPlanUrls.length === 0) return null;
 
@@ -64,11 +143,12 @@ export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
     return ft === "image" ? "image" : "document";
   };
 
+  const isImage = selectedPlan ? resolveType(selectedPlan) === "image" : false;
+
   return (
     <>
       <div className="bg-card rounded-xl p-6 border border-border">
         <h2 className="text-xl font-bold text-foreground mb-4">Floor Plans</h2>
-
         <div className="grid sm:grid-cols-2 gap-4">
           {floorPlanUrls.map((url, index) => {
             const type = resolveType(url);
@@ -124,14 +204,22 @@ export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
         <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0 flex flex-col">
           <DialogHeader className="px-6 pt-6 pb-2 flex flex-row items-center justify-between shrink-0">
             <DialogTitle>Floor Plan</DialogTitle>
-            <Button variant="ghost" size="sm" onClick={toggleFullscreen} className="mr-8">
-              {isFullscreen ? (
-                <Minimize2 className="h-4 w-4 mr-2" />
-              ) : (
-                <Maximize2 className="h-4 w-4 mr-2" />
+            <div className="flex items-center gap-2 mr-8">
+              {isImage && isZoomed && (
+                <Button variant="ghost" size="sm" onClick={resetZoom}>
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Reset Zoom
+                </Button>
               )}
-              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-            </Button>
+              <Button variant="ghost" size="sm" onClick={toggleFullscreen}>
+                {isFullscreen ? (
+                  <Minimize2 className="h-4 w-4 mr-2" />
+                ) : (
+                  <Maximize2 className="h-4 w-4 mr-2" />
+                )}
+                {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              </Button>
+            </div>
           </DialogHeader>
 
           <div
@@ -141,7 +229,7 @@ export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
                 el.onfullscreenchange = handleFullscreenChange;
               }
             }}
-            className="flex-1 min-h-0 px-4 pb-4 bg-background"
+            className="flex-1 min-h-0 px-4 pb-4 bg-background overflow-hidden"
           >
             {selectedPlan && (
               resolveType(selectedPlan) === "document" ? (
@@ -151,12 +239,30 @@ export default function FloorPlans({ floorPlanUrls }: FloorPlansProps) {
                   className="w-full h-full rounded-lg border-0"
                 />
               ) : (
-                <img
-                  src={selectedPlan}
-                  alt="Floor Plan Full Size"
-                  className="w-full h-full object-contain"
-                  onError={() => handleImageError(selectedPlan)}
-                />
+                <div
+                  className="w-full h-full flex items-center justify-center select-none"
+                  style={{ touchAction: "none", cursor: isZoomed ? "grab" : "default" }}
+                  onWheel={handleWheel}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                >
+                  <img
+                    src={selectedPlan}
+                    alt="Floor Plan Full Size"
+                    className="max-w-full max-h-full object-contain pointer-events-none"
+                    draggable={false}
+                    style={{
+                      transform: `scale(${scale}) translate(${translate.x}px, ${translate.y}px)`,
+                      transformOrigin: "center center",
+                      transition: isPanning.current ? "none" : "transform 0.1s ease-out",
+                    }}
+                    onError={() => handleImageError(selectedPlan)}
+                  />
+                </div>
               )
             )}
           </div>
