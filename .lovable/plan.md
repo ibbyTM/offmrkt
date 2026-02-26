@@ -1,23 +1,26 @@
 
 
-## Fix Gross Yield Display Bug
+## Move Floor Plans Below Description (Rightmove Style)
 
-### Problem
-The gross yield percentage is stored in the database as a whole number (e.g. `8` means 8%), but several components incorrectly divide it by 100, causing yields to display as `0.1%` instead of `8.0%`.
+### Overview
+Remove floor plans from the main photo gallery and display them in their own section below the property description, similar to how Rightmove presents them.
 
-### Root Cause
-Inconsistent interpretation of the `gross_yield_percentage` column across the codebase. Some components correctly treat `8` as `8%`, while others mistakenly divide by 100, showing `0.08%`.
+### Changes
 
-### Files to Fix
+**1. PropertyGallery.tsx**
+- Remove floor plan integration -- only show property photos (no more combining floor plans into `allImages`)
+- Remove floor plan badge, `floorPlanUrls` prop, and `Grid3X3` icon usage
+- Simplify the component back to a photos-only gallery
 
-**1. `src/components/property-detail/PropertyHeader.tsx` (line 133)**
-- Change `(property.gross_yield_percentage / 100).toFixed(1)%` to `formatYield(property.gross_yield_percentage)`
+**2. PropertyDetail.tsx**
+- Stop passing `floorPlanUrls` to `PropertyGallery`
+- Add the existing `FloorPlans` component (already exists at `src/components/property-detail/FloorPlans.tsx`) directly below `PropertyDescription`
+- Pass `property.floor_plan_urls` to it
 
-**2. `src/components/property-detail/PropertyCTAs.tsx` (line 42)**
-- Change `(property.gross_yield_percentage / 100).toFixed(1)%` to `formatYield(property.gross_yield_percentage)`
+**3. No changes needed to FloorPlans.tsx**
+- The standalone `FloorPlans` component already exists with a clean card layout, click-to-expand lightbox, and "View Full Size" button -- it just needs to be wired in
 
-**3. `src/components/property-detail/InvestmentHighlights.tsx` (lines 17-18)**
-- Fix the threshold check from `> 800` to `> 8`
-- Fix the display from `(property.gross_yield_percentage / 100).toFixed(1)%` to use `formatYield`
+### Result
+- Photo gallery shows only property photos (first photo as hero)
+- Floor plans appear in their own dedicated section below the description with click-to-expand functionality, matching the Rightmove pattern
 
-All three files will use the existing `formatYield` utility from `propertyUtils.ts` which already handles the formatting correctly.
