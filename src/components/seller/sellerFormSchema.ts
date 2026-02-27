@@ -55,6 +55,7 @@ export const sellerFormSchema = z.object({
   additional_notes: z.string().max(1000).optional(),
   current_monthly_rent: z.coerce.number().min(0).optional(),
   estimated_monthly_rent: z.coerce.number().min(0).optional(),
+  estimated_refurb_cost: z.coerce.number().min(0).optional(),
 
   // Compliance Documents
   has_epc: z.boolean().default(false),

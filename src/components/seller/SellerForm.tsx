@@ -279,6 +279,7 @@ export function SellerForm() {
         epc_rating: data.epc_rating || null,
         current_monthly_rent: data.current_monthly_rent || null,
         estimated_monthly_rent: data.estimated_monthly_rent || null,
+        estimated_refurb_cost: data.estimated_refurb_cost || null,
         photo_urls: photos.length > 0 ? photos : null,
         floor_plan_urls: floorPlans.length > 0 ? floorPlans : [],
         contact_name: data.contact_name,
@@ -565,6 +566,25 @@ export function SellerForm() {
                         {...field}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="estimated_refurb_cost"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estimated Refurb Cost (£)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="15000"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>Optional — estimated renovation costs</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

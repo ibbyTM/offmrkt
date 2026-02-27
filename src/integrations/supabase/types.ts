@@ -839,6 +839,7 @@ export type Database = {
           current_status: Database["public"]["Enums"]["property_status"]
           epc_rating: string | null
           estimated_monthly_rent: number | null
+          estimated_refurb_cost: number | null
           floor_plan_urls: string[] | null
           has_eicr: boolean | null
           has_epc: boolean | null
@@ -877,6 +878,7 @@ export type Database = {
           current_status: Database["public"]["Enums"]["property_status"]
           epc_rating?: string | null
           estimated_monthly_rent?: number | null
+          estimated_refurb_cost?: number | null
           floor_plan_urls?: string[] | null
           has_eicr?: boolean | null
           has_epc?: boolean | null
@@ -915,6 +917,7 @@ export type Database = {
           current_status?: Database["public"]["Enums"]["property_status"]
           epc_rating?: string | null
           estimated_monthly_rent?: number | null
+          estimated_refurb_cost?: number | null
           floor_plan_urls?: string[] | null
           has_eicr?: boolean | null
           has_epc?: boolean | null
