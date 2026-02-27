@@ -26,8 +26,9 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   // Calculate gross yield dynamically if not stored
   const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
   const annualRent = monthlyRent * 12;
-  const calculatedGrossYield = property.asking_price > 0 && annualRent > 0
-    ? (annualRent / property.asking_price) * 100
+  const totalInvestment = property.asking_price + (property.refurb_cost || 0);
+  const calculatedGrossYield = totalInvestment > 0 && annualRent > 0
+    ? (annualRent / totalInvestment) * 100
     : null;
   const grossYield = property.gross_yield_percentage || calculatedGrossYield;
 

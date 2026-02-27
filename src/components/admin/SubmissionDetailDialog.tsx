@@ -246,9 +246,17 @@ export const SubmissionDetailDialog = ({
                 )}
               </div>
 
-              <div className="bg-primary/10 rounded-lg p-4">
-                <p className="text-sm text-muted-foreground">Asking Price</p>
-                <p className="text-2xl font-bold text-primary">{formatCurrency(submission.asking_price)}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-primary/10 rounded-lg p-4">
+                  <p className="text-sm text-muted-foreground">Asking Price</p>
+                  <p className="text-2xl font-bold text-primary">{formatCurrency(submission.asking_price)}</p>
+                </div>
+                {submission.estimated_refurb_cost != null && submission.estimated_refurb_cost > 0 && (
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">Est. Refurb Cost</p>
+                    <p className="text-2xl font-bold text-foreground">{formatCurrency(submission.estimated_refurb_cost)}</p>
+                  </div>
+                )}
               </div>
 
               {submission.property_description && (

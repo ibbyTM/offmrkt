@@ -137,6 +137,7 @@ export const useConvertToListing = () => {
           floor_plan_urls: (submission as any).floor_plan_urls || [],
           current_rental_income: submission.current_monthly_rent,
           estimated_rental_income: submission.estimated_monthly_rent,
+          refurb_cost: submission.estimated_refurb_cost || 0,
           listing_status: "available",
           submission_id: submission.id,
           investment_highlights: highlights,
