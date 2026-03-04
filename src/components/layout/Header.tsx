@@ -118,7 +118,9 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Off The Markets" className="h-10 w-auto" />
+          <div className="bg-white rounded-lg p-1">
+            <img src={logo} alt="Off The Markets" className="h-8 w-auto" />
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
