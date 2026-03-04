@@ -64,7 +64,9 @@ export function AppSidebar({ children }: AppSidebarProps) {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center justify-center p-2">
           <Link to="/">
-            <img src={logo} alt="Off The Markets" className="h-8 w-auto" />
+            <div className="bg-white rounded-lg p-1">
+              <img src={logo} alt="Off The Markets" className="h-7 w-auto" />
+            </div>
           </Link>
         </div>
       </SidebarHeader>

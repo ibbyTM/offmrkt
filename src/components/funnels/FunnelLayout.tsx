@@ -69,11 +69,13 @@ export function FunnelLayout({
           {/* Logo */}
           {showLogo && (
             <Link to="/" className="flex items-center">
-              <img
-                src={logo}
-                alt="Off The Markets"
-                className="h-8 w-auto"
-              />
+              <div className="bg-white rounded-lg p-1">
+                <img
+                  src={logo}
+                  alt="Off The Markets"
+                  className="h-7 w-auto"
+                />
+              </div>
             </Link>
           )}
 
