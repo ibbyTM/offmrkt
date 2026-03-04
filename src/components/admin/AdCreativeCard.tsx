@@ -3,6 +3,7 @@ import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface AdCreativeConfig {
   id: string;
@@ -16,8 +17,6 @@ export interface AdCreativeConfig {
   bulletPoints?: string[];
   decorStyle?: "circles" | "lines" | "dots" | "geometric" | "none";
 }
-
-const SCALE = 0.35;
 
 function DecoCircles({ variant }: { variant: string }) {
   const color = variant === "white" || variant === "gradient" ? "rgba(20,184,166,0.08)" : "rgba(255,255,255,0.06)";
@@ -80,10 +79,14 @@ function Decorations({ style, variant }: { style: AdCreativeConfig["decorStyle"]
 export function AdCreativeCard({ config }: { config: AdCreativeConfig }) {
   const ref = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const isMobile = useIsMobile();
 
   const isStory = config.aspect === "story";
   const w = 1080;
   const h = isStory ? 1920 : 1080;
+  const scale = isMobile ? (isStory ? 0.22 : 0.28) : 0.35;
+  const previewW = w * scale;
+  const previewH = h * scale;
 
   const bgStyle: React.CSSProperties =
     config.variant === "gradient"
@@ -132,11 +135,11 @@ export function AdCreativeCard({ config }: { config: AdCreativeConfig }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="rounded-xl border border-border overflow-hidden shadow-sm" style={{ width: w * SCALE, height: h * SCALE }}>
+      <div className="rounded-xl border border-border overflow-hidden shadow-sm" style={{ width: previewW, height: previewH }}>
         <div
           ref={ref}
           className={`${bgClass} flex flex-col items-center justify-between relative overflow-hidden`}
-          style={{ width: w, height: h, transform: `scale(${SCALE})`, transformOrigin: "top left", fontFamily: "'Inter', sans-serif", ...bgStyle }}
+          style={{ width: w, height: h, transform: `scale(${scale})`, transformOrigin: "top left", fontFamily: "'Inter', sans-serif", ...bgStyle }}
         >
           {/* Background decorations */}
           <Decorations style={config.decorStyle || "none"} variant={config.variant} />
@@ -212,7 +215,7 @@ export function AdCreativeCard({ config }: { config: AdCreativeConfig }) {
       </div>
 
       {/* Label + download */}
-      <div className="flex items-center justify-between" style={{ width: w * SCALE }}>
+      <div className="flex items-center justify-between" style={{ width: previewW }}>
         <span className="text-xs text-muted-foreground font-medium truncate">{config.id}</span>
         <Button variant="outline" size="sm" onClick={handleDownload} disabled={downloading} className="shrink-0">
           {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
