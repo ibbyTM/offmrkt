@@ -1,21 +1,22 @@
 
 
-## Add More Ad Creatives
+## Make Ad Creatives Page Mobile-Friendly
 
-The enhancement replaced some of the original simpler designs. I'll add additional creatives back with clean, minimal styling plus a few new angles, bringing the total library to ~14 templates.
+The current page renders ad previews at a fixed `SCALE = 0.35` of the full 1080px width, producing ~378px wide cards. On mobile these overflow or display awkwardly in a `flex-wrap` layout with fixed pixel widths.
 
-### New creatives to add (6 additional)
+### Changes
 
-**Square (1080×1080):**
-1. **"No Viewings Required"** — white variant, no decorations, clean minimal look
-2. **"Sell Below Market? Never."** — navy variant, stats showing fair pricing guarantee
-3. **"Moving Abroad?"** — teal variant, targeting relocators with bullet points
+**`src/components/admin/AdCreativeCard.tsx`**
+- Make the scale responsive: use a smaller scale on mobile (~0.28 for squares, ~0.22 for stories) so cards fit within the viewport
+- Use `useIsMobile()` hook to detect screen size
+- Ensure the card container and download button width adapts to the computed preview size
 
-**Story (1080×1920):**
-4. **"Divorce Sale? We Help."** — white variant, sensitive/professional tone, bullet points
-5. **"Tenant Issues?"** — navy variant, targeting landlords wanting quick exits
-6. **"Guaranteed Offer in 24h"** — gradient variant with stats, bold urgency
+**`src/pages/AdCreatives.tsx`**
+- Change the `flex flex-wrap gap-6` layout to a responsive grid: single column on mobile, multi-column on larger screens
+- Reduce padding on mobile (`p-4 sm:p-6`)
+- Center cards on mobile for a cleaner look
 
 ### Files changed
-- `src/pages/AdCreatives.tsx` — append 6 new configs to the `creatives` array
+- `src/components/admin/AdCreativeCard.tsx` — responsive scale + width
+- `src/pages/AdCreatives.tsx` — responsive grid layout + padding
 
