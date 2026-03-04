@@ -1,3 +1,4 @@
+import { useState, useCallback, useRef } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AdCreativeCard, type AdCreativeConfig } from "@/components/admin/AdCreativeCard";
 import { Megaphone } from "lucide-react";
@@ -204,9 +205,18 @@ const creatives: AdCreativeConfig[] = [
   },
 ];
 
+const DEFAULTS: AdCreativeConfig[] = creatives;
+
 export default function AdCreatives() {
-  const squares = creatives.filter((c) => c.aspect === "square");
-  const stories = creatives.filter((c) => c.aspect === "story");
+  const [items, setItems] = useState<AdCreativeConfig[]>(() => [...creatives]);
+  const originals = useRef(DEFAULTS);
+
+  const handleUpdate = useCallback((id: string, updates: Partial<AdCreativeConfig>) => {
+    setItems((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+  }, []);
+
+  const squares = items.filter((c) => c.aspect === "square");
+  const stories = items.filter((c) => c.aspect === "story");
 
   return (
     <AppLayout
@@ -221,7 +231,7 @@ export default function AdCreatives() {
           <p className="text-sm text-muted-foreground mb-4">Optimised for Facebook & Instagram feed placements</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
             {squares.map((c) => (
-              <AdCreativeCard key={c.id} config={c} />
+              <AdCreativeCard key={c.id} config={c} original={originals.current.find((o) => o.id === c.id)!} onUpdate={(u) => handleUpdate(c.id, u)} />
             ))}
           </div>
         </section>
@@ -232,7 +242,7 @@ export default function AdCreatives() {
           <p className="text-sm text-muted-foreground mb-4">Optimised for Instagram & Facebook Stories</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
             {stories.map((c) => (
-              <AdCreativeCard key={c.id} config={c} />
+              <AdCreativeCard key={c.id} config={c} original={originals.current.find((o) => o.id === c.id)!} onUpdate={(u) => handleUpdate(c.id, u)} />
             ))}
           </div>
         </section>
