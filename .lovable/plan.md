@@ -1,34 +1,21 @@
 
 
-## Build Facebook/Instagram Ad Creatives Page
+## Add More Ad Creatives
 
-Create a dedicated admin page with ready-to-use ad creative templates targeting **sellers** (property owners looking for cash offers). The creatives will use the OffMrkt brand identity and be designed as React components that can be screenshotted or exported.
+The enhancement replaced some of the original simpler designs. I'll add additional creatives back with clean, minimal styling plus a few new angles, bringing the total library to ~14 templates.
 
-### What gets built
+### New creatives to add (6 additional)
 
-**1. New page: `/admin/ad-creatives`**
-- Displays 4-6 pre-designed ad creative templates in Facebook/Instagram dimensions (1080x1080 square, 1080x1920 story)
-- Each template targets sellers with different angles:
-  - "Sell Your Property in 24 Hours" -- urgency/speed
-  - "Cash Offers, No Fees, No Chains" -- pain-point relief
-  - "Get a Free Valuation Today" -- low-commitment CTA
-  - "Trusted by 1,200+ Investors" -- social proof
-- Uses brand colors (teal #14B8A6, navy #1E3A5A), Inter font, and the new OffMrkt logo on white background
-- Each creative has a "Download" button that exports the element as a PNG using `html-to-image` library
+**Square (1080×1080):**
+1. **"No Viewings Required"** — white variant, no decorations, clean minimal look
+2. **"Sell Below Market? Never."** — navy variant, stats showing fair pricing guarantee
+3. **"Moving Abroad?"** — teal variant, targeting relocators with bullet points
 
-**2. New components**
-- `src/components/admin/AdCreativeCard.tsx` -- renders a single ad creative at the correct aspect ratio
-- `src/pages/AdCreatives.tsx` -- page listing all creatives with download buttons
-
-**3. Dependencies**
-- Add `html-to-image` package for PNG export
-
-**4. Route**
-- Add `/ad-creatives` route accessible from the admin area
+**Story (1080×1920):**
+4. **"Divorce Sale? We Help."** — white variant, sensitive/professional tone, bullet points
+5. **"Tenant Issues?"** — navy variant, targeting landlords wanting quick exits
+6. **"Guaranteed Offer in 24h"** — gradient variant with stats, bold urgency
 
 ### Files changed
-- `src/pages/AdCreatives.tsx` (new)
-- `src/components/admin/AdCreativeCard.tsx` (new)
-- `src/App.tsx` (add route)
-- `package.json` (add html-to-image)
+- `src/pages/AdCreatives.tsx` — append 6 new configs to the `creatives` array
 
