@@ -25,6 +25,7 @@ import Cookies from "./pages/Cookies";
 import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import FunnelRouter from "./pages/funnels/FunnelRouter";
+import AdCreatives from "./pages/AdCreatives";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
                   }
                 />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/admin/ad-creatives" element={<AdCreatives />} />
                 <Route path="/mortgage" element={<Mortgage />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
