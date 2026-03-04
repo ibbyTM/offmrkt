@@ -1,47 +1,36 @@
 
 
-## Hook Up Refurb Costs and Adjust Gross Yield
+## Update Logos and Ensure White Backgrounds
 
-### Overview
-Connect the seller submission's `estimated_refurb_cost` to the property's `refurb_cost` field, display it in the admin view, and update the gross yield calculation to account for total investment cost (price + refurb).
+You've uploaded two new logo files -- an icon-only version (house icon) and a full wordmark version (icon + "OFF THE MARKETS" text). Since both have white/transparent backgrounds, every placement needs an explicit white background to look clean regardless of the page's theme or surrounding color.
 
-### Changes
+### Plan
 
-**1. Map `estimated_refurb_cost` to `refurb_cost` when converting submission to listing**
-- In `src/hooks/useSellerSubmissions.ts`, add `refurb_cost: submission.estimated_refurb_cost || 0` to the property insert object in `useConvertToListing`.
+**1. Copy new logo files into the project**
+- Copy the icon-only logo to `src/assets/offthemarkets-icon.png` (for favicon, sidebar collapsed state, small placements)
+- Copy the full wordmark logo to `src/assets/offthemarkets-logo.png` (replaces existing logo for header, footer, funnels)
+- Copy the icon to `public/favicon.png` for the browser tab
 
-**2. Update the `sync_submission_to_property` database trigger**
-- Modify the `sync_submission_to_property()` function to also sync `refurb_cost = NEW.estimated_refurb_cost` when a submission is updated after listing.
+**2. Update logo placements with white background containers**
 
-**3. Update the `calculate_gross_yield` database trigger**
-- Change the gross yield formula from `rent * 12 / asking_price` to `rent * 12 / (asking_price + COALESCE(refurb_cost, 0))` so it reflects the true total investment cost.
-- This is the only yield that needs changing -- the leveraged/cash-on-cash calculations in `ROIBreakdown` already handle refurb separately.
+All 4 files that use the logo need a white background wrapper:
 
-**4. Show estimated refurb cost in admin submission detail dialog**
-- In `src/components/admin/SubmissionDetailDialog.tsx`, add a row showing the estimated refurb cost (if provided) alongside the asking price in the Property Details section.
+- **Header** (`src/components/layout/Header.tsx`, line 121): Wrap logo `<img>` in a `bg-white rounded-lg p-1` container
+- **Footer** (`src/components/layout/Footer.tsx`, line 35): Same white background treatment
+- **App Sidebar** (`src/components/layout/AppSidebar.tsx`, line 67): Add `bg-white rounded-lg p-1` wrapper
+- **Funnel Layout** (`src/components/funnels/FunnelLayout.tsx`, line 72-77): Same treatment
 
-### What already works (no changes needed)
-- `FinancialStatsGrid` already displays the `refurb_cost` from the property and uses it in ROCE calculations.
-- `ROIBreakdown` handles its own leveraged scenario math independently.
-- The seller form already collects `estimated_refurb_cost`.
+**3. Update email templates**
 
-### Technical Details
+The 6 email templates reference a logo hosted in storage. Upload the new wordmark logo to the same storage path so emails stay on-brand. The email body backgrounds are already white, so no changes needed there.
 
-**Updated gross yield formula (migration SQL):**
-```sql
-CREATE OR REPLACE FUNCTION public.calculate_gross_yield()
-RETURNS trigger AS $$
-BEGIN
-  IF NEW.asking_price > 0 AND (NEW.current_rental_income IS NOT NULL OR NEW.estimated_rental_income IS NOT NULL) THEN
-    NEW.gross_yield_percentage := ROUND(
-      (COALESCE(NEW.current_rental_income, NEW.estimated_rental_income, 0) * 12.0 
-       / (NEW.asking_price + COALESCE(NEW.refurb_cost, 0))) * 100
-    );
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public';
-```
+**4. Update favicon**
 
-**Updated sync trigger (migration SQL):**
-- Add `refurb_cost = NEW.estimated_refurb_cost` to the UPDATE statement in `sync_submission_to_property()`.
+Update `index.html` to reference the new icon as favicon.
+
+### Summary of changes
+- 2 new asset files copied into project
+- 4 component files updated with white background wrappers around logos
+- 1 favicon update in `index.html`
+- Email template logo will need the storage asset updated separately
+
