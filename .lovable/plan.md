@@ -1,19 +1,34 @@
 
 
-## Upload New Logo to Email Assets Storage
+## Build Facebook/Instagram Ad Creatives Page
 
-The email templates reference `https://uruqmzpihbxzzowrsrny.supabase.co/storage/v1/object/public/email-assets/logo.png`. We need to upload the new wordmark logo to that same path so auth emails display the updated branding.
+Create a dedicated admin page with ready-to-use ad creative templates targeting **sellers** (property owners looking for cash offers). The creatives will use the OffMrkt brand identity and be designed as React components that can be screenshotted or exported.
 
-Since there's no direct storage upload tool available, the approach is:
+### What gets built
 
-**1. Create a temporary edge function** (`upload-email-logo`) that:
-   - Fetches the new wordmark logo from the app's public preview URL (`/assets/offthemarkets-logo.png`)
-   - Uploads it to the `email-assets` bucket as `logo.png` (overwriting the old one)
-   - Uses the Supabase service role key for storage access
+**1. New page: `/admin/ad-creatives`**
+- Displays 4-6 pre-designed ad creative templates in Facebook/Instagram dimensions (1080x1080 square, 1080x1920 story)
+- Each template targets sellers with different angles:
+  - "Sell Your Property in 24 Hours" -- urgency/speed
+  - "Cash Offers, No Fees, No Chains" -- pain-point relief
+  - "Get a Free Valuation Today" -- low-commitment CTA
+  - "Trusted by 1,200+ Investors" -- social proof
+- Uses brand colors (teal #14B8A6, navy #1E3A5A), Inter font, and the new OffMrkt logo on white background
+- Each creative has a "Download" button that exports the element as a PNG using `html-to-image` library
 
-**2. Deploy and invoke the function** to perform the upload
+**2. New components**
+- `src/components/admin/AdCreativeCard.tsx` -- renders a single ad creative at the correct aspect ratio
+- `src/pages/AdCreatives.tsx` -- page listing all creatives with download buttons
 
-**3. Delete the temporary edge function** after the upload succeeds (it's a one-time utility)
+**3. Dependencies**
+- Add `html-to-image` package for PNG export
 
-No email template code changes needed -- they already reference the correct storage path. The logo file simply gets replaced at that path.
+**4. Route**
+- Add `/ad-creatives` route accessible from the admin area
+
+### Files changed
+- `src/pages/AdCreatives.tsx` (new)
+- `src/components/admin/AdCreativeCard.tsx` (new)
+- `src/App.tsx` (add route)
+- `package.json` (add html-to-image)
 
