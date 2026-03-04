@@ -214,12 +214,12 @@ export default function AdCreatives() {
       pageSubtitle="Download ready-to-use Facebook & Instagram ad templates"
       pageIcon={<Megaphone className="h-5 w-5 text-primary" />}
     >
-      <div className="p-6 space-y-10">
+      <div className="p-4 sm:p-6 space-y-10">
         {/* Square ads */}
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-1">Feed Ads (1080×1080)</h2>
           <p className="text-sm text-muted-foreground mb-4">Optimised for Facebook & Instagram feed placements</p>
-          <div className="flex flex-wrap gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
             {squares.map((c) => (
               <AdCreativeCard key={c.id} config={c} />
             ))}
@@ -230,7 +230,7 @@ export default function AdCreatives() {
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-1">Story Ads (1080×1920)</h2>
           <p className="text-sm text-muted-foreground mb-4">Optimised for Instagram & Facebook Stories</p>
-          <div className="flex flex-wrap gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
             {stories.map((c) => (
               <AdCreativeCard key={c.id} config={c} />
             ))}
