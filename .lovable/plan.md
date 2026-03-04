@@ -1,22 +1,38 @@
 
 
-## Make Ad Creatives Page Mobile-Friendly
+## Add Inline Text Editing to Ad Creatives
 
-The current page renders ad previews at a fixed `SCALE = 0.35` of the full 1080px width, producing ~378px wide cards. On mobile these overflow or display awkwardly in a `flex-wrap` layout with fixed pixel widths.
+Currently all ad text (headline, subheadline, CTA, badge, bullet points, stats) is static from the config. The user wants to click on any creative, edit its text fields, and download the customised version.
 
-### Changes
+### Approach
 
 **`src/components/admin/AdCreativeCard.tsx`**
-- Make the scale responsive: use a smaller scale on mobile (~0.28 for squares, ~0.22 for stories) so cards fit within the viewport
-- Use `useIsMobile()` hook to detect screen size
-- Ensure the card container and download button width adapts to the computed preview size
+- Add local state to hold editable overrides: `headline`, `subheadline`, `cta`, `badge`, `bulletPoints`, `stats` — initialized from `config`
+- Add an "Edit" button next to the Download button that opens a dialog/panel
+- Create an `AdEditDialog` (using the existing Dialog component) with form fields:
+  - Headline (textarea)
+  - Subheadline (textarea)
+  - CTA text (input)
+  - Badge text (input, optional)
+  - Bullet points (dynamic list of inputs, add/remove)
+  - Stats (dynamic list of value+label pairs, add/remove)
+- On save, update local state — the preview re-renders immediately with new text
+- The PNG export uses the edited state, so downloads reflect customisations
+- Add a "Reset" button to revert to original config values
 
 **`src/pages/AdCreatives.tsx`**
-- Change the `flex flex-wrap gap-6` layout to a responsive grid: single column on mobile, multi-column on larger screens
-- Reduce padding on mobile (`p-4 sm:p-6`)
-- Center cards on mobile for a cleaner look
+- Lift the creatives array into component state so each card's edits persist during the session
+- Pass an `onUpdate` callback to each `AdCreativeCard` so edits propagate to the parent state
+
+### UI Flow
+1. User sees all creatives as before
+2. Clicks "Edit" (pencil icon) on any card
+3. Dialog opens with all text fields pre-filled
+4. User modifies text, clicks "Save"
+5. Preview updates live, download exports the edited version
+6. "Reset" reverts to template defaults
 
 ### Files changed
-- `src/components/admin/AdCreativeCard.tsx` — responsive scale + width
-- `src/pages/AdCreatives.tsx` — responsive grid layout + padding
+- `src/components/admin/AdCreativeCard.tsx` — add edit dialog, local editable state, edit/reset buttons
+- `src/pages/AdCreatives.tsx` — use stateful creatives array with update callback
 
