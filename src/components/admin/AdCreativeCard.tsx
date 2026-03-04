@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
-import { Download, Loader2 } from "lucide-react";
+import { Download, Loader2, Pencil } from "lucide-react";
+import { AdEditDialog } from "./AdEditDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -76,9 +77,10 @@ function Decorations({ style, variant }: { style: AdCreativeConfig["decorStyle"]
   }
 }
 
-export function AdCreativeCard({ config }: { config: AdCreativeConfig }) {
+export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreativeConfig; original: AdCreativeConfig; onUpdate: (updates: Partial<AdCreativeConfig>) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const isStory = config.aspect === "story";
@@ -217,11 +219,25 @@ export function AdCreativeCard({ config }: { config: AdCreativeConfig }) {
       {/* Label + download */}
       <div className="flex items-center justify-between" style={{ width: previewW }}>
         <span className="text-xs text-muted-foreground font-medium truncate">{config.id}</span>
-        <Button variant="outline" size="sm" onClick={handleDownload} disabled={downloading} className="shrink-0">
-          {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-          PNG
-        </Button>
+        <div className="flex gap-1.5 shrink-0">
+          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
+            <Pencil className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleDownload} disabled={downloading}>
+            {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            PNG
+          </Button>
+        </div>
       </div>
+
+      <AdEditDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        config={config}
+        original={original}
+        onSave={onUpdate}
+        onReset={() => onUpdate({ ...original })}
+      />
     </div>
   );
 }
