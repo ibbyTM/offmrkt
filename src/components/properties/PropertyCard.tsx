@@ -57,7 +57,7 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
         {/* Image section with interactive carousel */}
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           <div className={cn(isSold && "grayscale-[30%]")}>
-            <PropertyCardCarousel images={images} alt={property.title} />
+            <PropertyCardCarousel images={images} alt={property.title} focalPoint={(property as any).cover_focal_point} />
           </div>
           
           {/* SOLD Banner Overlay */}

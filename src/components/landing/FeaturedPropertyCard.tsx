@@ -64,6 +64,7 @@ export function FeaturedPropertyCard() {
                 src={mainImage}
                 alt={property.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                style={(property as any).cover_focal_point ? { objectPosition: `${(property as any).cover_focal_point.x}% ${(property as any).cover_focal_point.y}%` } : undefined}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-accent">

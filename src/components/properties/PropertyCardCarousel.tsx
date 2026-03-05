@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 interface PropertyCardCarouselProps {
   images: string[];
   alt: string;
+  focalPoint?: { x: number; y: number } | null;
 }
 
-export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps) {
+export function PropertyCardCarousel({ images, alt, focalPoint }: PropertyCardCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -107,6 +108,7 @@ export function PropertyCardCarousel({ images, alt }: PropertyCardCarouselProps)
           src={images[currentIndex]}
           alt={alt}
           className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+          style={currentIndex === 0 && focalPoint ? { objectPosition: `${focalPoint.x}% ${focalPoint.y}%` } : undefined}
         />
       )}
 
