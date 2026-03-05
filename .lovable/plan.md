@@ -1,38 +1,45 @@
 
 
-## Add Inline Text Editing to Ad Creatives
+## Smart Focal-Point Cropping for Property Card Images
 
-Currently all ad text (headline, subheadline, CTA, badge, bullet points, stats) is static from the config. The user wants to click on any creative, edit its text fields, and download the customised version.
+Property images currently use `object-cover` with the default `object-position: center`, which often crops out the most important part of the photo (e.g. the front of a house sits in the lower half and gets cut).
 
 ### Approach
 
-**`src/components/admin/AdCreativeCard.tsx`**
-- Add local state to hold editable overrides: `headline`, `subheadline`, `cta`, `badge`, `bulletPoints`, `stats` — initialized from `config`
-- Add an "Edit" button next to the Download button that opens a dialog/panel
-- Create an `AdEditDialog` (using the existing Dialog component) with form fields:
-  - Headline (textarea)
-  - Subheadline (textarea)
-  - CTA text (input)
-  - Badge text (input, optional)
-  - Bullet points (dynamic list of inputs, add/remove)
-  - Stats (dynamic list of value+label pairs, add/remove)
-- On save, update local state — the preview re-renders immediately with new text
-- The PNG export uses the edited state, so downloads reflect customisations
-- Add a "Reset" button to revert to original config values
+Use AI (Gemini Flash) to analyse each property's first image and return a focal-point coordinate (x%, y%). Store the result in the database so it only runs once per property. Apply the focal point as `object-position` on the card image.
 
-**`src/pages/AdCreatives.tsx`**
-- Lift the creatives array into component state so each card's edits persist during the session
-- Pass an `onUpdate` callback to each `AdCreativeCard` so edits propagate to the parent state
+### Changes
 
-### UI Flow
-1. User sees all creatives as before
-2. Clicks "Edit" (pencil icon) on any card
-3. Dialog opens with all text fields pre-filled
-4. User modifies text, clicks "Save"
-5. Preview updates live, download exports the edited version
-6. "Reset" reverts to template defaults
+**1. Database migration** -- Add a `cover_focal_point` JSONB column to `properties`
+```sql
+ALTER TABLE public.properties
+  ADD COLUMN cover_focal_point jsonb DEFAULT null;
+```
+This stores `{ "x": 50, "y": 35 }` (percentage values).
+
+**2. New edge function `detect-focal-point`**
+- Accepts a property ID
+- Fetches the first `photo_urls` entry
+- Sends it to Gemini Flash via the AI gateway with a vision prompt: *"Analyse this property photo. Return the focal point as x% and y% where the most important subject (building front) is centred."*
+- Uses tool calling to extract structured `{ x, y }` output
+- Updates `properties.cover_focal_point` in the DB
+- Returns the focal point
+
+**3. Admin trigger** -- Add a "Detect Focus" button to `AdminPropertyToolbar` (runs per-property) and a bulk action in the Admin panel to process all properties missing focal points.
+
+**4. Frontend rendering** -- Update `PropertyCardCarousel` and `FeaturedPropertyCard` to read `property.cover_focal_point` and apply it:
+```tsx
+style={{ objectPosition: `${focal.x}% ${focal.y}%` }}
+```
+Falls back to `center` when no focal point exists.
+
+**5. Pass property data down** -- `PropertyCard` already receives the full property object but `PropertyCardCarousel` only gets `images` and `alt`. Add an optional `focalPoint` prop so it can apply the position to the first image.
 
 ### Files changed
-- `src/components/admin/AdCreativeCard.tsx` — add edit dialog, local editable state, edit/reset buttons
-- `src/pages/AdCreatives.tsx` — use stateful creatives array with update callback
+- **Migration SQL** -- add `cover_focal_point` column
+- **`supabase/functions/detect-focal-point/index.ts`** -- new edge function
+- **`src/components/property-detail/AdminPropertyToolbar.tsx`** -- add "Detect Focus" button
+- **`src/components/properties/PropertyCardCarousel.tsx`** -- accept + apply focal point
+- **`src/components/properties/PropertyCard.tsx`** -- pass focal point to carousel
+- **`src/components/landing/FeaturedPropertyCard.tsx`** -- apply focal point to image
 
