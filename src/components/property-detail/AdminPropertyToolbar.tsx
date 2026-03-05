@@ -22,7 +22,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Shield, Sparkles } from "lucide-react";
+import { Shield, Sparkles, Focus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
 
 type ListingStatus = Database["public"]["Enums"]["listing_status"];
@@ -47,6 +49,7 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     description: string;
     highlights: string[];
   } | null>(null);
+  const [isDetectingFocus, setIsDetectingFocus] = useState(false);
 
   const enhanceMutation = useEnhancePropertyContent();
   const updateMutation = useUpdatePropertyContent();
@@ -107,6 +110,21 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     setPendingStatus(null);
   };
 
+  const handleDetectFocus = async () => {
+    setIsDetectingFocus(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("detect-focal-point", {
+        body: { propertyId: property.id },
+      });
+      if (error) throw error;
+      toast.success(`Focal point set to ${data.x}%, ${data.y}%`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to detect focal point");
+    } finally {
+      setIsDetectingFocus(false);
+    }
+  };
+
   const originalContent = {
     title: property.title,
     description: property.property_description || "",
@@ -145,6 +163,17 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Detect Focal Point Button */}
+            <Button
+              onClick={handleDetectFocus}
+              disabled={isDetectingFocus}
+              variant="outline"
+              className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+            >
+              <Focus className="h-4 w-4 mr-2" />
+              {isDetectingFocus ? "Detecting..." : "Detect Focus"}
+            </Button>
 
             {/* Enhance with AI Button */}
             <Button

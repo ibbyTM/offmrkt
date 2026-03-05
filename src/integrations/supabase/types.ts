@@ -614,6 +614,7 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           cash_roi_percentage: number | null
+          cover_focal_point: Json | null
           created_at: string
           current_rental_income: number | null
           current_status: Database["public"]["Enums"]["property_status"] | null
@@ -658,6 +659,7 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           cash_roi_percentage?: number | null
+          cover_focal_point?: Json | null
           created_at?: string
           current_rental_income?: number | null
           current_status?: Database["public"]["Enums"]["property_status"] | null
@@ -702,6 +704,7 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           cash_roi_percentage?: number | null
+          cover_focal_point?: Json | null
           created_at?: string
           current_rental_income?: number | null
           current_status?: Database["public"]["Enums"]["property_status"] | null

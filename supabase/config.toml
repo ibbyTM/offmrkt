@@ -9,3 +9,5 @@ project_id = "uruqmzpihbxzzowrsrny"
     verify_jwt = false
   [functions.mortgage-enquiry]
     verify_jwt = false
+  [functions.detect-focal-point]
+    verify_jwt = false
