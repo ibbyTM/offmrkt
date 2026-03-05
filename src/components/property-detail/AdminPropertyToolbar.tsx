@@ -22,7 +22,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Shield, Sparkles, Focus } from "lucide-react";
+import { Shield, Sparkles, Focus, Crosshair } from "lucide-react";
+import { FocalPointEditor } from "@/components/admin/FocalPointEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/integrations/supabase/types";
@@ -42,6 +43,7 @@ const statusOptions: { value: ListingStatus; label: string }[] = [
 
 export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
   const [showEnhanceDialog, setShowEnhanceDialog] = useState(false);
+  const [showFocalPointEditor, setShowFocalPointEditor] = useState(false);
   const [showSoldConfirm, setShowSoldConfirm] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<ListingStatus | null>(null);
   const [enhancedContent, setEnhancedContent] = useState<{
@@ -164,6 +166,16 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
               </Select>
             </div>
 
+            {/* Set Focus (Manual) Button */}
+            <Button
+              onClick={() => setShowFocalPointEditor(true)}
+              variant="outline"
+              className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+            >
+              <Crosshair className="h-4 w-4 mr-2" />
+              Set Focus
+            </Button>
+
             {/* Detect Focal Point Button */}
             <Button
               onClick={handleDetectFocus}
@@ -224,6 +236,12 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
           isApplying={updateMutation.isPending}
         />
       )}
+      {/* Manual Focal Point Editor */}
+      <FocalPointEditor
+        open={showFocalPointEditor}
+        onClose={() => setShowFocalPointEditor(false)}
+        property={property}
+      />
     </>
   );
 }
