@@ -1,45 +1,31 @@
 
 
-## Smart Focal-Point Cropping for Property Card Images
+## Manual Focal Point Editor
 
-Property images currently use `object-cover` with the default `object-position: center`, which often crops out the most important part of the photo (e.g. the front of a house sits in the lower half and gets cut).
-
-### Approach
-
-Use AI (Gemini Flash) to analyse each property's first image and return a focal-point coordinate (x%, y%). Store the result in the database so it only runs once per property. Apply the focal point as `object-position` on the card image.
+Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
 
 ### Changes
 
-**1. Database migration** -- Add a `cover_focal_point` JSONB column to `properties`
-```sql
-ALTER TABLE public.properties
-  ADD COLUMN cover_focal_point jsonb DEFAULT null;
-```
-This stores `{ "x": 50, "y": 35 }` (percentage values).
+**1. New component: `src/components/admin/FocalPointEditor.tsx`**
+- A dialog containing the property's first image at full width
+- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
+- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
+- Moves the marker to the clicked position in real-time (preview before saving)
+- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
+- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
+- Cancel button to discard
 
-**2. New edge function `detect-focal-point`**
-- Accepts a property ID
-- Fetches the first `photo_urls` entry
-- Sends it to Gemini Flash via the AI gateway with a vision prompt: *"Analyse this property photo. Return the focal point as x% and y% where the most important subject (building front) is centred."*
-- Uses tool calling to extract structured `{ x, y }` output
-- Updates `properties.cover_focal_point` in the DB
-- Returns the focal point
+**2. Update `AdminPropertyToolbar.tsx`**
+- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
+- Clicking it opens the `FocalPointEditor` dialog
+- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
 
-**3. Admin trigger** -- Add a "Detect Focus" button to `AdminPropertyToolbar` (runs per-property) and a bulk action in the Admin panel to process all properties missing focal points.
+**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
 
-**4. Frontend rendering** -- Update `PropertyCardCarousel` and `FeaturedPropertyCard` to read `property.cover_focal_point` and apply it:
-```tsx
-style={{ objectPosition: `${focal.x}% ${focal.y}%` }}
-```
-Falls back to `center` when no focal point exists.
-
-**5. Pass property data down** -- `PropertyCard` already receives the full property object but `PropertyCardCarousel` only gets `images` and `alt`. Add an optional `focalPoint` prop so it can apply the position to the first image.
-
-### Files changed
-- **Migration SQL** -- add `cover_focal_point` column
-- **`supabase/functions/detect-focal-point/index.ts`** -- new edge function
-- **`src/components/property-detail/AdminPropertyToolbar.tsx`** -- add "Detect Focus" button
-- **`src/components/properties/PropertyCardCarousel.tsx`** -- accept + apply focal point
-- **`src/components/properties/PropertyCard.tsx`** -- pass focal point to carousel
-- **`src/components/landing/FeaturedPropertyCard.tsx`** -- apply focal point to image
+### UI Flow
+1. Admin clicks "Set Focus" on the property detail page toolbar
+2. Dialog opens showing the first property image with a crosshair marker
+3. Admin clicks on the image to reposition the focal point
+4. A small preview card shows the cropping result in real-time
+5. Admin clicks "Save" to persist, or "Cancel" to discard
 
