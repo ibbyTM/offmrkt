@@ -33,7 +33,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3, Inbox } from "lucide-react";
+import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3, Inbox, Megaphone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'leads' | 'funnels';
 
