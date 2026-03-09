@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Pencil } from "lucide-react";
@@ -6,6 +6,27 @@ import { AdEditDialog } from "./AdEditDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import offMarketLogo from "@/assets/offthemarkets-logo.png";
+
+// Convert logo to base64 data URL so html-to-image can inline it
+let logoDataUrl: string | null = null;
+function getLogoDataUrl(): Promise<string> {
+  if (logoDataUrl) return Promise.resolve(logoDataUrl);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(img, 0, 0);
+      logoDataUrl = canvas.toDataURL("image/png");
+      resolve(logoDataUrl);
+    };
+    img.onerror = reject;
+    img.src = offMarketLogo;
+  });
+}
 
 export interface AdCreativeConfig {
   id: string;
@@ -165,7 +186,12 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
   const ref = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [logoBase64, setLogoBase64] = useState<string>(offMarketLogo);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    getLogoDataUrl().then(setLogoBase64).catch(() => {});
+  }, []);
 
   const { w, h } = DIMENSIONS[config.aspect];
   const isStory = config.aspect === "story";
@@ -252,7 +278,7 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
             style={{ padding: `0 ${contentPx}px`, gap: contentGap }}
           >
             <div className={`rounded-2xl ${config.variant === "white" ? "border border-[#e5e5e5]" : "bg-white"} p-[18px] mb-[4px] shadow-sm`} style={{ flexShrink: 0 }}>
-              <img src={offMarketLogo} alt="Off The Markets" style={{ height: logoHeight, width: "auto" }} />
+              <img src={logoBase64} alt="Off The Markets" style={{ height: logoHeight, width: "auto" }} />
             </div>
 
             <div className={`${accentLine} rounded-full`} style={{ width: accentW, height: 4, flexShrink: 0 }} />
