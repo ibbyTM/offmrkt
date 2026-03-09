@@ -5,6 +5,7 @@ import { Download, Loader2, Pencil } from "lucide-react";
 import { AdEditDialog } from "./AdEditDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import offMarketLogo from "@/assets/offthemarkets-logo.png";
 
 export interface AdCreativeConfig {
   id: string;
@@ -251,7 +252,7 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
             style={{ padding: `0 ${contentPx}px`, gap: contentGap }}
           >
             <div className={`rounded-2xl ${config.variant === "white" ? "border border-[#e5e5e5]" : "bg-white"} p-[18px] mb-[4px] shadow-sm`} style={{ flexShrink: 0 }}>
-              <img src="/assets/offthemarkets-logo.png" alt="Off The Markets" style={{ height: logoHeight, width: "auto" }} crossOrigin="anonymous" />
+              <img src={offMarketLogo} alt="Off The Markets" style={{ height: logoHeight, width: "auto" }} />
             </div>
 
             <div className={`${accentLine} rounded-full`} style={{ width: accentW, height: 4, flexShrink: 0 }} />
