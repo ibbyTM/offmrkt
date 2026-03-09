@@ -148,6 +148,17 @@ const Admin = () => {
             <span>Funnels</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            asChild
+            tooltip="Ad Creatives"
+          >
+            <Link to="/admin/ad-creatives">
+              <Megaphone className="h-4 w-4" />
+              <span>Ad Creatives</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );
