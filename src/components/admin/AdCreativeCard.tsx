@@ -186,7 +186,12 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
   const ref = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [logoBase64, setLogoBase64] = useState<string>(offMarketLogo);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    getLogoDataUrl().then(setLogoBase64).catch(() => {});
+  }, []);
 
   const { w, h } = DIMENSIONS[config.aspect];
   const isStory = config.aspect === "story";
