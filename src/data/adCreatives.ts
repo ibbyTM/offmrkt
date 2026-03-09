@@ -298,8 +298,8 @@ export const creatives: AdCreativeConfig[] = [
   // ============ LANDSCAPE POSTS (1200×628) ============
   {
     id: "blog-link-preview",
-    headline: "How to Sell Your Property Fast in 2026",
-    subheadline: "Our step-by-step guide to getting a cash offer\nand completing in under 14 days.",
+    headline: "Sell Your Property Fast in 2026",
+    subheadline: "Step-by-step guide to getting a cash offer\nand completing in under 14 days.",
     cta: "Read the Guide →",
     aspect: "landscape",
     variant: "navy",
@@ -334,7 +334,7 @@ export const creatives: AdCreativeConfig[] = [
   },
   {
     id: "announcement-landscape",
-    headline: "We've Helped Sellers\nComplete £48M+ in Deals",
+    headline: "£48M+ in Deals Completed",
     subheadline: "Trusted by landlords, investors,\nand homeowners across the UK.",
     cta: "Get Started Free →",
     badge: "🎉 MILESTONE",
