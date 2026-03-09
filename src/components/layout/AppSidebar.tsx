@@ -1,7 +1,7 @@
 import { Link, useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, Building2, Scale, Plus, 
-  Settings, HelpCircle, Shield, Heart, Clock, User, LogOut
+  Settings, HelpCircle, Shield, Megaphone, Heart, Clock, User, LogOut
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
