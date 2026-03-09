@@ -1,31 +1,44 @@
 
 
-## Manual Focal Point Editor
+## Fix Ad Creative Layout Overflow Issues
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+### Problems Identified
+
+1. **Broken Tailwind class**: Line 227 uses `gap-[${isLandscape ? "20" : "36"}px]` inside a className string -- Tailwind cannot process dynamic interpolations, so the gap is never applied, causing inconsistent spacing.
+
+2. **Landscape content overflow**: Landscape creatives (1200×628) have very limited vertical space but try to fit: logo + accent line + headline + subheadline + optional bullets/stats + CTA + footer. With large font sizes and fixed paddings, content overflows and overlaps.
+
+3. **Story/portrait with many bullet points**: Templates like `tips-story` (5 bullets) can overflow the available space.
+
+4. **Fixed spacing regardless of content density**: Padding, gaps, and element sizes are the same whether a card has 0 or 5 bullet points.
 
 ### Changes
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+**`src/components/admin/AdCreativeCard.tsx`**
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+1. Fix the broken gap -- move it to an inline `style={{ gap: ... }}` instead of the className template literal.
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+2. Scale font sizes based on content density, not just aspect ratio:
+   - Landscape headlines: 52 → 44 when stats/bullets present
+   - Landscape sub: 26 → 22 when content-heavy
+   - Reduce logo height for landscape (40 → 32)
+   - Reduce CTA padding for landscape
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+3. Reduce fixed spacing for landscape:
+   - CTA bottom padding: 40px → 24px
+   - Content padding: 60px → 40px
+   - Stats gap: 40px → 24px
+   - Badge top offset: scale down for landscape
+
+4. Add `overflow-hidden` and `min-h-0` to the content flex container to prevent blowout.
+
+5. For story/portrait with many bullet points (>3), reduce bullet font size and gap.
+
+**`src/data/adCreatives.ts`**
+
+6. Trim a few overly long headlines/subheadlines in landscape templates to fit better (e.g. shorten multi-line landscape headlines to single line where possible).
+
+### Files changed
+- `src/components/admin/AdCreativeCard.tsx` -- layout/spacing fixes
+- `src/data/adCreatives.ts` -- minor text trimming for landscape cards
 
