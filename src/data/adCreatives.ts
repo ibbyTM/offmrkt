@@ -298,8 +298,8 @@ export const creatives: AdCreativeConfig[] = [
   // ============ LANDSCAPE POSTS (1200×628) ============
   {
     id: "blog-link-preview",
-    headline: "How to Sell Your Property Fast in 2026",
-    subheadline: "Our step-by-step guide to getting a cash offer\nand completing in under 14 days.",
+    headline: "Sell Your Property Fast in 2026",
+    subheadline: "Step-by-step guide to getting a cash offer\nand completing in under 14 days.",
     cta: "Read the Guide →",
     aspect: "landscape",
     variant: "navy",
