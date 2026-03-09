@@ -334,7 +334,7 @@ export const creatives: AdCreativeConfig[] = [
   },
   {
     id: "announcement-landscape",
-    headline: "We've Helped Sellers\nComplete £48M+ in Deals",
+    headline: "£48M+ in Deals Completed",
     subheadline: "Trusted by landlords, investors,\nand homeowners across the UK.",
     cta: "Get Started Free →",
     badge: "🎉 MILESTONE",

@@ -169,6 +169,7 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
   const { w, h } = DIMENSIONS[config.aspect];
   const isStory = config.aspect === "story";
   const isLandscape = config.aspect === "landscape";
+  const isPortrait = config.aspect === "portrait";
 
   const scale = isMobile
     ? (isStory ? 0.22 : isLandscape ? 0.26 : 0.28)
@@ -178,13 +179,34 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
 
   const { bgStyle, bgClass, textColor, subTextOpacity, ctaBg, badgeBg, accentLine } = getVariantStyles(config.variant);
 
-  // Font sizes scale with aspect
-  const headlineSize = isLandscape ? 52 : isStory ? 78 : 68;
-  const subSize = isLandscape ? 26 : isStory ? 38 : 34;
-  const statSize = isLandscape ? 40 : 52;
-  const statLabelSize = isLandscape ? 18 : 22;
-  const ctaSize = isLandscape ? 26 : 32;
-  const bulletSize = isLandscape ? 24 : 30;
+  // Content density check
+  const hasStats = config.stats && config.stats.length > 0;
+  const hasBullets = config.bulletPoints && config.bulletPoints.length > 0;
+  const bulletCount = config.bulletPoints?.length || 0;
+  const isContentHeavy = hasStats || hasBullets;
+  const manyBullets = bulletCount > 3;
+
+  // Font sizes scaled by aspect AND content density
+  const headlineSize = isLandscape
+    ? (isContentHeavy ? 40 : 48)
+    : isStory ? 78 : 68;
+  const subSize = isLandscape
+    ? (isContentHeavy ? 20 : 24)
+    : isStory ? 38 : 34;
+  const statSize = isLandscape ? 36 : 52;
+  const statLabelSize = isLandscape ? 16 : 22;
+  const ctaSize = isLandscape ? 22 : 32;
+  const bulletSize = isLandscape ? 20 : (manyBullets ? 24 : 30);
+  const logoHeight = isLandscape ? 30 : 54;
+
+  // Spacing
+  const contentGap = isLandscape ? 14 : (isStory && manyBullets ? 24 : 36);
+  const contentPx = isLandscape ? 40 : 90;
+  const ctaPb = isLandscape ? 20 : 70;
+  const badgeTop = isLandscape ? 24 : 50;
+  const statsGap = isLandscape ? 24 : 40;
+  const bulletGap = manyBullets ? 12 : 20;
+  const accentW = isLandscape ? 50 : 80;
 
   const handleDownload = async () => {
     if (!ref.current) return;
@@ -217,34 +239,37 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
           <Decorations style={config.decorStyle || "none"} variant={config.variant} />
 
           {config.badge && (
-            <div className="absolute top-[50px] left-1/2 -translate-x-1/2 z-10">
-              <span className={`${badgeBg} px-[36px] py-[14px] rounded-full font-bold tracking-wide`} style={{ fontSize: 24 }}>
+            <div className="absolute left-1/2 -translate-x-1/2 z-10" style={{ top: badgeTop }}>
+              <span className={`${badgeBg} px-[36px] py-[14px] rounded-full font-bold tracking-wide`} style={{ fontSize: isLandscape ? 18 : 24 }}>
                 {config.badge}
               </span>
             </div>
           )}
 
-          <div className={`flex-1 flex flex-col items-center justify-center ${isLandscape ? "px-[60px]" : "px-[90px]"} text-center gap-[${isLandscape ? "20" : "36"}px] z-10`}>
-            <div className={`rounded-2xl ${config.variant === "white" ? "border border-[#e5e5e5]" : "bg-white"} p-[18px] mb-[10px] shadow-sm`}>
-              <img src="/assets/offthemarkets-logo.png" alt="Off The Markets" style={{ height: isLandscape ? 40 : 54, width: "auto" }} crossOrigin="anonymous" />
+          <div
+            className={`flex-1 flex flex-col items-center justify-center text-center z-10 min-h-0 overflow-hidden`}
+            style={{ padding: `0 ${contentPx}px`, gap: contentGap }}
+          >
+            <div className={`rounded-2xl ${config.variant === "white" ? "border border-[#e5e5e5]" : "bg-white"} p-[18px] mb-[4px] shadow-sm`} style={{ flexShrink: 0 }}>
+              <img src="/assets/offthemarkets-logo.png" alt="Off The Markets" style={{ height: logoHeight, width: "auto" }} crossOrigin="anonymous" />
             </div>
 
-            <div className={`${accentLine} rounded-full`} style={{ width: 80, height: 5 }} />
+            <div className={`${accentLine} rounded-full`} style={{ width: accentW, height: 4, flexShrink: 0 }} />
 
-            <h2 className={`${textColor} font-extrabold leading-[1.05] tracking-tight`} style={{ fontSize: headlineSize, whiteSpace: "pre-line" }}>
+            <h2 className={`${textColor} font-extrabold leading-[1.05] tracking-tight`} style={{ fontSize: headlineSize, whiteSpace: "pre-line", flexShrink: 0 }}>
               {config.headline}
             </h2>
 
-            <p className={`${textColor} ${subTextOpacity} font-medium leading-snug`} style={{ fontSize: subSize, whiteSpace: "pre-line", maxWidth: 900 }}>
+            <p className={`${textColor} ${subTextOpacity} font-medium leading-snug`} style={{ fontSize: subSize, whiteSpace: "pre-line", maxWidth: 900, flexShrink: 0 }}>
               {config.subheadline}
             </p>
 
-            {config.bulletPoints && config.bulletPoints.length > 0 && (
-              <div className="flex flex-col gap-[20px] mt-[10px]" style={{ fontSize: bulletSize }}>
-                {config.bulletPoints.map((bp, i) => (
+            {hasBullets && (
+              <div className="flex flex-col mt-[4px]" style={{ fontSize: bulletSize, gap: bulletGap, flexShrink: 0 }}>
+                {config.bulletPoints!.map((bp, i) => (
                   <div key={i} className={`flex items-center gap-[16px] ${textColor} ${subTextOpacity}`}>
-                    <div className={`${config.variant === "white" ? "bg-[#14B8A6]" : "bg-white"} rounded-full flex items-center justify-center`} style={{ width: 36, height: 36, minWidth: 36 }}>
-                      <span className={`${config.variant === "white" ? "text-white" : "text-[#1E3A5A]"} font-bold`} style={{ fontSize: 20 }}>✓</span>
+                    <div className={`${config.variant === "white" ? "bg-[#14B8A6]" : "bg-white"} rounded-full flex items-center justify-center`} style={{ width: manyBullets ? 28 : 36, height: manyBullets ? 28 : 36, minWidth: manyBullets ? 28 : 36 }}>
+                      <span className={`${config.variant === "white" ? "text-white" : "text-[#1E3A5A]"} font-bold`} style={{ fontSize: manyBullets ? 16 : 20 }}>✓</span>
                     </div>
                     <span className="font-medium text-left">{bp}</span>
                   </div>
@@ -252,9 +277,9 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
               </div>
             )}
 
-            {config.stats && config.stats.length > 0 && (
-              <div className="flex gap-[40px] mt-[20px]">
-                {config.stats.map((stat, i) => (
+            {hasStats && (
+              <div className="flex mt-[8px]" style={{ gap: statsGap, flexShrink: 0 }}>
+                {config.stats!.map((stat, i) => (
                   <div key={i} className="flex flex-col items-center">
                     <span className={`${textColor} font-extrabold`} style={{ fontSize: statSize }}>{stat.value}</span>
                     <span className={`${textColor} ${subTextOpacity} font-medium`} style={{ fontSize: statLabelSize }}>{stat.label}</span>
@@ -264,13 +289,13 @@ export function AdCreativeCard({ config, original, onUpdate }: { config: AdCreat
             )}
           </div>
 
-          <div className={`${isLandscape ? "pb-[40px]" : "pb-[70px]"} z-10`}>
-            <div className={`${ctaBg} rounded-full font-bold px-[56px] py-[26px] shadow-lg`} style={{ fontSize: ctaSize, letterSpacing: "0.02em" }}>
+          <div className="z-10" style={{ paddingBottom: ctaPb, flexShrink: 0 }}>
+            <div className={`${ctaBg} rounded-full font-bold shadow-lg`} style={{ fontSize: ctaSize, letterSpacing: "0.02em", padding: isLandscape ? "16px 40px" : "26px 56px" }}>
               {config.cta}
             </div>
           </div>
 
-          <div className={`w-full py-[22px] text-center ${subTextOpacity} ${textColor} z-10`} style={{ fontSize: 20, letterSpacing: "0.1em" }}>
+          <div className={`w-full text-center ${subTextOpacity} ${textColor} z-10`} style={{ fontSize: isLandscape ? 16 : 20, letterSpacing: "0.1em", paddingBottom: isLandscape ? 12 : 22, paddingTop: isLandscape ? 0 : 22, flexShrink: 0 }}>
             OFF-THE-MARKETS.COM
           </div>
         </div>
