@@ -1,7 +1,7 @@
 import { Link, useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, Building2, Scale, Plus, 
-  Settings, HelpCircle, Shield, Heart, Clock, User, LogOut
+  Settings, HelpCircle, Shield, Megaphone, Heart, Clock, User, LogOut
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
@@ -143,12 +143,24 @@ export function AppSidebar({ children }: AppSidebarProps) {
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild 
-                  isActive={location.pathname.startsWith("/admin")}
+                  isActive={location.pathname === "/admin"}
                   tooltip="Admin Panel"
                 >
                   <Link to="/admin">
                     <Shield className="h-4 w-4" />
                     <span>Admin Panel</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={location.pathname === "/admin/ad-creatives"}
+                  tooltip="Ad Creatives"
+                >
+                  <Link to="/admin/ad-creatives">
+                    <Megaphone className="h-4 w-4" />
+                    <span>Ad Creatives</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

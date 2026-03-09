@@ -33,7 +33,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3, Inbox } from "lucide-react";
+import { Loader2, Users, Building, Clock, UserCog, Banknote, Shield, BarChart3, Inbox, Megaphone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'leads' | 'funnels';
 
@@ -145,6 +146,17 @@ const Admin = () => {
           >
             <BarChart3 className="h-4 w-4" />
             <span>Funnels</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarMenuItem>
+          <SidebarMenuButton 
+            asChild
+            tooltip="Ad Creatives"
+          >
+            <Link to="/admin/ad-creatives">
+              <Megaphone className="h-4 w-4" />
+              <span>Ad Creatives</span>
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
