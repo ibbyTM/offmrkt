@@ -1,31 +1,53 @@
 
 
-## Manual Focal Point Editor
+## Expand Ad Creatives with Social Media Post Templates
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+Currently the page has two categories: **Feed Ads (square)** and **Story Ads**. We'll add new aspect ratios and template styles for common social media post formats.
 
-### Changes
+### New Aspect Ratios
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+Add to the `aspect` type: `"landscape"` (1200×628 for Facebook/LinkedIn link posts) and `"portrait"` (1080×1350 for Instagram portrait posts).
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+### New Templates (~8-10 additions)
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+**Instagram Portrait Posts (1080×1350)** — 3-4 templates with content-style layouts: market stats, property tips, "did you know" educational posts, testimonials/quote cards.
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+**Facebook/LinkedIn Landscape Posts (1200×628)** — 3-4 templates: blog-style link preview cards, announcement posts, stat-driven thought leadership.
+
+**Additional Story templates** — 2 more story-format posts: carousel-style tip sequences, "swipe up" engagement posts.
+
+### New Variant Styles
+
+Add 2 new `variant` options:
+- `"dark"` — near-black (#0F172A) background for bold modern look
+- `"split"` — half navy / half white split layout
+
+Add 2 new `decorStyle` options:
+- `"waves"` — curved wave shapes
+- `"grid"` — subtle grid overlay
+
+### File Changes
+
+**`src/components/admin/AdCreativeCard.tsx`**
+- Extend `aspect` type to include `"landscape"` | `"portrait"`
+- Extend `variant` to include `"dark"` | `"split"`
+- Add dimension mappings: portrait → 1080×1350, landscape → 1200×628
+- Add new decoration components (`DecoWaves`, `DecoGrid`)
+- Add variant styling for `dark` and `split`
+
+**`src/components/admin/AdEditDialog.tsx`**
+- No changes needed (already generic)
+
+**`src/pages/AdCreatives.tsx`**
+- Add ~8-10 new creative configs for the new formats
+- Add two new sections: "Portrait Posts (1080×1350)" and "Landscape Posts (1200×628)"
+- Filter items by all four aspect types
+
+### New Post Content Themes
+- Market statistics / data-driven posts
+- Educational "Did You Know?" property tips
+- Testimonial quote cards
+- "Just Listed" / "Just Sold" announcement templates
+- Blog/article link preview cards
+- Investor tip carousels
 
