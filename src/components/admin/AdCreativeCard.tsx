@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Pencil } from "lucide-react";
@@ -6,6 +6,27 @@ import { AdEditDialog } from "./AdEditDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import offMarketLogo from "@/assets/offthemarkets-logo.png";
+
+// Convert logo to base64 data URL so html-to-image can inline it
+let logoDataUrl: string | null = null;
+function getLogoDataUrl(): Promise<string> {
+  if (logoDataUrl) return Promise.resolve(logoDataUrl);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(img, 0, 0);
+      logoDataUrl = canvas.toDataURL("image/png");
+      resolve(logoDataUrl);
+    };
+    img.onerror = reject;
+    img.src = offMarketLogo;
+  });
+}
 
 export interface AdCreativeConfig {
   id: string;
