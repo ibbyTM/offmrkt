@@ -5,6 +5,7 @@ import { Download, Loader2, Pencil } from "lucide-react";
 import { AdEditDialog } from "./AdEditDialog";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import offMarketLogo from "@/assets/offthemarkets-logo.png";
 
 export interface AdCreativeConfig {
   id: string;
