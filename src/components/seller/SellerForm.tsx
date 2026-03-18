@@ -1116,25 +1116,26 @@ export function SellerForm() {
             </div>
           )}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between pt-6 border-t border-border">
+          {/* Navigation Buttons — sticky on mobile */}
+          <div className="flex justify-between pt-6 border-t border-border sticky bottom-0 bg-background pb-4 sm:static sm:pb-0 z-10">
             <Button
               type="button"
               variant="outline"
               onClick={prevStep}
               disabled={currentStep === 1}
+              className="min-h-[44px]"
             >
               Previous
             </Button>
 
             {currentStep < steps.length ? (
-              <Button type="button" onClick={nextStep}>
+              <Button type="button" onClick={nextStep} className="min-h-[44px]">
                 Continue
               </Button>
             ) : (
               // Only show submit button if user is logged in
               user && (
-                <Button type="submit" disabled={isSubmitting}>
+                <Button type="submit" disabled={isSubmitting} className="min-h-[44px]">
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Submit Property
                 </Button>
