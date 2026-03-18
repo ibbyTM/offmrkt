@@ -1,31 +1,48 @@
 
 
-## Manual Focal Point Editor
+## Mobile Experience Polish
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+### Problem
+The platform has basic mobile support (bottom nav, responsive breakpoints at 768px) but several areas have poor mobile UX: the comparison table is a wide horizontal scroll with no card alternative, the seller form stepper is cramped, property filter panels aren't optimised for touch, and the hero section's floating badges overflow on small screens.
 
 ### Changes
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+**1. Comparison Table — Card View on Mobile**
+`src/components/comparison/ComparisonTable.tsx`
+- On mobile (`< md`), render properties as stacked cards instead of a horizontal table
+- Each card shows the property image, key metrics (price, yield, rent, beds/baths), and remove/view buttons
+- Keep the horizontal table on desktop unchanged
+- Swipeable horizontally if 2+ cards (native overflow-x-auto with snap)
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+**2. Hero Section — Mobile Overflow Fixes**
+`src/components/landing/HeroSection.tsx`
+- Hide the floating ROI badge and notification badge on screens below `md` — they clip off-screen on small viewports
+- Reduce hero heading from `text-4xl` to `text-3xl` on mobile for better readability
+- Shrink bottom stats grid gap and font sizes on mobile
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+**3. Property Filters — Bottom Sheet on Mobile**
+`src/components/properties/PropertyFilterBar.tsx` + `src/components/properties/PropertyFilters.tsx`
+- Wrap the filter panel in a `Sheet` (bottom drawer) on mobile instead of inline expansion
+- Add a sticky "Apply Filters" button at the bottom of the sheet
+- Show active filter count badge on the trigger button
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+**4. Seller Form — Improved Mobile Stepper**
+`src/components/seller/SellerForm.tsx`
+- Replace the horizontal step indicators with a compact progress bar + "Step X of 5" label on mobile
+- Ensure form fields use `w-full` and adequate touch target sizes (min 44px)
+- Make the next/back buttons sticky at the bottom on mobile
+
+**5. AppLayout Page Header — Compact on Mobile**
+`src/components/layout/AppLayout.tsx`
+- Reduce page header padding and icon size on mobile
+- Stack title and subtitle vertically with tighter spacing
+- Ensure `headerActions` wrap properly on small screens
+
+### Files Changed
+- `src/components/comparison/ComparisonTable.tsx` — mobile card view
+- `src/components/landing/HeroSection.tsx` — hide floating badges, reduce text sizes
+- `src/components/properties/PropertyFilterBar.tsx` — bottom sheet trigger
+- `src/components/properties/PropertyFilters.tsx` — sheet wrapper on mobile
+- `src/components/seller/SellerForm.tsx` — compact mobile stepper + sticky buttons
+- `src/components/layout/AppLayout.tsx` — compact mobile header
 
