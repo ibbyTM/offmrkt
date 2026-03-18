@@ -207,7 +207,7 @@ export function HeroSection() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
             Unlock{" "}
             <span className="text-primary">Off-Market Property Deals</span>{" "}
             Before Anyone Else
