@@ -1,4 +1,5 @@
-import { Search, X, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Search, X, ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +16,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { PropertyFilters } from "./PropertyFilters";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { PropertyFilters, PropertyFiltersPanel } from "./PropertyFilters";
 import { strategyLabels, propertyTypeLabels, formatPrice } from "@/lib/propertyUtils";
 
 interface PropertyFilterBarProps {
