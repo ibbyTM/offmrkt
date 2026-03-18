@@ -115,8 +115,58 @@ export function PropertyFilterBar({
     filters.minBedrooms > 0 ||
     filters.showSold;
 
+  const activeFilterCount = [
+    filters.search,
+    filters.city,
+    filters.minPrice > 0,
+    filters.maxPrice < 500000,
+    filters.propertyTypes.length > 0,
+    filters.strategies.length > 0,
+    filters.minBedrooms > 0,
+    filters.showSold,
+  ].filter(Boolean).length;
+
   return (
-    <div className="sticky top-0 z-10 flex flex-wrap items-center gap-3 px-6 py-3 border-b border-border bg-card shadow-sm">
+    <div className="sticky top-0 z-10 border-b border-border bg-card shadow-sm">
+      {/* Mobile filter bar */}
+      <div className="md:hidden flex items-center gap-2 px-4 py-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search..."
+            value={filters.search}
+            onChange={(e) => updateFilter("search", e.target.value)}
+            className="pl-9 h-10"
+          />
+        </div>
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 relative">
+              <SlidersHorizontal className="h-4 w-4" />
+              {activeFilterCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[85vh] rounded-t-2xl">
+            <SheetHeader>
+              <SheetTitle>Filters</SheetTitle>
+            </SheetHeader>
+            <div className="overflow-y-auto flex-1 py-4">
+              <PropertyFiltersPanel
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                cities={cities}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      {/* Desktop filter bar */}
+      <div className="hidden md:flex flex-wrap items-center gap-3 px-6 py-3">
       {/* Search */}
       <div className="relative flex-1 min-w-[180px] max-w-[280px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
