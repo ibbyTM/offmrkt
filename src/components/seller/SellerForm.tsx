@@ -412,9 +412,24 @@ export function SellerForm() {
         </div>
       )}
 
-      {/* Progress Steps */}
+      {/* Progress Steps — compact bar on mobile, full stepper on desktop */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        {/* Mobile: compact progress bar */}
+        <div className="sm:hidden space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-medium text-foreground">Step {currentStep} of {steps.length}</span>
+            <span className="text-muted-foreground">{steps[currentStep - 1].title}</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Desktop: full stepper */}
+        <div className="hidden sm:flex items-center justify-between">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center">
@@ -430,7 +445,7 @@ export function SellerForm() {
                 </div>
                 <span
                   className={cn(
-                    "mt-2 text-xs font-medium hidden sm:block",
+                    "mt-2 text-xs font-medium",
                     currentStep >= step.id
                       ? "text-primary"
                       : "text-muted-foreground"
@@ -442,7 +457,7 @@ export function SellerForm() {
               {index < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-px w-4 sm:w-12 md:w-20 mx-1 sm:mx-2",
+                    "h-px w-12 md:w-20 mx-2",
                     currentStep > step.id ? "bg-primary" : "bg-border"
                   )}
                 />

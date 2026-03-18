@@ -341,6 +341,7 @@ export function PropertyFilterBar({
           Clear
         </Button>
       )}
+      </div>
     </div>
   );
 }

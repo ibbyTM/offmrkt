@@ -274,8 +274,8 @@ export function HeroSection() {
             { value: "8.5%", label: "Average Yield" },
           ].map((stat, i) => (
             <div key={i} className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+              <div className="text-xl md:text-3xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </motion.div>

@@ -31,24 +31,24 @@ export function AppLayout({
         <SidebarInset>
           {/* Page Header */}
           {pageTitle && (
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 border-b border-border bg-background gap-2">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
                 <SidebarTrigger />
                 {pageIcon && (
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                     {pageIcon}
                   </div>
                 )}
-                <div>
-                  <h1 className="text-xl font-semibold text-foreground">
+                <div className="min-w-0">
+                  <h1 className="text-lg md:text-xl font-semibold text-foreground truncate">
                     {pageTitle}
                   </h1>
                   {pageSubtitle && (
-                    <p className="text-sm text-muted-foreground">{pageSubtitle}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground truncate">{pageSubtitle}</p>
                   )}
                 </div>
               </div>
-              {headerActions}
+              <div className="shrink-0">{headerActions}</div>
             </div>
           )}
           

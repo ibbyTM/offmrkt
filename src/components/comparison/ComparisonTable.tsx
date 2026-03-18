@@ -222,5 +222,6 @@ export function ComparisonTable({ properties }: ComparisonTableProps) {
       {/* Mortgage Calculator Section */}
       <MortgageCalculatorSection properties={properties} />
     </div>
+    </>
   );
 }
