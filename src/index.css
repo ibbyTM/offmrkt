@@ -53,7 +53,7 @@ html {
     --input: 220 15% 92%;
     --ring: 220 70% 55%;
 
-    --radius: 0.875rem;
+    --radius: 0.75rem;
 
     /* Enhanced shadow system - softer, more modern */
     --shadow-sm: 0 1px 2px 0 hsl(220 10% 50% / 0.03), 0 1px 3px 0 hsl(220 10% 50% / 0.06);
