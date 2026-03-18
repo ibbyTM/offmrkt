@@ -140,10 +140,9 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         transition={{ delay: 0.6, duration: 0.5 }}
         className="absolute -left-4 md:-left-12 top-1/4 z-10"
       >
-        <motion.div
-          animate={{ y: [0, -6, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
+        >
         >
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
