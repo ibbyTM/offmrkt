@@ -25,10 +25,10 @@ const Compare = () => {
       headerActions={
         <div className="flex items-center gap-2">
           {canAddMore && (
-            <Button asChild variant="outline" size="sm">
+            <Button asChild variant="outline" size="sm" className="shrink-0">
               <Link to="/properties">
-                <Plus className="h-4 w-4 mr-1.5" />
-                Add More
+                <Plus className="h-4 w-4 md:mr-1.5" />
+                <span className="hidden md:inline">Add More</span>
               </Link>
             </Button>
           )}
