@@ -176,7 +176,7 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
               <div className="text-[9px] text-muted-foreground">Leeds • 9.2% yield</div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );
