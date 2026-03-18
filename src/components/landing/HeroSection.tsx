@@ -143,7 +143,6 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
         >
-        >
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
               <TrendingUp className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
