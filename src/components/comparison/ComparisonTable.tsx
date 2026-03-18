@@ -119,7 +119,20 @@ export function ComparisonTable({ properties }: ComparisonTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <>
+      {/* Mobile card view */}
+      <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-2 px-2">
+        {properties.map((property) => (
+          <MobileComparisonCard
+            key={property.id}
+            property={property}
+            onRemove={removeProperty}
+          />
+        ))}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden md:block overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
           <tr>
