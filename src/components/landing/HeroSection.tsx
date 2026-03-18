@@ -33,10 +33,8 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         className="relative"
       >
         {/* Subtle floating animation layered on top */}
-        <motion.div
-          animate={{ y: [0, -12, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <motion.div>
+
           {/* Laptop screen */}
           <div className="relative">
             {/* Screen bezel */}
