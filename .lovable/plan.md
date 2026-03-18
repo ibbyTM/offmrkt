@@ -1,31 +1,51 @@
 
 
-## Manual Focal Point Editor
+## Create Dedicated Investor Funnel (InvestFunnelV1)
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+### Problem
+All investor funnel slugs (`off-market-deals`, `high-yield`, `invest`) currently map to `SellFunnelV1`, which asks "What type of property are you selling?" with seller-oriented copy ("Get a Cash Offer in 24 Hours", "No fees. No chains.", etc.). Investors need a completely different flow.
 
-### Changes
+### Solution
+Create a new `InvestFunnelV1` component tailored to property investors, then wire it into the funnel registry.
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+### New File: `src/pages/funnels/invest/InvestFunnelV1.tsx`
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+**Step 1 — Investment Preferences (replaces property type selection)**
+- Heading: "What type of investment are you looking for?"
+- Options: Buy-to-Let, HMO, Flip / Refurb, BRRR, Commercial, Portfolio
+- Each with relevant icon
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+**Step 2 — Investment Criteria (replaces seller property details)**
+- Budget range (dropdown: Under 50k, 50-100k, 100-200k, 200k+)
+- Target yield (dropdown: 6%+, 8%+, 10%+, Any)
+- Preferred location (text input)
+- Purchase timeline (ASAP, 1 month, 3 months, Flexible)
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+**Step 3 — Contact Details**
+- Reuses `FunnelLeadForm` but with `interest_type` set to the funnel slug
+- Submit label: "Get Early Access to Deals"
+
+**Step 4 — Confirmation**
+- Investor-oriented copy: "You're on the List!", next steps about deal alerts
+
+**Supporting content between steps:**
+- `defaultInvestorBenefits` array exported from `FunnelBenefits.tsx`: "Off-Market Access", "Pre-Analysed Deals", "Below Market Value", "Full Due Diligence Packs"
+- Hero: "Access Off-Market Deals Before Anyone Else" / "High-yield investment properties sourced, analysed, and ready to go."
+- CTA: "Join Our Investor List"
+- Testimonials: reuse existing `defaultTestimonials`
+
+### Updated File: `src/pages/funnels/FunnelRouter.tsx`
+- Import `InvestFunnelV1`
+- Map investor slugs to it:
+  - `'off-market-deals'` → `{ v1: InvestFunnelV1, v2: InvestFunnelV1 }`
+  - `'high-yield'` → `{ v1: InvestFunnelV1, v2: InvestFunnelV1 }`
+  - `'invest'` → `{ v1: InvestFunnelV1 }`
+
+### Updated File: `src/components/funnels/FunnelBenefits.tsx`
+- Add and export `defaultInvestorBenefits` array alongside existing `defaultSellerBenefits`
+
+### Files Changed
+- `src/pages/funnels/invest/InvestFunnelV1.tsx` (new)
+- `src/pages/funnels/FunnelRouter.tsx` (update registry)
+- `src/components/funnels/FunnelBenefits.tsx` (add investor benefits)
 
