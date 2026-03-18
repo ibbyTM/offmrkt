@@ -117,10 +117,8 @@ export function ContactSection() {
             <div className="space-y-4">
               {contactInfo.map((info) => (
                 <Card key={info.label} className="p-4 border-border bg-card">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <info.icon className="w-5 h-5 text-primary" />
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <info.icon className="w-5 h-5 text-primary flex-shrink-0" />
                     <div>
                       <div className="text-sm text-muted-foreground">{info.label}</div>
                       {info.href ? (
