@@ -43,20 +43,26 @@ const Admin = () => {
   const { data: isAdmin, isLoading: isCheckingAdmin } = useIsAdmin();
   const [currentSection, setCurrentSection] = useState<AdminSection>('home');
   
+  // Only fetch data when the relevant section is active
+  const needsApps = currentSection === 'home' || currentSection === 'applications' || currentSection === 'crm';
+  const needsSubs = currentSection === 'home' || currentSection === 'submissions';
+  const needsReferrals = currentSection === 'home' || currentSection === 'mortgage-leads';
+  const needsLeads = currentSection === 'home' || currentSection === 'leads';
+
   // Investor applications state
-  const { data: applications = [], isLoading: isLoadingApps } = useAdminApplications();
+  const { data: applications = [], isLoading: isLoadingApps } = useAdminApplications(undefined, needsApps);
   const { mutate: updateAppStatus, isPending: isUpdatingApp } = useUpdateApplicationStatus();
 
   // Seller submissions state
-  const { data: submissions = [], isLoading: isLoadingSubs } = useSellerSubmissions();
+  const { data: submissions = [], isLoading: isLoadingSubs } = useSellerSubmissions(undefined, needsSubs);
   const { mutate: updateSubStatus, isPending: isUpdatingSub } = useUpdateSubmissionStatus();
   const { mutate: convertToListing, isPending: isConverting } = useConvertToListing();
 
   // Mortgage referrals state
-  const { data: mortgageReferrals = [], isLoading: isLoadingReferrals } = useMortgageReferrals();
+  const { data: mortgageReferrals = [], isLoading: isLoadingReferrals } = useMortgageReferrals(undefined, needsReferrals);
 
   // Landing leads state
-  const { data: landingLeads = [], isLoading: isLoadingLeads } = useLandingLeads();
+  const { data: landingLeads = [], isLoading: isLoadingLeads } = useLandingLeads({}, needsLeads);
 
   const pendingApps = applications.filter((a) => a.status === "pending").length;
   const pendingSubs = submissions.filter((s) => s.admin_status === "pending").length;

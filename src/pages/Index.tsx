@@ -31,103 +31,12 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  // Show loading animation while checking auth
+  // Show simple loading state while checking auth
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="relative flex items-center justify-center w-40 h-40"
-        >
-          {/* Pulsing glow ring */}
-          <motion.div
-            className="absolute w-24 h-24 rounded-full bg-primary/20"
-            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          />
-          
-          {/* Second glow ring with offset timing */}
-          <motion.div
-            className="absolute w-20 h-20 rounded-full bg-primary/30"
-            animate={{ scale: [1, 1.3, 1], opacity: [0.6, 0.1, 0.6] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-          />
-
-          {/* Orbiting dots */}
-          {[0, 1, 2, 3, 4, 5].map((i) => (
-            <motion.div
-              key={i}
-              className="absolute w-2 h-2 rounded-full bg-primary"
-              style={{
-                left: "50%",
-                top: "50%",
-                marginLeft: "-4px",
-                marginTop: "-4px",
-              }}
-              animate={{
-                x: [
-                  Math.cos((i * Math.PI * 2) / 6) * 60,
-                  Math.cos((i * Math.PI * 2) / 6 + Math.PI * 2) * 60,
-                ],
-                y: [
-                  Math.sin((i * Math.PI * 2) / 6) * 60,
-                  Math.sin((i * Math.PI * 2) / 6 + Math.PI * 2) * 60,
-                ],
-                opacity: [0.3, 0.8, 0.3],
-                scale: [0.8, 1.2, 0.8],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "linear",
-                delay: i * 0.15,
-              }}
-            />
-          ))}
-
-          {/* Floating accent dots */}
-          {[0, 1, 2].map((i) => (
-            <motion.div
-              key={`float-${i}`}
-              className="absolute w-1.5 h-1.5 rounded-full bg-primary/60"
-              style={{
-                left: `${30 + i * 20}%`,
-                top: `${20 + i * 25}%`,
-              }}
-              animate={{
-                y: [0, -15, 0],
-                opacity: [0.4, 0.9, 0.4],
-              }}
-              transition={{
-                duration: 2.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: i * 0.4,
-              }}
-            />
-          ))}
-          
-          {/* House icon with breathing animation */}
-          <motion.div
-            animate={{ scale: [1, 1.08, 1], y: [0, -3, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="relative z-10"
-          >
-            <Home className="h-16 w-16 text-primary" strokeWidth={1.5} />
-          </motion.div>
-        </motion.div>
-        
-        {/* Loading text */}
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="mt-8 text-muted-foreground text-sm tracking-wide"
-        >
-          Loading...
-        </motion.p>
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground text-sm">Loading...</p>
       </div>
     );
   }
