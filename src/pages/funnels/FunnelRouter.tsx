@@ -36,19 +36,19 @@ const FUNNEL_REGISTRY: Record<string, Record<string, React.ComponentType<{ confi
   },
   // Investor funnels
   'off-market-deals': {
-    v1: SellFunnelV1, // Will create InvestFunnelV1 later
-    v2: SellFunnelV1,
+    v1: InvestFunnelV1,
+    v2: InvestFunnelV1,
   },
   'high-yield': {
-    v1: SellFunnelV1,
-    v2: SellFunnelV1,
+    v1: InvestFunnelV1,
+    v2: InvestFunnelV1,
   },
   // Default/fallback
   sell: {
     v1: SellFunnelV1,
   },
   invest: {
-    v1: SellFunnelV1,
+    v1: InvestFunnelV1,
   },
 };
 
