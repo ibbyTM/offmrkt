@@ -1,5 +1,4 @@
-import { Grid3X3, List, Filter, Plus, Download } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Grid3X3, List, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -32,15 +31,12 @@ export function PropertiesToolbar({
 }: PropertiesToolbarProps) {
   return (
     <div className="flex flex-wrap items-center gap-3 px-6 py-3 border-b border-border bg-background">
-      {/* Results Count */}
       <span className="text-sm text-muted-foreground">
         {isLoading ? "Loading..." : `${resultsCount} properties`}
       </span>
 
-      {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Filter Button (mobile/tablet) */}
       <Button
         variant="outline"
         size="sm"
@@ -56,7 +52,6 @@ export function PropertiesToolbar({
         )}
       </Button>
 
-      {/* Sort */}
       <Select value={sortBy} onValueChange={onSortChange}>
         <SelectTrigger className="w-[160px] h-9">
           <SelectValue placeholder="Sort by" />
@@ -70,7 +65,6 @@ export function PropertiesToolbar({
         </SelectContent>
       </Select>
 
-      {/* View Mode Toggle */}
       <div className="flex items-center gap-1 border border-border rounded-md p-1">
         <Button
           variant={viewMode === "grid" ? "secondary" : "ghost"}
@@ -89,18 +83,6 @@ export function PropertiesToolbar({
           <List className="h-4 w-4" />
         </Button>
       </div>
-
-      {/* Actions */}
-      <Button variant="outline" size="sm" className="h-9">
-        <Download className="mr-2 h-4 w-4" />
-        Export
-      </Button>
-      <Button size="sm" className="h-9" asChild>
-        <Link to="/submit-property">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Property
-        </Link>
-      </Button>
     </div>
   );
 }

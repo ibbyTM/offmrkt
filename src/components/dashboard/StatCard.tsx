@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface StatCardProps {
@@ -14,22 +14,15 @@ export function StatCard({ title, value, subtitle, icon, isPrimary = false }: St
   return (
     <Card 
       className={cn(
-        "border-0 shadow-sm hover:shadow-md transition-all duration-300 bg-card",
-        isPrimary && "ring-2 ring-primary/20 bg-gradient-to-br from-primary/5 to-transparent"
+        "shadow-sm hover:shadow-md transition-all duration-300 bg-card",
+        isPrimary && "border-l-4 border-l-primary"
       )}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <div className={cn(
-          "h-9 w-9 rounded-lg flex items-center justify-center",
-          isPrimary 
-            ? "bg-primary/10 text-primary" 
-            : "bg-muted text-muted-foreground"
-        )}>
-          {icon}
+      <CardContent className="p-4 space-y-2">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <span className="shrink-0">{icon}</span>
+          <span className="text-sm font-medium">{title}</span>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-1">
         <div className={cn(
           "text-3xl font-bold tracking-tight",
           isPrimary ? "text-primary" : "text-foreground"

@@ -29,15 +29,12 @@ export function AppLayout({
         <AppSidebar>{sidebarContent}</AppSidebar>
         
         <SidebarInset>
-          {/* Page Header */}
           {pageTitle && (
             <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 border-b border-border bg-background gap-2">
               <div className="flex items-center gap-2 md:gap-3 min-w-0">
                 <SidebarTrigger />
                 {pageIcon && (
-                  <div className="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    {pageIcon}
-                  </div>
+                  <span className="text-muted-foreground shrink-0">{pageIcon}</span>
                 )}
                 <div className="min-w-0">
                   <h1 className="text-lg md:text-xl font-semibold text-foreground truncate">
@@ -52,17 +49,13 @@ export function AppLayout({
             </div>
           )}
           
-          {/* Main Content - add bottom padding for mobile nav */}
           <main className="flex-1 pb-16 md:pb-0">
             {children}
           </main>
         </SidebarInset>
       </div>
 
-      {/* Comparison Bar (optional) */}
       {showComparisonBar && <ComparisonBar />}
-
-      {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
     </SidebarProvider>
   );

@@ -10,7 +10,6 @@ import { formatPrice, formatYield, propertyTypeLabels } from "@/lib/propertyUtil
 export function MarketPulse() {
   const { data: properties, isLoading } = useProperties();
   
-  // Get the 4 most recent available properties
   const featuredProperties = properties
     ?.filter(p => p.listing_status === "available")
     .slice(0, 4) || [];
@@ -18,10 +17,7 @@ export function MarketPulse() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Skeleton className="h-6 w-6 rounded-full" />
-          <Skeleton className="h-6 w-32" />
-        </div>
+        <Skeleton className="h-6 w-32" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-64 rounded-xl" />
@@ -31,18 +27,13 @@ export function MarketPulse() {
     );
   }
 
-  if (featuredProperties.length === 0) {
-    return null;
-  }
+  if (featuredProperties.length === 0) return null;
 
   return (
     <div className="space-y-5">
-      {/* Section Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-            <TrendingUp className="h-5 w-5 text-primary" />
-          </div>
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-muted-foreground" />
           <div>
             <h2 className="text-lg font-semibold text-foreground">Market Pulse</h2>
             <p className="text-sm text-muted-foreground">Latest investment opportunities</p>
@@ -56,7 +47,6 @@ export function MarketPulse() {
         </Button>
       </div>
 
-      {/* Property Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {featuredProperties.map((property) => {
           const monthlyRent = property.current_rental_income || property.estimated_rental_income || 0;
@@ -66,30 +56,20 @@ export function MarketPulse() {
               : null);
 
           return (
-            <Link
-              key={property.id}
-              to={`/properties/${property.id}`}
-              className="group"
-            >
-              <Card className="overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-card h-full">
-                {/* Image Container */}
+            <Link key={property.id} to={`/properties/${property.id}`} className="group">
+              <Card className="overflow-hidden shadow-sm hover:shadow-md hover:border-primary/40 transition-all duration-200 bg-card h-full">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
                     src={property.photo_urls?.[0] || "/placeholder.svg"}
                     alt={property.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover transition-transform duration-500"
                   />
-                  {/* Overlay gradient */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Price Badge */}
                   <div className="absolute bottom-3 left-3">
                     <span className="text-white font-bold text-lg drop-shadow-lg">
                       {formatPrice(property.asking_price)}
                     </span>
                   </div>
-
-                  {/* Yield Badge */}
                   {grossYield && (
                     <Badge className="absolute top-3 right-3 bg-success/90 hover:bg-success text-success-foreground border-0">
                       <Sparkles className="h-3 w-3 mr-1" />
@@ -97,8 +77,6 @@ export function MarketPulse() {
                     </Badge>
                   )}
                 </div>
-
-                {/* Content */}
                 <CardContent className="p-4 space-y-1">
                   <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
                     {property.title}
@@ -107,12 +85,8 @@ export function MarketPulse() {
                     {property.property_city} · {propertyTypeLabels[property.property_type] || property.property_type}
                   </p>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
-                    {property.bedrooms && (
-                      <span>{property.bedrooms} bed</span>
-                    )}
-                    {property.bathrooms && (
-                      <span>{property.bathrooms} bath</span>
-                    )}
+                    {property.bedrooms && <span>{property.bedrooms} bed</span>}
+                    {property.bathrooms && <span>{property.bathrooms} bath</span>}
                   </div>
                 </CardContent>
               </Card>

@@ -1,7 +1,7 @@
 import { Link, useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { 
   LayoutDashboard, Building2, Scale, Plus, 
-  Settings, HelpCircle, Shield, Megaphone, Heart, Clock, User, LogOut
+  HelpCircle, Shield, Megaphone, Heart, Clock, User, LogOut
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Separator } from "@/components/ui/separator";
@@ -51,7 +51,6 @@ export function AppSidebar({ children }: AppSidebarProps) {
     { title: "Submit Property", url: "/submit-property", icon: Plus },
   ];
 
-  // Dashboard sub-navigation items
   const dashboardSubItems = [
     { title: "Overview", url: "/dashboard", tab: "overview", icon: LayoutDashboard },
     { title: "Saved Properties", url: "/dashboard?tab=saved", tab: "saved", icon: Heart },
@@ -60,49 +59,59 @@ export function AppSidebar({ children }: AppSidebarProps) {
   ];
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
+    <Sidebar 
+      collapsible="icon" 
+      className="border-r-0 bg-slate-900 text-slate-300 [&_[data-sidebar=sidebar]]:bg-slate-900 [&_[data-sidebar=sidebar]]:text-slate-300"
+    >
+      <SidebarHeader className="border-b border-slate-700/50">
         <div className="flex items-center justify-center p-2">
           <Link to="/">
-            <div className="bg-white rounded-lg p-1">
-              <img src={logo} alt="Off The Markets" className="h-7 w-auto" />
-            </div>
+            <img src={logo} alt="Off The Markets" className="h-7 w-auto brightness-0 invert" />
           </Link>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="flex flex-col">
-        {/* Main Navigation */}
         <SidebarGroup className="flex-shrink-0">
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  asChild 
-                  isActive={location.pathname === item.url && item.url !== "/dashboard"}
-                  tooltip={item.title}
-                >
-                  <Link to={item.url}>
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
+            {navItems.map((item) => {
+              const active = location.pathname === item.url && item.url !== "/dashboard";
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={active}
+                    tooltip={item.title}
+                    className={active 
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" 
+                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                    }
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
 
-            {/* Compare - show when there are selections */}
             {selectedProperties.length > 0 && (
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild 
                   isActive={location.pathname === "/compare"}
                   tooltip={`Compare (${selectedProperties.length})`}
+                  className={location.pathname === "/compare"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                  }
                 >
                   <Link to="/compare">
                     <Scale className="h-4 w-4" />
                     <span>Compare</span>
-                    <Badge variant="secondary" className="ml-auto h-5 px-1.5 text-xs">
+                    <Badge variant="secondary" className="ml-auto h-5 px-1.5 text-xs bg-slate-700 text-slate-200 border-0">
                       {selectedProperties.length}
                     </Badge>
                   </Link>
@@ -112,39 +121,48 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Dashboard Sub-Navigation - Only show when on dashboard */}
         {isDashboard && (
           <SidebarGroup className="flex-shrink-0">
-            <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">Dashboard</SidebarGroupLabel>
             <SidebarMenu>
-              {dashboardSubItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={currentTab === item.tab}
-                    tooltip={item.title}
-                  >
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {dashboardSubItems.map((item) => {
+                const active = currentTab === item.tab;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={active}
+                      tooltip={item.title}
+                      className={active
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                        : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                      }
+                    >
+                      <Link to={item.url}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroup>
         )}
 
-        {/* Admin Section */}
         {isAdmin && (
           <SidebarGroup className="flex-shrink-0">
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">Admin</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild 
                   isActive={location.pathname === "/admin"}
                   tooltip="Admin Panel"
+                  className={location.pathname === "/admin"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                  }
                 >
                   <Link to="/admin">
                     <Shield className="h-4 w-4" />
@@ -157,6 +175,10 @@ export function AppSidebar({ children }: AppSidebarProps) {
                   asChild 
                   isActive={location.pathname === "/admin/ad-creatives"}
                   tooltip="Ad Creatives"
+                  className={location.pathname === "/admin/ad-creatives"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                    : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                  }
                 >
                   <Link to="/admin/ad-creatives">
                     <Megaphone className="h-4 w-4" />
@@ -168,10 +190,9 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarGroup>
         )}
 
-        {/* Page-specific content (filters, sections, etc.) */}
         {children && (
           <>
-            <Separator className="mx-2 my-2" />
+            <Separator className="mx-2 my-2 bg-slate-700/50" />
             <div className="flex-1 overflow-y-auto min-h-0">
               {children}
             </div>
@@ -179,10 +200,10 @@ export function AppSidebar({ children }: AppSidebarProps) {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
+      <SidebarFooter className="border-t border-slate-700/50">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Account Settings">
+            <SidebarMenuButton asChild tooltip="Account Settings" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800">
               <Link to="/dashboard?tab=settings">
                 <User className="h-4 w-4" />
                 <span>Account</span>
@@ -190,7 +211,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Help & Support">
+            <SidebarMenuButton tooltip="Help & Support" className="text-slate-400 hover:text-slate-100 hover:bg-slate-800">
               <HelpCircle className="h-4 w-4" />
               <span>Help</span>
             </SidebarMenuButton>
@@ -199,7 +220,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
             <SidebarMenuButton 
               onClick={handleSignOut}
               tooltip="Log Out"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="text-slate-500 hover:text-red-400 hover:bg-red-950/30"
             >
               <LogOut className="h-4 w-4" />
               <span>Log Out</span>
