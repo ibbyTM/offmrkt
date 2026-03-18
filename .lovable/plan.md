@@ -1,31 +1,38 @@
 
 
-## Manual Focal Point Editor
+## Visual Polish: Auth Pages, Loading States, Contact Icons
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+### 1. Auth Pages — Split-Screen Layout
+**Files:** `src/pages/Auth.tsx`, `src/components/auth/AuthForm.tsx`
 
-### Changes
+Replace the plain centered form with a split-screen layout:
+- **Left panel** (hidden on mobile): Dark navy (`bg-slate-900`) branded panel with logo, tagline ("Off-market deals, before anyone else."), and 2-3 stat highlights (500+ properties, 8.5% avg yield, £50M+ invested). Provides visual weight and brand reinforcement.
+- **Right panel**: The existing auth form, centered on a white background with more breathing room.
+- Mobile: Full-width form only, no left panel.
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+Changes in `Auth.tsx`: replace the single centered `<div>` with a two-column grid. Remove `<Layout>` wrapper — auth pages should be full-bleed without header/footer.
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+`AuthForm.tsx`: No logic changes. Minor spacing tweaks — add the logo above the form heading on mobile (since the left panel is hidden).
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+### 2. Loading & Skeleton States — Branded Shimmer
+**File:** `src/index.css`
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+Add a shimmer animation keyframe (already defined in tailwind config as `shimmer`) and a `.skeleton-shimmer` utility class that uses the brand's border color as the shimmer highlight instead of generic gray. This gives skeleton loaders a subtle branded feel.
+
+**File:** `src/components/properties/PropertyCard.tsx` (or wherever skeletons appear)
+No structural changes needed — the existing `<Skeleton>` components will pick up the improved shimmer via CSS.
+
+### 3. Contact Section — Remove Icon Circles
+**File:** `src/components/landing/ContactSection.tsx`
+
+Replace the `bg-primary/10` icon-in-circle containers (line 121) with inline icons:
+- Remove the `w-12 h-12 rounded-xl bg-primary/10` wrapper div
+- Render `<info.icon>` directly with `text-primary` at a smaller size
+- Tighten the card layout to a simpler row
+
+### Files Changed
+- `src/pages/Auth.tsx` — split-screen layout, remove Layout wrapper
+- `src/components/auth/AuthForm.tsx` — add mobile logo, minor spacing
+- `src/components/landing/ContactSection.tsx` — inline icons
+- `src/index.css` — shimmer utility class
 
