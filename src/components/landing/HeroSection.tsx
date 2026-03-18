@@ -133,12 +133,12 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-black blur-2xl rounded-full" 
       />
       
-      {/* Floating ROI badge - left */}
+      {/* Floating ROI badge - left (hidden on mobile to prevent overflow) */}
       <motion.div
         initial={{ opacity: 0, x: -30, y: 20 }}
         animate={{ opacity: 1, x: 0, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="absolute -left-4 md:-left-12 top-1/4 z-10"
+        className="absolute -left-4 md:-left-12 top-1/4 z-10 hidden md:block"
       >
         <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
@@ -155,12 +155,12 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         </div>
       </motion.div>
       
-      {/* Floating notification - right */}
+      {/* Floating notification - right (hidden on mobile to prevent overflow) */}
       <motion.div
         initial={{ opacity: 0, x: 30, y: -20 }}
         animate={{ opacity: 1, x: 0, y: 0 }}
         transition={{ delay: 0.8, duration: 0.5 }}
-        className="absolute -right-4 md:-right-12 top-1/3 z-10"
+        className="absolute -right-4 md:-right-12 top-1/3 z-10 hidden md:block"
       >
         <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
@@ -207,7 +207,7 @@ export function HeroSection() {
           transition={{ duration: 0.5 }}
           className="text-center max-w-4xl mx-auto"
         >
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
             Unlock{" "}
             <span className="text-primary">Off-Market Property Deals</span>{" "}
             Before Anyone Else
@@ -266,7 +266,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="grid grid-cols-3 gap-6 mt-20 pt-10 border-t border-border max-w-3xl mx-auto"
+          className="grid grid-cols-3 gap-3 md:gap-6 mt-12 md:mt-20 pt-8 md:pt-10 border-t border-border max-w-3xl mx-auto"
         >
           {[
             { value: "500+", label: "Properties Listed" },
@@ -274,8 +274,8 @@ export function HeroSection() {
             { value: "8.5%", label: "Average Yield" },
           ].map((stat, i) => (
             <div key={i} className="text-center">
-              <div className="text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+              <div className="text-xl md:text-3xl font-bold text-foreground">{stat.value}</div>
+              <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </motion.div>
