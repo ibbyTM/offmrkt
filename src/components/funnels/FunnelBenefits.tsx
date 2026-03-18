@@ -199,4 +199,27 @@ export function FunnelBenefits({
   );
 }
 
-export { defaultSellerBenefits };
+const defaultInvestorBenefits: Benefit[] = [
+  {
+    icon: <Shield className="h-6 w-6" />,
+    title: 'Off-Market Access',
+    description: 'Get exclusive deals that never hit Rightmove or Zoopla.',
+  },
+  {
+    icon: <TrendingUp className="h-6 w-6" />,
+    title: 'Pre-Analysed Deals',
+    description: 'Every property comes with full financial analysis — yields, ROI, and comparable data.',
+  },
+  {
+    icon: <Zap className="h-6 w-6" />,
+    title: 'Below Market Value',
+    description: 'All our deals are sourced at a discount to open-market prices.',
+  },
+  {
+    icon: <Check className="h-6 w-6" />,
+    title: 'Full Due Diligence Packs',
+    description: 'EPC, floor plans, title checks and compliance docs included with every deal.',
+  },
+];
+
+export { defaultSellerBenefits, defaultInvestorBenefits };

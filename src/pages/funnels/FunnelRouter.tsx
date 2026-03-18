@@ -7,6 +7,7 @@ import { useFunnelVariant } from '@/hooks/useFunnelVariant';
 
 // Import funnel pages
 import SellFunnelV1 from './sell/SellFunnelV1';
+import InvestFunnelV1 from './invest/InvestFunnelV1';
 
 interface FunnelConfig {
   id: string;
