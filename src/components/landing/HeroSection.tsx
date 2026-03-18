@@ -266,7 +266,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="grid grid-cols-3 gap-6 mt-20 pt-10 border-t border-border max-w-3xl mx-auto"
+          className="grid grid-cols-3 gap-3 md:gap-6 mt-12 md:mt-20 pt-8 md:pt-10 border-t border-border max-w-3xl mx-auto"
         >
           {[
             { value: "500+", label: "Properties Listed" },
