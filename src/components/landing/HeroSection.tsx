@@ -155,12 +155,12 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         </div>
       </motion.div>
       
-      {/* Floating notification - right */}
+      {/* Floating notification - right (hidden on mobile to prevent overflow) */}
       <motion.div
         initial={{ opacity: 0, x: 30, y: -20 }}
         animate={{ opacity: 1, x: 0, y: 0 }}
         transition={{ delay: 0.8, duration: 0.5 }}
-        className="absolute -right-4 md:-right-12 top-1/3 z-10"
+        className="absolute -right-4 md:-right-12 top-1/3 z-10 hidden md:block"
       >
         <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
