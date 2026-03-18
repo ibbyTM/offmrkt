@@ -19,9 +19,10 @@ export interface LeadFilters {
   search?: string;
 }
 
-export function useLandingLeads(filters: LeadFilters = {}) {
+export function useLandingLeads(filters: LeadFilters = {}, enabled = true) {
   return useQuery({
     queryKey: ["admin-landing-leads", filters],
+    enabled,
     queryFn: async () => {
       let query = supabase
         .from("landing_leads")

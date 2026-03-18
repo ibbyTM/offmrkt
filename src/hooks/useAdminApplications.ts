@@ -13,9 +13,10 @@ export type InvestorApplication = Tables<"investor_applications"> & {
 
 export type ApplicationStatus = "pending" | "approved" | "rejected";
 
-export const useAdminApplications = (statusFilter?: ApplicationStatus) => {
+export const useAdminApplications = (statusFilter?: ApplicationStatus, enabled = true) => {
   return useQuery({
     queryKey: ["admin-applications", statusFilter],
+    enabled,
     queryFn: async () => {
       // Fetch applications
       let query = supabase

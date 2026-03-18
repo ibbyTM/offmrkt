@@ -33,10 +33,8 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         className="relative"
       >
         {/* Subtle floating animation layered on top */}
-        <motion.div
-          animate={{ y: [0, -12, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        >
+        <motion.div>
+
           {/* Laptop screen */}
           <div className="relative">
             {/* Screen bezel */}
@@ -142,9 +140,7 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         transition={{ delay: 0.6, duration: 0.5 }}
         className="absolute -left-4 md:-left-12 top-1/4 z-10"
       >
-        <motion.div
-          animate={{ y: [0, -6, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+        <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
         >
           <div className="flex items-center gap-2">
@@ -156,7 +152,7 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
               <div className="text-[10px] text-muted-foreground">ROI this year</div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
       
       {/* Floating notification - right */}
@@ -166,9 +162,7 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         transition={{ delay: 0.8, duration: 0.5 }}
         className="absolute -right-4 md:-right-12 top-1/3 z-10"
       >
-        <motion.div
-          animate={{ y: [0, -8, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
         >
           <div className="flex items-center gap-2">
@@ -180,7 +174,7 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
               <div className="text-[9px] text-muted-foreground">Leeds • 9.2% yield</div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
     </div>
   );

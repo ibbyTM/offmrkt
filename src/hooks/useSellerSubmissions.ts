@@ -6,9 +6,10 @@ import { toast } from "@/hooks/use-toast";
 export type SellerSubmission = Tables<"seller_submissions">;
 export type SubmissionStatus = Enums<"submission_status">;
 
-export const useSellerSubmissions = (statusFilter?: SubmissionStatus) => {
+export const useSellerSubmissions = (statusFilter?: SubmissionStatus, enabled = true) => {
   return useQuery({
     queryKey: ["seller-submissions", statusFilter],
+    enabled,
     queryFn: async () => {
       let query = supabase
         .from("seller_submissions")

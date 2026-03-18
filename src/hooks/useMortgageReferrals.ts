@@ -14,9 +14,10 @@ export interface MortgageReferralFilters {
   dateTo?: Date;
 }
 
-export const useMortgageReferrals = (filters?: MortgageReferralFilters) => {
+export const useMortgageReferrals = (filters?: MortgageReferralFilters, enabled = true) => {
   return useQuery({
     queryKey: ["admin-mortgage-referrals", filters],
+    enabled,
     queryFn: async () => {
       let query = supabase
         .from("mortgage_referrals")
