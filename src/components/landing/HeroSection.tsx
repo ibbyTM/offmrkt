@@ -165,7 +165,6 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
         >
-        >
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
               <Bell className="w-3.5 h-3.5 text-primary" />
