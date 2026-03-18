@@ -51,7 +51,7 @@ export function PropertyCard({ property, showCompare = true }: PropertyCardProps
   return (
     <Link to={`/properties/${property.id}`}>
       <Card className={cn(
-        "group overflow-hidden rounded-xl border border-border hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-card",
+        "group overflow-hidden rounded-xl border border-border hover:border-primary/40 hover:shadow-md transition-all duration-200 bg-card",
         isSold && "opacity-90"
       )}>
         {/* Image section with interactive carousel */}

@@ -1,40 +1,37 @@
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import { ArrowRight, Building2, PieChart, Bell, Shield } from "lucide-react";
-import { Link } from "react-router-dom";
 
 const features = [
   {
-    icon: Building2,
-    title: "Curated Property Deals",
-    description: "Access hand-picked investment properties with verified returns and transparent pricing.",
+    number: "01",
+    title: "Curated deals, not listings",
+    description:
+      "Every property is hand-picked and verified. We reject over 60% of submissions so you only see deals worth your time.",
     stat: "510+",
-    statLabel: "Active Deals",
-    color: "bg-primary/10 text-primary",
+    statLabel: "Active deals",
   },
   {
-    icon: PieChart,
-    title: "Investment Analytics",
-    description: "Detailed ROI calculations, yield projections, and market comparisons for every property.",
+    number: "02",
+    title: "Full investment analysis",
+    description:
+      "Yield projections, ROI breakdowns, and market comparisons — calculated for you on every property.",
     stat: "£517K",
-    statLabel: "Avg Property Value",
-    color: "bg-success/10 text-success",
+    statLabel: "Avg property value",
   },
   {
-    icon: Bell,
-    title: "Instant Notifications",
-    description: "Be the first to know about new deals matching your investment criteria.",
+    number: "03",
+    title: "Early access alerts",
+    description:
+      "Get notified about new deals matching your criteria before they go to the wider market.",
     stat: "24h",
-    statLabel: "Early Access",
-    color: "bg-accent text-accent-foreground",
+    statLabel: "Early access window",
   },
   {
-    icon: Shield,
-    title: "Verified Sellers",
-    description: "All sellers are verified and properties undergo thorough due diligence.",
+    number: "04",
+    title: "Verified sellers only",
+    description:
+      "All sellers go through identity checks and property due diligence before listing.",
     stat: "100%",
     statLabel: "Verified",
-    color: "bg-warning/10 text-warning-foreground",
   },
 ];
 
@@ -42,60 +39,50 @@ export function BenefitsSection() {
   return (
     <section id="features" className="py-20 bg-background">
       <div className="container">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-14"
+          className="mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Explore our top features
+            Why investors choose us
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Simplify your property investment journey with powerful tools designed 
-            to help you find, analyze, and secure the best deals.
+          <p className="text-muted-foreground max-w-xl">
+            We built the tools we wished existed when we started investing.
           </p>
         </motion.div>
 
-        {/* Features grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-0 divide-y divide-border">
           {features.map((feature, i) => (
             <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
+              key={feature.number}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
+              className="grid md:grid-cols-[4rem_1fr_8rem] gap-4 md:gap-8 items-baseline py-8 first:pt-0"
             >
-              <Card className="p-6 h-full hover:shadow-lg transition-shadow border-border bg-card group">
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${feature.color}`}>
-                    <feature.icon className="w-6 h-6" />
-                  </div>
-                  
-                  {/* Stat badge */}
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-foreground">{feature.stat}</div>
-                    <div className="text-xs text-muted-foreground">{feature.statLabel}</div>
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-semibold text-foreground mb-2">
+              {/* Number */}
+              <span className="text-sm font-mono text-muted-foreground hidden md:block">
+                {feature.number}
+              </span>
+
+              {/* Text */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-1">
                   {feature.title}
                 </h3>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground text-sm max-w-lg">
                   {feature.description}
                 </p>
-                
-                <Link 
-                  to="/properties" 
-                  className="inline-flex items-center text-primary font-medium text-sm group-hover:gap-2 gap-1 transition-all"
-                >
-                  Learn more
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Card>
+              </div>
+
+              {/* Stat */}
+              <div className="text-right">
+                <div className="text-2xl font-bold text-foreground">{feature.stat}</div>
+                <div className="text-xs text-muted-foreground">{feature.statLabel}</div>
+              </div>
             </motion.div>
           ))}
         </div>
