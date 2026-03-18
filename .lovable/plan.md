@@ -1,31 +1,37 @@
 
 
-## Manual Focal Point Editor
+## Performance Optimization Plan
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+### Problem
+Chrome is flagging the tab as resource-heavy. Two main culprits identified:
+
+### Root Causes
+
+**1. Admin page loads all data eagerly**
+The Admin page runs 4 database queries simultaneously on mount (`useAdminApplications`, `useSellerSubmissions`, `useMortgageReferrals`, `useLandingLeads`) regardless of which section the user is viewing. The CRM tab then fires additional queries when opened.
+
+**2. Landing page animation overhead**
+The Index page mounts 12 sections simultaneously, containing 170+ framer-motion `whileInView` animated elements plus continuous infinite animations in the HeroSection (6 orbiting dots, 3 floating dots, 2 pulsing rings, floating badges — all with `repeat: Infinity`).
 
 ### Changes
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+**File: `src/pages/Admin.tsx`**
+- Move the 4 data-fetching hooks into their respective section components, or make them conditionally enabled based on `currentSection`:
+  - `useAdminApplications` → only when section is `home` or `applications`
+  - `useSellerSubmissions` → only when section is `home` or `submissions`
+  - `useMortgageReferrals` → only when section is `home` or `mortgage-leads`
+  - `useLandingLeads` → only when section is `home` or `leads`
+- Use react-query's `enabled` option to conditionally fetch
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+**File: `src/components/landing/HeroSection.tsx`**
+- Reduce infinite animations: remove orbiting dots and floating accent dots (9 continuously animating elements)
+- Keep the laptop mockup's scroll-driven parallax (low cost) and one floating badge animation
+- Simplify the loading spinner in `src/pages/Index.tsx` (6 orbiting + 3 floating dots with infinite animations)
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+**File: `src/pages/Index.tsx`**
+- Lazy-load below-the-fold landing sections using `React.lazy` + `Suspense` so they don't all mount and register IntersectionObservers immediately
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+### Expected Impact
+- Admin page: ~75% fewer initial database queries when landing on home view
+- Landing page: ~12 fewer continuously running animation frames, deferred mounting of 10+ sections
 
