@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { 
   Loader2, Heart, Clock, CheckCircle, Building, Building2, 
-  LayoutDashboard, Rocket, TrendingUp, Settings, User, LogOut
+  LayoutDashboard, Rocket, TrendingUp, User, LogOut
 } from "lucide-react";
 import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
 import { StatCard } from "@/components/dashboard/StatCard";
@@ -50,48 +50,30 @@ const Dashboard = () => {
       if (!user) return;
 
       try {
-        // Fetch profile
         const { data: profileData } = await supabase
           .from("profiles")
           .select("full_name, email")
           .eq("user_id", user.id)
           .single();
 
-        if (profileData) {
-          setProfile(profileData);
-        }
+        if (profileData) setProfile(profileData);
 
-        // Fetch saved properties
         const { data: savedData } = await supabase
           .from("saved_properties")
-          .select(`
-            created_at,
-            property:properties(*)
-          `)
+          .select(`created_at, property:properties(*)`)
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (savedData) {
           const saved = savedData
             .filter((item) => item.property)
-            .map((item) => ({
-              ...(item.property as Property),
-              saved_at: item.created_at,
-            }));
+            .map((item) => ({ ...(item.property as Property), saved_at: item.created_at }));
           setSavedProperties(saved);
         }
 
-        // Fetch reservations
         const { data: reservationData } = await supabase
           .from("property_reservations")
-          .select(`
-            id,
-            property_id,
-            status,
-            deposit_amount,
-            created_at,
-            property:properties(*)
-          `)
+          .select(`id, property_id, status, deposit_amount, created_at, property:properties(*)`)
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
@@ -122,7 +104,7 @@ const Dashboard = () => {
     return (
       <AppLayout 
         pageTitle="Dashboard" 
-        pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
+        pageIcon={<LayoutDashboard className="h-5 w-5" />}
       >
         <div className="min-h-[80vh] flex items-center justify-center bg-background-secondary">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -131,7 +113,6 @@ const Dashboard = () => {
     );
   }
 
-  // Determine which content to show based on URL tab parameter
   const renderContent = () => {
     switch (currentTab) {
       case "listings":
@@ -155,7 +136,7 @@ const Dashboard = () => {
             {reservations.length > 0 ? (
               <div className="space-y-4">
                 {reservations.map((reservation) => (
-                  <Card key={reservation.id} className="border-0 shadow-sm bg-card">
+                  <Card key={reservation.id} className="shadow-sm bg-card">
                     <CardContent className="flex flex-col md:flex-row items-start md:items-center gap-4 p-5">
                       <div className="flex-shrink-0">
                         <img
@@ -181,10 +162,8 @@ const Dashboard = () => {
                       <div className="flex flex-col items-end gap-2">
                         <Badge
                           variant={
-                            reservation.status === "completed"
-                              ? "default"
-                              : reservation.status === "pending"
-                              ? "secondary"
+                            reservation.status === "completed" ? "default"
+                              : reservation.status === "pending" ? "secondary"
                               : "outline"
                           }
                         >
@@ -199,16 +178,14 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <Card className="border-0 shadow-sm bg-card">
+              <Card className="shadow-sm bg-card">
                 <CardContent className="flex flex-col items-center justify-center py-16">
-                  <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
-                    <Clock className="h-8 w-8 text-muted-foreground" />
-                  </div>
+                  <Clock className="h-8 w-8 text-muted-foreground mb-4" />
                   <CardTitle className="text-xl mb-2">No reservations yet</CardTitle>
                   <CardDescription className="text-center mb-6 max-w-md">
-                    Reserve a property to start your investment journey. Reservations hold properties for you while you complete due diligence.
+                    Reserve a property to start your investment journey.
                   </CardDescription>
-                  <Button asChild variant="gradient">
+                  <Button asChild>
                     <Link to="/properties">
                       <Rocket className="mr-2 h-4 w-4" />
                       Find New Deals
@@ -234,16 +211,14 @@ const Dashboard = () => {
                 ))}
               </div>
             ) : (
-              <Card className="border-0 shadow-sm bg-card">
+              <Card className="shadow-sm bg-card">
                 <CardContent className="flex flex-col items-center justify-center py-16">
-                  <div className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
-                    <Heart className="h-8 w-8 text-muted-foreground" />
-                  </div>
+                  <Heart className="h-8 w-8 text-muted-foreground mb-4" />
                   <CardTitle className="text-xl mb-2">No saved properties</CardTitle>
                   <CardDescription className="text-center mb-6 max-w-md">
                     Save properties you're interested in to keep track of them here.
                   </CardDescription>
-                  <Button asChild variant="gradient">
+                  <Button asChild>
                     <Link to="/properties">
                       <Rocket className="mr-2 h-4 w-4" />
                       Browse Properties
@@ -262,12 +237,10 @@ const Dashboard = () => {
               <h2 className="text-xl font-semibold text-foreground">Account Settings</h2>
               <p className="text-sm text-muted-foreground">Manage your profile and preferences</p>
             </div>
-            <Card className="border-0 shadow-sm bg-card">
+            <Card className="shadow-sm bg-card">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <User className="h-6 w-6 text-primary" />
-                  </div>
+                  <User className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <CardTitle>Profile Information</CardTitle>
                     <CardDescription>Your account details</CardDescription>
@@ -292,28 +265,19 @@ const Dashboard = () => {
                     <p className="text-sm text-muted-foreground">Your current verification level</p>
                   </div>
                   <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1">
-                    {investorStatus === "approved" ? (
-                      <CheckCircle className="h-3 w-3" />
-                    ) : (
-                      <Clock className="h-3 w-3" />
-                    )}
+                    {investorStatus === "approved" ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
                     {investorStatus === "approved" ? "Approved" : "Pending"}
                   </Badge>
                 </div>
                 <Separator />
-                <Button variant="outline" disabled>
-                  Edit Profile (Coming Soon)
-                </Button>
+                <Button variant="outline" disabled>Edit Profile (Coming Soon)</Button>
               </CardContent>
             </Card>
 
-            {/* Sign Out Card */}
-            <Card className="border-0 shadow-sm bg-card border-destructive/20">
+            <Card className="shadow-sm bg-card border-destructive/20">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center">
-                    <LogOut className="h-6 w-6 text-destructive" />
-                  </div>
+                  <LogOut className="h-5 w-5 text-destructive" />
                   <div>
                     <CardTitle>Sign Out</CardTitle>
                     <CardDescription>Log out of your account</CardDescription>
@@ -326,10 +290,7 @@ const Dashboard = () => {
                 </p>
                 <Button 
                   variant="destructive" 
-                  onClick={async () => {
-                    await signOut();
-                    navigate("/");
-                  }}
+                  onClick={async () => { await signOut(); navigate("/"); }}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Log Out
@@ -340,10 +301,8 @@ const Dashboard = () => {
         );
 
       default:
-        // Overview/default tab
         return (
           <>
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 title="Saved Properties"
@@ -372,14 +331,11 @@ const Dashboard = () => {
               />
             </div>
 
-            {/* Saved Properties or Market Pulse */}
             {savedProperties.length > 0 ? (
               <div className="space-y-5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <Heart className="h-5 w-5 text-primary" />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Heart className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <h2 className="text-lg font-semibold text-foreground">Saved Properties</h2>
                       <p className="text-sm text-muted-foreground">Your watchlist for quick access</p>
@@ -405,25 +361,20 @@ const Dashboard = () => {
               <MarketPulse />
             )}
 
-            {/* Recent Activity */}
             {(submissions.length > 0 || reservations.length > 0) && (
               <div className="space-y-5">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
-                    <TrendingUp className="h-5 w-5 text-muted-foreground" />
-                  </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <h2 className="text-lg font-semibold text-foreground">Recent Activity</h2>
                     <p className="text-sm text-muted-foreground">Your latest updates</p>
                   </div>
                 </div>
-                <Card className="border-0 shadow-sm bg-card">
+                <Card className="shadow-sm bg-card">
                   <CardContent className="p-0 divide-y divide-border">
                     {submissions.slice(0, 3).map((submission) => (
                       <div key={submission.id} className="flex items-center gap-4 p-4">
-                        <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
-                          <Building2 className="h-5 w-5 text-secondary-foreground" />
-                        </div>
+                        <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground truncate">
                             {submission.property_address}
@@ -439,9 +390,7 @@ const Dashboard = () => {
                     ))}
                     {reservations.slice(0, 2).map((reservation) => (
                       <div key={reservation.id} className="flex items-center gap-4 p-4">
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Clock className="h-5 w-5 text-primary" />
-                        </div>
+                        <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-foreground truncate">
                             {reservation.property.title}
@@ -471,18 +420,14 @@ const Dashboard = () => {
     <AppLayout
       pageTitle={`Welcome back, ${profile?.full_name?.split(" ")[0] || "Investor"}`}
       pageSubtitle="Manage your property investments"
-      pageIcon={<LayoutDashboard className="h-5 w-5 text-primary" />}
+      pageIcon={<LayoutDashboard className="h-5 w-5" />}
       headerActions={
         <div className="flex items-center gap-3">
           <Badge variant={investorStatus === "approved" ? "default" : "secondary"} className="gap-1 hidden sm:flex">
-            {investorStatus === "approved" ? (
-              <CheckCircle className="h-3 w-3" />
-            ) : (
-              <Clock className="h-3 w-3" />
-            )}
+            {investorStatus === "approved" ? <CheckCircle className="h-3 w-3" /> : <Clock className="h-3 w-3" />}
             {investorStatus === "approved" ? "Approved Investor" : "Pending Approval"}
           </Badge>
-          <Button asChild variant="gradient" size="sm" className="gap-2">
+          <Button asChild size="sm" className="gap-2">
             <Link to="/properties">
               <Rocket className="h-4 w-4" />
               <span className="hidden sm:inline">Find New Deals</span>

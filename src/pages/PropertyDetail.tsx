@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useProperty } from "@/hooks/useProperties";
 import { useIsAdmin } from "@/hooks/useAdminApplications";
-import { Layout } from "@/components/layout/Layout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import PropertyGallery from "@/components/property-detail/PropertyGallery";
 import FloorPlans from "@/components/property-detail/FloorPlans";
 import PropertyHeader from "@/components/property-detail/PropertyHeader";
@@ -17,7 +17,7 @@ import PropertyCTAs from "@/components/property-detail/PropertyCTAs";
 import { AdminPropertyToolbar } from "@/components/property-detail/AdminPropertyToolbar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Building2, Loader2 } from "lucide-react";
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +26,7 @@ export default function PropertyDetail() {
 
   if (isLoading) {
     return (
-      <Layout>
+      <AppLayout pageTitle="Loading..." pageIcon={<Building2 className="h-5 w-5" />}>
         <div className="container mx-auto px-4 py-8">
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
@@ -40,77 +40,54 @@ export default function PropertyDetail() {
             </div>
           </div>
         </div>
-      </Layout>
+      </AppLayout>
     );
   }
 
   if (error || !property) {
     return (
-      <Layout>
+      <AppLayout pageTitle="Property Not Found" pageIcon={<Building2 className="h-5 w-5" />}>
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Property Not Found</h1>
           <p className="text-muted-foreground mb-8">
             The property you're looking for doesn't exist or has been removed.
           </p>
           <Button asChild>
-            <Link to="/properties">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Properties
-            </Link>
+            <Link to="/properties">Back to Properties</Link>
           </Button>
         </div>
-      </Layout>
+      </AppLayout>
     );
   }
 
   return (
-    <Layout>
+    <AppLayout 
+      pageTitle={property.title} 
+      pageSubtitle={`${property.property_city} · ${property.property_postcode}`}
+      pageIcon={<Building2 className="h-5 w-5" />}
+    >
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
-        <Link
-          to="/properties"
-          className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Properties
-        </Link>
-
         {isAdmin && <AdminPropertyToolbar property={property} />}
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
-            <PropertyGallery
-              photos={property.photo_urls || []}
-              title={property.title}
-            />
-            
+            <PropertyGallery photos={property.photo_urls || []} title={property.title} />
             <PropertyHeader property={property} />
-            
             <PropertyQuickSpecs property={property} />
-            
             <FinancialStatsGrid property={property} />
-            
             <PropertyDescription description={property.property_description} />
-
             <FloorPlans floorPlanUrls={property.floor_plan_urls || []} />
-            
             <InvestmentHighlights property={property} />
-
             <AIPropertyAnalysis property={property} />
-            
             <PropertyAccordions property={property} />
-            
             <ROIBreakdown property={property} />
           </div>
-
-          {/* Sidebar */}
           <div className="space-y-6">
             <PropertyCTAs property={property} />
             <ComplianceDocuments property={property} />
           </div>
         </div>
       </div>
-    </Layout>
+    </AppLayout>
   );
 }
