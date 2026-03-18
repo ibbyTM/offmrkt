@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { X, Building, ExternalLink } from "lucide-react";
+import { MobileComparisonCard } from "./MobileComparisonCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useComparison } from "@/contexts/ComparisonContext";
