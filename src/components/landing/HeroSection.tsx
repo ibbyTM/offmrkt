@@ -133,12 +133,12 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
         className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-6 bg-black blur-2xl rounded-full" 
       />
       
-      {/* Floating ROI badge - left */}
+      {/* Floating ROI badge - left (hidden on mobile to prevent overflow) */}
       <motion.div
         initial={{ opacity: 0, x: -30, y: 20 }}
         animate={{ opacity: 1, x: 0, y: 0 }}
         transition={{ delay: 0.6, duration: 0.5 }}
-        className="absolute -left-4 md:-left-12 top-1/4 z-10"
+        className="absolute -left-4 md:-left-12 top-1/4 z-10 hidden md:block"
       >
         <div
           className="bg-card rounded-xl shadow-lg border border-border px-3 py-2"
