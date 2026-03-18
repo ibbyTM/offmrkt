@@ -46,17 +46,19 @@ const Index = () => {
     <Layout>
       <HeroSection />
       <DualPathSection />
-      <PartnerLogos />
-      <TrustSection />
-      <BenefitsSection />
-      <FeaturedPropertiesSection />
-      <WhyChooseUsSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <AftercareSection />
-      <FAQSection />
-      <ContactSection />
-      <FloatingLeadCapture />
+      <Suspense fallback={null}>
+        <PartnerLogos />
+        <TrustSection />
+        <BenefitsSection />
+        <FeaturedPropertiesSection />
+        <WhyChooseUsSection />
+        <HowItWorksSection />
+        <TestimonialsSection />
+        <AftercareSection />
+        <FAQSection />
+        <ContactSection />
+        <FloatingLeadCapture />
+      </Suspense>
     </Layout>
   );
 };
