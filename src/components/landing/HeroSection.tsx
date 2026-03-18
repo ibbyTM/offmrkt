@@ -153,7 +153,7 @@ function LaptopMockup({ scrollYProgress }: { scrollYProgress: MotionValue<number
               <div className="text-[10px] text-muted-foreground">ROI this year</div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </motion.div>
       
       {/* Floating notification - right */}
