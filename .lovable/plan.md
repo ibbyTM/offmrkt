@@ -1,31 +1,31 @@
 
 
-## Manual Focal Point Editor
+## Sidebar Reorganisation — Grouped Navigation
 
-Add a dialog where admins can click on the property's cover image to visually set the focal point, overriding the AI-detected value.
+### What's Changing
+Restructure the sidebar nav items to match the reference screenshot with three persistent groups instead of conditionally showing dashboard sub-items:
 
-### Changes
+**PLATFORM** (always visible)
+- Dashboard → `/dashboard`
+- Marketplace → `/properties` (renamed from "Properties")
+- Submit Deal → `/submit-property` (renamed from "Submit Property")
 
-**1. New component: `src/components/admin/FocalPointEditor.tsx`**
-- A dialog containing the property's first image at full width
-- Shows a crosshair/marker at the current focal point position (from `property.cover_focal_point` or default `{x:50, y:50}`)
-- On click anywhere on the image, calculates the click position as x% and y% relative to the image bounds
-- Moves the marker to the clicked position in real-time (preview before saving)
-- A small live preview card (4:3 aspect ratio with `object-position` set to the selected point) so admins can see how the card will look
-- Save button that updates `properties.cover_focal_point` directly via Supabase, then invalidates the property query cache
-- Cancel button to discard
+**MY PORTFOLIO** (always visible, not just on dashboard)
+- Watchlist → `/dashboard?tab=saved` (renamed from "Saved Properties")
+- My Submissions → `/dashboard?tab=listings` (renamed from "My Listings")
+- Reservations → `/dashboard?tab=reservations`
 
-**2. Update `AdminPropertyToolbar.tsx`**
-- Add a "Set Focus" button (using `MousePointerClick` or `Crosshair` icon) next to the existing "Detect Focus" button
-- Clicking it opens the `FocalPointEditor` dialog
-- Pass `property` (for the image URL and current focal point) and an `onSaved` callback to refresh data
+**ADMIN** (unchanged, only for admins)
+- Admin Panel → `/admin`
+- Ad Creatives → `/admin/ad-creatives`
 
-**3. No database changes needed** -- the `cover_focal_point` JSONB column already exists and admins already have UPDATE access via RLS.
+### Key Differences from Current
+1. Dashboard sub-items are no longer hidden behind `isDashboard` — they're always accessible as "My Portfolio"
+2. Rename labels to match the reference: "Marketplace", "Submit Deal", "Watchlist", "My Submissions"
+3. Remove the conditional `isDashboard` check entirely — simpler code
+4. Compare item stays conditional (only when properties selected), placed under Platform group
+5. Footer (Account, Help, Log Out) stays unchanged
 
-### UI Flow
-1. Admin clicks "Set Focus" on the property detail page toolbar
-2. Dialog opens showing the first property image with a crosshair marker
-3. Admin clicks on the image to reposition the focal point
-4. A small preview card shows the cropping result in real-time
-5. Admin clicks "Save" to persist, or "Cancel" to discard
+### File Changed
+- `src/components/layout/AppSidebar.tsx` — restructure nav groups, rename labels, remove `isDashboard` conditional
 
