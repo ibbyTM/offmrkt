@@ -42,19 +42,17 @@ export function AppSidebar({ children }: AppSidebarProps) {
     navigate("/");
   };
 
-  const isDashboard = location.pathname === "/dashboard";
   const currentTab = searchParams.get("tab") || "overview";
 
-  const navItems = [
+  const platformItems = [
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { title: "Properties", url: "/properties", icon: Building2 },
-    { title: "Submit Property", url: "/submit-property", icon: Plus },
+    { title: "Marketplace", url: "/properties", icon: Building2 },
+    { title: "Submit Deal", url: "/submit-property", icon: Plus },
   ];
 
-  const dashboardSubItems = [
-    { title: "Overview", url: "/dashboard", tab: "overview", icon: LayoutDashboard },
-    { title: "Saved Properties", url: "/dashboard?tab=saved", tab: "saved", icon: Heart },
-    { title: "My Listings", url: "/dashboard?tab=listings", tab: "listings", icon: Building2 },
+  const portfolioItems = [
+    { title: "Watchlist", url: "/dashboard?tab=saved", tab: "saved", icon: Heart },
+    { title: "My Submissions", url: "/dashboard?tab=listings", tab: "listings", icon: Building2 },
     { title: "Reservations", url: "/dashboard?tab=reservations", tab: "reservations", icon: Clock },
   ];
 
@@ -73,9 +71,9 @@ export function AppSidebar({ children }: AppSidebarProps) {
 
       <SidebarContent className="flex flex-col">
         <SidebarGroup className="flex-shrink-0">
-          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">Platform</SidebarGroupLabel>
           <SidebarMenu>
-            {navItems.map((item) => {
+            {platformItems.map((item) => {
               const active = location.pathname === item.url && item.url !== "/dashboard";
               return (
                 <SidebarMenuItem key={item.title}>
@@ -121,34 +119,32 @@ export function AppSidebar({ children }: AppSidebarProps) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {isDashboard && (
-          <SidebarGroup className="flex-shrink-0">
-            <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">Dashboard</SidebarGroupLabel>
-            <SidebarMenu>
-              {dashboardSubItems.map((item) => {
-                const active = currentTab === item.tab;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={active}
-                      tooltip={item.title}
-                      className={active
-                        ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                        : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
-                      }
-                    >
-                      <Link to={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
+        <SidebarGroup className="flex-shrink-0">
+          <SidebarGroupLabel className="text-slate-500 text-xs uppercase tracking-wider">My Portfolio</SidebarGroupLabel>
+          <SidebarMenu>
+            {portfolioItems.map((item) => {
+              const active = location.pathname === "/dashboard" && currentTab === item.tab;
+              return (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={active}
+                    tooltip={item.title}
+                    className={active
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                      : "text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+                    }
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
 
         {isAdmin && (
           <SidebarGroup className="flex-shrink-0">
