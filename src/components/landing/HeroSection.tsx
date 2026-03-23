@@ -221,11 +221,8 @@ function PipelineFlow() {
         ))}
       </div>
 
-      {/* Dashed line → */}
-      <div className="flex items-center gap-0">
-        <div className="w-10 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
-        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
-      </div>
+      {/* Dashed arrow → */}
+      <DashedArrow width={50} />
 
       {/* Portal logos */}
       <div className="flex flex-col items-center gap-2 relative">
