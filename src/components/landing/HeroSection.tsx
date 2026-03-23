@@ -25,12 +25,10 @@ function DashedArrow({ width = 50 }: { width?: number }) {
 }
 
 const partners = [
-  "Silks Property Academy",
-  "GoHighLevel",
-  "Rightmove",
-  "Zoopla",
-  "OnTheMarket",
-  "NRLA",
+  "Verified Investors",
+  "Active Landlords",
+  "Property Professionals",
+  "Sourcing Agents",
 ];
 
 /* ── Floating Cards ── */
