@@ -249,11 +249,8 @@ function PipelineFlow() {
         Add to Pipeline
       </button>
 
-      {/* Dashed line → */}
-      <div className="flex items-center gap-0">
-        <div className="w-8 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
-        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
-      </div>
+      {/* Dashed arrow → */}
+      <DashedArrow width={40} />
 
       {/* Pipeline panel */}
       <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[250px] shrink-0">
