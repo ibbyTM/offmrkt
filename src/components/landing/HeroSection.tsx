@@ -212,7 +212,7 @@ function PipelineFlow() {
             key={i}
             src={src}
             alt=""
-            className="w-[72px] h-[56px] object-cover rounded-lg grayscale blur-[1px] opacity-60"
+            className="w-[60px] h-[60px] min-w-[60px] min-h-[60px] object-cover rounded-lg grayscale blur-[1px] opacity-60"
           />
         ))}
       </div>
