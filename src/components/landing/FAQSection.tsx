@@ -40,7 +40,7 @@ export function FAQSection() {
   const [openItem, setOpenItem] = useState<string | undefined>("item-0");
 
   return (
-    <section id="faq" className="py-20 bg-muted/30">
+    <section id="faq" className="py-20 bg-slate-50">
       <div className="container">
         <div className="max-w-3xl mx-auto">
           {/* Header */}

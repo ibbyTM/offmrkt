@@ -47,7 +47,7 @@ const features = [
 
 export function BenefitsSection() {
   return (
-    <section id="features" className="py-20 bg-background">
+    <section id="features" className="py-20 bg-slate-50">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
