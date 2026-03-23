@@ -89,8 +89,8 @@ function FloatingCardToggles() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.7 }}
-      className="absolute bottom-[120px] left-[40px] z-20 hidden lg:block"
-      style={{ animation: "float 5s ease-in-out infinite 1s" }}
+      className="absolute z-20 hidden lg:block"
+      style={{ animation: "float 5s ease-in-out infinite 1s", bottom: "120px", left: "280px" }}
     >
       <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] min-h-[120px] space-y-2.5">
         <div className="flex items-center justify-between">
@@ -203,7 +203,7 @@ function PipelineFlow() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.6 }}
-      className="hidden lg:flex items-center justify-center gap-6 w-[80%] mx-auto mt-8"
+      className="hidden lg:flex items-center justify-between mt-8 px-[280px]"
     >
       {/* 3x3 blurred property grid */}
       <div className="grid grid-cols-3 gap-1.5 shrink-0">
@@ -301,7 +301,7 @@ function PipelineFlow() {
 export function HeroSection() {
   return (
     <>
-      <section className="relative min-h-[85vh] bg-[hsl(210,33%,96%)]">
+      <section className="relative pb-12 bg-[hsl(210,33%,96%)]">
         {/* Floating cards (desktop only, absolutely positioned to section) */}
         <FloatingCardNewDeal />
         <FloatingCardVerified />
