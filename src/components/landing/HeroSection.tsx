@@ -207,7 +207,7 @@ function PipelineFlow() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.6 }}
-      className="hidden lg:flex items-center justify-center gap-6 mt-12 relative"
+      className="hidden lg:flex items-center justify-center gap-6 mt-8 relative"
     >
       {/* 3x3 blurred property grid */}
       <div className="grid grid-cols-3 gap-1.5 shrink-0">
