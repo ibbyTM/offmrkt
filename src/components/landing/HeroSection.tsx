@@ -314,7 +314,7 @@ export function HeroSection() {
           <FloatingCardNewDeal />
           <FloatingCardVerified />
           <FloatingCardToggles />
-          <FloatingCardMarket />
+          {/* FloatingCardMarket now inside PipelineFlow */}
 
           {/* Centre content */}
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto relative z-10">
