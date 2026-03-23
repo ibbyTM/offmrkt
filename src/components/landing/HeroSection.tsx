@@ -23,7 +23,7 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-background">
       {/* Subtle gradient wash */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-blue-50/40 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-muted/40 pointer-events-none" />
 
       <div className="container relative pt-20 pb-10 lg:pt-28 lg:pb-14">
         <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
