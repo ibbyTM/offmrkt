@@ -1,8 +1,28 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Home, Shield, TrendingUp, Zap } from "lucide-react";
+import { Home, Shield, TrendingUp, Zap } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
+
+/* ── Reusable SVG Dashed Arrow ── */
+function DashedArrow({ width = 50 }: { width?: number }) {
+  return (
+    <svg width={width} height="20" viewBox={`0 0 ${width} 20`} fill="none" className="shrink-0">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="hsl(var(--primary))" />
+        </marker>
+      </defs>
+      <line
+        x1="0" y1="10" x2={width - 8} y2="10"
+        stroke="hsl(var(--primary))"
+        strokeWidth="1.5"
+        strokeDasharray="6 4"
+        markerEnd="url(#arrowhead)"
+      />
+    </svg>
+  );
+}
 
 const partners = [
   "Silks Property Academy",
@@ -96,32 +116,7 @@ function FloatingCardToggles() {
   );
 }
 
-function FloatingCardMarket() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.9 }}
-      className="absolute right-[3%] bottom-[18%] z-20 hidden lg:block"
-      style={{ animation: "float 4.2s ease-in-out infinite 0.8s" }}
-    >
-      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[210px]">
-        <div className="flex items-center gap-2 mb-2">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Market Insight
-          </span>
-        </div>
-        <p className="text-sm font-medium text-foreground">
-          North West prices
-        </p>
-        <p className="text-xs text-green-600 font-semibold">
-          +4.2% this quarter
-        </p>
-      </div>
-    </motion.div>
-  );
-}
+/* FloatingCardMarket moved inside PipelineFlow */
 
 /* ── Mobile floating cards (2x2 grid) ── */
 
@@ -212,7 +207,7 @@ function PipelineFlow() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.6 }}
-      className="hidden lg:flex items-center justify-center gap-6 mt-12 relative"
+      className="hidden lg:flex items-center justify-center gap-6 mt-8 relative"
     >
       {/* 3x3 blurred property grid */}
       <div className="grid grid-cols-3 gap-1.5 shrink-0">
@@ -226,11 +221,8 @@ function PipelineFlow() {
         ))}
       </div>
 
-      {/* Dashed line → */}
-      <div className="flex items-center gap-0">
-        <div className="w-10 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
-        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
-      </div>
+      {/* Dashed arrow → */}
+      <DashedArrow width={50} />
 
       {/* Portal logos */}
       <div className="flex flex-col items-center gap-2 relative">
@@ -248,11 +240,8 @@ function PipelineFlow() {
         ))}
       </div>
 
-      {/* Dashed line → */}
-      <div className="flex items-center gap-0">
-        <div className="w-8 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
-        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
-      </div>
+      {/* Dashed arrow → */}
+      <DashedArrow width={40} />
 
       {/* Add to Pipeline button */}
       <button className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow shrink-0">
@@ -260,35 +249,54 @@ function PipelineFlow() {
         Add to Pipeline
       </button>
 
-      {/* Dashed line → */}
-      <div className="flex items-center gap-0">
-        <div className="w-8 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
-        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
-      </div>
+      {/* Dashed arrow → */}
+      <DashedArrow width={40} />
 
-      {/* Pipeline panel */}
-      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[250px] shrink-0">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-          Deals in Your Pipeline
-        </p>
-        <div className="space-y-2.5">
-          {pipelineDeals.map((deal) => (
-            <div key={deal.name} className="flex items-center gap-2.5">
-              <img
-                src={deal.img}
-                alt=""
-                className="w-8 h-8 rounded-md object-cover"
-              />
-              <span className="text-xs text-foreground font-medium truncate flex-1">
-                {deal.name}
+      {/* Pipeline panel with Market Insight overlay */}
+      <div className="relative shrink-0">
+        {/* Market Insight card — stacked overlay */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.9 }}
+          className="absolute -top-6 -right-6 rotate-[2deg] z-10"
+          style={{ animation: "float 4.2s ease-in-out infinite 0.8s" }}
+        >
+          <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-3 w-[180px]">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Market Insight
               </span>
-              <span
-                className={`w-2 h-2 rounded-full shrink-0 ${
-                  deal.status === "green" ? "bg-green-500" : "bg-orange-400"
-                }`}
-              />
             </div>
-          ))}
+            <p className="text-xs font-medium text-foreground">North West prices</p>
+            <p className="text-[10px] text-green-600 font-semibold">+4.2% this quarter</p>
+          </div>
+        </motion.div>
+
+        <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[250px]">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Deals in Your Pipeline
+          </p>
+          <div className="space-y-2.5">
+            {pipelineDeals.map((deal) => (
+              <div key={deal.name} className="flex items-center gap-2.5">
+                <img
+                  src={deal.img}
+                  alt=""
+                  className="w-8 h-8 rounded-md object-cover"
+                />
+                <span className="text-xs text-foreground font-medium truncate flex-1">
+                  {deal.name}
+                </span>
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    deal.status === "green" ? "bg-green-500" : "bg-orange-400"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
@@ -306,7 +314,7 @@ export function HeroSection() {
           <FloatingCardNewDeal />
           <FloatingCardVerified />
           <FloatingCardToggles />
-          <FloatingCardMarket />
+          {/* FloatingCardMarket now inside PipelineFlow */}
 
           {/* Centre content */}
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto relative z-10">
@@ -345,7 +353,9 @@ export function HeroSection() {
               >
                 <Link to="/register">
                   I Want to Invest
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-2 transition-transform group-hover:translate-x-1">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </Link>
               </Button>
               <Button
