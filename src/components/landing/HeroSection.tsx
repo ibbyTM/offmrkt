@@ -306,7 +306,7 @@ function PipelineFlow() {
 export function HeroSection() {
   return (
     <>
-      <section className="relative overflow-hidden bg-[hsl(210,33%,96%)] min-h-[85vh] flex flex-col justify-center">
+      <section className="relative overflow-hidden bg-[hsl(210,33%,96%)]">
         <div className="container relative py-16 lg:pt-24 lg:pb-10">
           {/* Floating cards (desktop only, absolutely positioned) */}
           <FloatingCardNewDeal />
