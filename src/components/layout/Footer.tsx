@@ -26,30 +26,30 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border bg-background-secondary">
+    <footer className="bg-slate-900 text-slate-300">
       <div className="container py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center mb-4">
-              <div className="bg-white rounded-lg p-1 inline-block">
-                <img src={logo} alt="Off The Markets" className="h-10 w-auto" />
+              <div className="bg-white rounded-lg px-3 py-1.5 inline-block">
+                <img src={logo} alt="Off The Markets" className="h-8 w-auto" />
               </div>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs">
+            <p className="text-sm text-slate-400 max-w-xs">
               Connecting verified investors with quality property investment opportunities.
             </p>
           </div>
 
           {/* Platform Links */}
           <div>
-            <h4 className="font-semibold text-sm mb-4">Platform</h4>
+            <h4 className="font-semibold text-sm mb-4 text-white">Platform</h4>
             <ul className="space-y-3">
               {footerLinks.platform.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-slate-400 hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -60,13 +60,13 @@ export function Footer() {
 
           {/* Company Links */}
           <div>
-            <h4 className="font-semibold text-sm mb-4">Company</h4>
+            <h4 className="font-semibold text-sm mb-4 text-white">Company</h4>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-slate-400 hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -77,13 +77,13 @@ export function Footer() {
 
           {/* Legal Links */}
           <div>
-            <h4 className="font-semibold text-sm mb-4">Legal</h4>
+            <h4 className="font-semibold text-sm mb-4 text-white">Legal</h4>
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm text-slate-400 hover:text-white transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -94,8 +94,8 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
+        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-slate-500">
             © {currentYear} Off The Markets. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
@@ -103,7 +103,7 @@ export function Footer() {
               href="https://twitter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-slate-500 hover:text-white transition-colors"
               aria-label="Twitter"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -114,7 +114,7 @@ export function Footer() {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-slate-500 hover:text-white transition-colors"
               aria-label="LinkedIn"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
