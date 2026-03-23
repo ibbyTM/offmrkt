@@ -15,7 +15,7 @@ const itemVariants = {
 
 export function DualPathSection() {
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section className="py-16 md:py-20 bg-slate-50">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -34,12 +34,12 @@ export function DualPathSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto"
+          className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto"
         >
           {/* Sell Card */}
           <motion.div variants={itemVariants}>
-            <div className="rounded-xl bg-primary text-primary-foreground p-8 h-full flex flex-col hover:scale-[1.02] transition-transform duration-300">
-              <h3 className="text-2xl font-bold mb-3">I want to sell</h3>
+            <div className="rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-10 md:p-12 h-full flex flex-col hover:scale-[1.02] transition-transform duration-300">
+              <h3 className="text-3xl font-bold mb-3">I want to sell</h3>
 
               <p className="text-primary-foreground/80 mb-6 leading-relaxed flex-1">
                 Get cash offers from our network of verified investors.
@@ -66,24 +66,24 @@ export function DualPathSection() {
 
           {/* Buy Card */}
           <motion.div variants={itemVariants}>
-            <div className="rounded-xl bg-foreground text-background p-8 h-full flex flex-col hover:scale-[1.02] transition-transform duration-300">
-              <h3 className="text-2xl font-bold mb-3">I want to buy</h3>
+            <div className="rounded-xl bg-slate-900 text-white p-10 md:p-12 h-full flex flex-col hover:scale-[1.02] transition-transform duration-300">
+              <h3 className="text-3xl font-bold mb-3">I want to buy</h3>
 
-              <p className="text-background/70 mb-6 leading-relaxed flex-1">
+              <p className="text-slate-300 mb-6 leading-relaxed flex-1">
                 Access exclusive off-market deals before anyone else.
                 Verified opportunities with full investment analysis.
               </p>
 
-              <ul className="space-y-2 mb-8 text-sm text-background/80">
+              <ul className="space-y-2 mb-8 text-sm text-slate-400">
                 {["Exclusive off-market deals", "Full investment analysis", "High-yield opportunities"].map((item, i) => (
                   <li key={i} className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-background/60 shrink-0" />
+                    <Check className="w-4 h-4 text-slate-500 shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
 
-              <Button asChild size="lg" variant="outline" className="w-full group border-background/30 text-background hover:bg-background/10 font-semibold">
+              <Button asChild size="lg" variant="outline" className="w-full group border-white/30 text-white hover:bg-white/10 font-semibold">
                 <Link to="/register">
                   Browse Deals
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
