@@ -252,29 +252,51 @@ function PipelineFlow() {
       {/* Dashed arrow → */}
       <DashedArrow width={40} />
 
-      {/* Pipeline panel */}
-      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[250px] shrink-0">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-          Deals in Your Pipeline
-        </p>
-        <div className="space-y-2.5">
-          {pipelineDeals.map((deal) => (
-            <div key={deal.name} className="flex items-center gap-2.5">
-              <img
-                src={deal.img}
-                alt=""
-                className="w-8 h-8 rounded-md object-cover"
-              />
-              <span className="text-xs text-foreground font-medium truncate flex-1">
-                {deal.name}
+      {/* Pipeline panel with Market Insight overlay */}
+      <div className="relative shrink-0">
+        {/* Market Insight card — stacked overlay */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.9 }}
+          className="absolute -top-6 -right-6 rotate-[2deg] z-10"
+          style={{ animation: "float 4.2s ease-in-out infinite 0.8s" }}
+        >
+          <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-3 w-[180px]">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-3.5 w-3.5 text-primary" />
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Market Insight
               </span>
-              <span
-                className={`w-2 h-2 rounded-full shrink-0 ${
-                  deal.status === "green" ? "bg-green-500" : "bg-orange-400"
-                }`}
-              />
             </div>
-          ))}
+            <p className="text-xs font-medium text-foreground">North West prices</p>
+            <p className="text-[10px] text-green-600 font-semibold">+4.2% this quarter</p>
+          </div>
+        </motion.div>
+
+        <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[250px]">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            Deals in Your Pipeline
+          </p>
+          <div className="space-y-2.5">
+            {pipelineDeals.map((deal) => (
+              <div key={deal.name} className="flex items-center gap-2.5">
+                <img
+                  src={deal.img}
+                  alt=""
+                  className="w-8 h-8 rounded-md object-cover"
+                />
+                <span className="text-xs text-foreground font-medium truncate flex-1">
+                  {deal.name}
+                </span>
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    deal.status === "green" ? "bg-green-500" : "bg-orange-400"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
