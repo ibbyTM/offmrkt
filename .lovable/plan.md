@@ -1,64 +1,72 @@
 
 
-## Hero — Classy-Style Dark Background with Floating UI Cards
+## Hero Redesign — Light SaaS Dashboard Layout with Pipeline Flow
 
-Recreate the Classy/GoFundMe Pro hero pattern: bold dark background, large centered headline, single-row CTAs, and a spread of floating UI mockup cards below showing product previews.
+Complete rewrite of HeroSection to match the specified layout: light grey background, centered headline with indigo accent, floating white cards, and a central "pipeline flow" visual with property thumbnails, portal logos, and a pipeline panel.
 
-### Layout
+### Structure
 
 ```text
-┌──────────────────────────────────────────────┐
-│            DARK BACKGROUND (slate-900)       │
-│                                              │
-│         [AI Property Analysis pill]          │
-│                                              │
-│       Off-market deals,                      │
-│       before anyone else.                    │
-│                                              │
-│       subtitle in white/70                   │
-│                                              │
-│    [I Want to Sell →]  [I Want to Buy]        │
-│                                              │
-│   ┌─────┐    ┌──────────┐    ┌─────┐         │
-│  ┌┤Card │   ┌┤ Featured │   ┌┤Card │         │
-│  │└─────┘   │└──────────┘   │└─────┘         │
-│  │ Stats    │  Property     │ Yield          │
-│  └──────    └──────────     └──────          │
-│     (floating, slightly tilted,              │
-│      fading off edges)                       │
-└──────────────────────────────────────────────┘
-│   Trust logos (on white below)               │
+┌──────────────────────────────────────────────────┐
+│  bg-[#F0F4F8] light grey                         │
+│                                                  │
+│  [Top-left card: New Deal Alert]                 │
+│                    HEADLINE (center)             │
+│                    Off-market deals,             │
+│                    before anyone else. (indigo)  │
+│                    subtitle                      │
+│                    [Invest →] [Sell]              │
+│                    trust line                    │
+│              [Top-right card: Verified Deal]     │
+│                                                  │
+│  [Bottom-left      CENTRE VISUAL              Bottom-right│
+│   card: toggles]   (flow diagram)             card: Market]│
+│                                                  │
+│  Centre visual:                                  │
+│  [3x3 blurred imgs] → [Rightmove/Zoopla/OTM]   │
+│       → [⚡ Add to Pipeline] → [Pipeline panel] │
+│                                                  │
+└──────────────────────────────────────────────────┘
+│  Logo bar: Silks · GoHighLevel · Rightmove ...   │
 ```
 
-### Visual Details
+### Changes — `src/components/landing/HeroSection.tsx` (full rewrite)
 
-- **Background**: `bg-slate-900` — full-width dark section (like Classy's dark green)
-- **Headline**: White text, `text-5xl lg:text-7xl`, accent word in `text-primary`
-- **Subtitle**: `text-white/70`
-- **CTAs**: Primary gradient + outline with `border-white/30 text-white`
-- **Floating cards** (the hero visual): 3-5 glass-morphism UI mockup cards arranged in a gentle arc below the CTAs. Each card represents a product feature:
-  - A mini property card (image + title + yield badge)
-  - A stats snippet card ("8.5% avg yield")
-  - A "deal alert" notification card
-  - Cards use `bg-white/10 backdrop-blur-sm border-white/20 rounded-2xl` glass style
-  - Slightly rotated (`rotate-[-3deg]`, `rotate-[2deg]`) with staggered vertical positions
-  - Edges fade out with a gradient mask so cards bleed off-screen like Classy
-  - Gentle float animation (CSS keyframes, no Three.js)
-- **Trust logos**: Move to a slim white strip below the dark hero (clean transition)
-- **Stats bar**: Integrated into the floating cards rather than a separate row
+**Background**: `bg-[#F0F4F8]` replacing `bg-slate-900`. Remove radial glow overlay.
 
-### Technical Approach
+**Headline**: Black text with `text-[#4F46E5]` (indigo) for "before anyone else." — same size as current.
 
-**Remove**: `CrystalHouse.tsx` import/usage, Three.js dependency (can keep packages for now, tree-shaken away)
+**CTAs**: 
+- Solid indigo: `bg-[#4F46E5] text-white` → "I Want to Invest →"  
+- Ghost white: `bg-white border border-slate-200 text-slate-700` → "I Want to Sell"
 
-**`src/components/landing/HeroSection.tsx`** — Full rewrite:
-- Dark `bg-slate-900` section
-- Centered text block with white typography
-- New `FloatingCards` sub-component: 5 absolutely positioned card divs with glass-morphism styling, slight rotations, and CSS `@keyframes float` animation (already defined in tailwind config)
-- Gradient mask on the card container (`mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent)`) to fade edges
-- Trust logos in a separate light strip below
+**Trust line**: "GDPR Compliant · No credit card required · No estate agent fees" in small muted text.
+
+**4 Floating cards** — white, `rounded-2xl`, `shadow-[0_4px_24px_rgba(0,0,0,0.08)]`, `p-4`, positioned absolutely around the centre:
+1. Top-left: 🏠 New Deal Alert — 3-bed terraced · Manchester, £85,000 · 8.2% yield
+2. Top-right: 🔒 Verified Deal — Due diligence complete, Ready to exchange
+3. Bottom-left: Two toggle rows — "90% Off-market only" (green/on), "8x More deals than Rightmove" (grey/off) — uses the Switch component
+4. Bottom-right: 📈 Market Insight — North West prices, +4.2% this quarter
+
+Cards overlap the centre visual slightly, not grid-aligned. Gentle float animation.
+
+**Centre visual** (new `PipelineFlow` sub-component):
+- Left: 3x3 grid of placeholder property thumbnails (blurred/greyscale, use Unsplash placeholders with `grayscale filter blur-[1px]`)
+- Centre: Three portal text badges stacked vertically — "Rightmove" (red), "Zoopla" (purple), "OnTheMarket" (green) — connected by dashed lines (`border-dashed border-[#CBD5E1]`)
+- Arrow flows right to an indigo pill button "⚡ Add to Pipeline"
+- Arrow flows right to a white card panel "Deals in Your Pipeline" showing 3 rows with tiny thumbnails, property names, and coloured status dots (green/orange)
+- Dashed connector lines with small indigo arrowheads at ends
+
+**Logo bar**: "Trusted by investors across the UK" with: Silks Property Academy, GoHighLevel, Rightmove, Zoopla, OnTheMarket, NRLA — muted grey text.
+
+**Mobile**: Hide the centre pipeline visual entirely on `md:` breakpoint down. Show only headline, CTAs, trust line, and stack the 4 floating cards in a 2x2 grid (static, no absolute positioning).
+
+### Technical Details
+- Switch component already exists at `src/components/ui/switch.tsx` — import for the toggle card
+- Dashed lines rendered as SVG paths or `border-dashed` divs with absolute positioning
+- Pipeline flow only visible on `lg:` screens — complex layout needs space
+- No new dependencies needed
 
 ### Files Changed
-- `src/components/landing/HeroSection.tsx` — dark bg, floating glass cards
-- `src/components/landing/CrystalHouse.tsx` — delete (no longer used)
+- `src/components/landing/HeroSection.tsx` — complete rewrite
 
