@@ -34,7 +34,6 @@ export function ContactSection() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
     
     toast.success("Message sent! We'll get back to you soon.");
@@ -43,7 +42,7 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 bg-background">
+    <section id="contact" className="py-20 bg-slate-900">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
           {/* Left - Form */}
@@ -52,10 +51,10 @@ export function ContactSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
               Get In Touch
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-slate-400 mb-8">
               Have a question or ready to start investing? Send us a message and 
               we'll get back to you within 24 hours.
             </p>
@@ -66,7 +65,7 @@ export function ContactSection() {
                   <Input
                     placeholder="Your name"
                     required
-                    className="bg-card"
+                    className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -74,7 +73,7 @@ export function ContactSection() {
                     type="email"
                     placeholder="Your email"
                     required
-                    className="bg-card"
+                    className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -82,7 +81,7 @@ export function ContactSection() {
                 <Input
                   placeholder="Subject"
                   required
-                  className="bg-card"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
                 />
               </div>
               <div>
@@ -90,7 +89,7 @@ export function ContactSection() {
                   placeholder="Your message"
                   rows={5}
                   required
-                  className="bg-card resize-none"
+                  className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 resize-none"
                 />
               </div>
               <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
@@ -106,30 +105,29 @@ export function ContactSection() {
             </form>
           </motion.div>
           
-          {/* Right - Contact info and map placeholder */}
+          {/* Right - Contact info */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="space-y-6"
           >
-            {/* Contact cards */}
             <div className="space-y-4">
               {contactInfo.map((info) => (
-                <Card key={info.label} className="p-4 border-border bg-card">
+                <Card key={info.label} className="p-4 border-slate-700 bg-slate-800">
                   <div className="flex items-center gap-3">
                     <info.icon className="w-5 h-5 text-primary flex-shrink-0" />
                     <div>
-                      <div className="text-sm text-muted-foreground">{info.label}</div>
+                      <div className="text-sm text-slate-400">{info.label}</div>
                       {info.href ? (
                         <a 
                           href={info.href} 
-                          className="font-medium text-foreground hover:text-primary transition-colors"
+                          className="font-medium text-white hover:text-primary transition-colors"
                         >
                           {info.value}
                         </a>
                       ) : (
-                        <div className="font-medium text-foreground">{info.value}</div>
+                        <div className="font-medium text-white">{info.value}</div>
                       )}
                     </div>
                   </div>
@@ -138,10 +136,10 @@ export function ContactSection() {
             </div>
             
             {/* Map placeholder */}
-            <Card className="aspect-[4/3] border-border bg-muted/30 flex items-center justify-center overflow-hidden">
+            <Card className="aspect-[4/3] border-slate-700 bg-slate-800 flex items-center justify-center overflow-hidden">
               <div className="text-center p-6">
-                <MapPin className="w-12 h-12 text-primary/30 mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm">
+                <MapPin className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">
                   Located in the heart of London's financial district
                 </p>
               </div>
