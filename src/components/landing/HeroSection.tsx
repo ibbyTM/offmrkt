@@ -302,7 +302,7 @@ function PipelineFlow() {
 export function HeroSection() {
   return (
     <>
-      <section className="relative min-h-[85vh] bg-[hsl(210,33%,96%)]">
+      <section className="relative pb-12 bg-[hsl(210,33%,96%)]">
         {/* Floating cards (desktop only, absolutely positioned to section) */}
         <FloatingCardNewDeal />
         <FloatingCardVerified />
