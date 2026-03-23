@@ -353,7 +353,9 @@ export function HeroSection() {
               >
                 <Link to="/register">
                   I Want to Invest
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-2 transition-transform group-hover:translate-x-1">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </Link>
               </Button>
               <Button
