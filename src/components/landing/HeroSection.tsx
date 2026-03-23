@@ -1,8 +1,28 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Home, Shield, TrendingUp, Zap } from "lucide-react";
+import { Home, Shield, TrendingUp, Zap } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
+
+/* ── Reusable SVG Dashed Arrow ── */
+function DashedArrow({ width = 50 }: { width?: number }) {
+  return (
+    <svg width={width} height="20" viewBox={`0 0 ${width} 20`} fill="none" className="shrink-0">
+      <defs>
+        <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="hsl(var(--primary))" />
+        </marker>
+      </defs>
+      <line
+        x1="0" y1="10" x2={width - 8} y2="10"
+        stroke="hsl(var(--primary))"
+        strokeWidth="1.5"
+        strokeDasharray="6 4"
+        markerEnd="url(#arrowhead)"
+      />
+    </svg>
+  );
+}
 
 const partners = [
   "Silks Property Academy",
