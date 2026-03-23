@@ -92,7 +92,7 @@ function FloatingCardToggles() {
       className="absolute left-[3%] bottom-[18%] z-20 hidden lg:block"
       style={{ animation: "float 5s ease-in-out infinite 1s" }}
     >
-      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] space-y-3">
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] min-h-[120px] space-y-2.5">
         <div className="flex items-center justify-between">
           <div>
             <span className="text-lg font-bold text-foreground">90%</span>
@@ -102,8 +102,8 @@ function FloatingCardToggles() {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-lg font-bold text-foreground">8x</span>
-            <p className="text-xs text-muted-foreground">
+            <span className="text-base font-bold text-foreground">8x</span>
+            <p className="text-[11px] text-muted-foreground">
               More deals than Rightmove
             </p>
           </div>
