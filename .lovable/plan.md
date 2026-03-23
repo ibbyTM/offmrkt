@@ -1,24 +1,17 @@
 
 
-## Fix Hero Pipeline Flow — Three Targeted Issues
+## Fix Hero Bottom Gap
 
-### 1. SVG Dashed Connector Lines with Arrowheads
-**Current**: Plain `border-dashed` divs + lucide `ArrowRight` icons between elements.
-**Fix**: Replace each connector segment with an inline SVG containing:
-- A horizontal dashed line (`stroke: #4F46E5`, `stroke-dasharray: 6 4`, `stroke-width: 1.5`)
-- A small filled triangular arrowhead marker at the end (`<marker>` with `<polygon>` fill `#4F46E5`)
-- Each SVG is ~40-50px wide, vertically centered with `items-center`
+The large grey dead space below the pipeline diagram is caused by `min-h-[85vh]` on the hero section. The content doesn't fill 85vh, so Flexbox `justify-center` adds equal padding top and bottom.
 
-Create a reusable `DashedArrow` component that renders the SVG, used 3 times between the 4 pipeline elements.
+### Change — `src/components/landing/HeroSection.tsx`
 
-### 2. Close the Gap — Pipeline Floats Up
-**Current**: `PipelineFlow` has `mt-12` creating dead space below trust line.
-**Fix**: Change `mt-12` to `mt-8` (32px) on the `PipelineFlow` wrapper. This pulls the flow diagram snug beneath the trust line within the hero container.
+- Remove `min-h-[85vh]` and `flex flex-col justify-center` from the section element
+- The container's existing `py-16 lg:pt-24 lg:pb-10` already controls spacing — no min-height needed
+- Result: section shrinks to fit its content, pipeline flow sits ~40px above the logo bar
 
-### 3. Market Insight Card — Floating Overlay on Pipeline Panel
-**Current**: `FloatingCardMarket` is absolutely positioned at `right-[3%] bottom-[18%]` — sits as a standalone floating card.
-**Fix**: Remove `FloatingCardMarket` from the top-level floating cards. Instead, render the Market Insight card *inside* `PipelineFlow`, positioned absolutely relative to the pipeline panel card. Place it overlapping the top-right corner of the pipeline panel with `absolute -top-6 -right-6 rotate-[2deg] z-10`. This creates the stacked card effect.
+Single line change on line 309.
 
-### File Changed
+### Files Changed
 - `src/components/landing/HeroSection.tsx`
 
