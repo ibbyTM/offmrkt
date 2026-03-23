@@ -143,3 +143,10 @@ html {
   100% { transform: translateX(100%); }
 }
 
+/* Floating card animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+
