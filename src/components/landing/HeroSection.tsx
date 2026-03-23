@@ -1,154 +1,330 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Sparkles, TrendingUp, Bell, BarChart3, Home, Shield } from "lucide-react";
+import { ArrowRight, Home, Shield, TrendingUp, Zap } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { motion } from "framer-motion";
 
-const partners = ["PropertyMark", "RICS", "ARLA", "NAEA", "The Guild"];
-
-const floatingCards = [
-  {
-    title: "New Deal Alert",
-    icon: Bell,
-    content: "3-bed terraced in Manchester",
-    detail: "8.2% yield · £85,000",
-    rotation: "rotate-[-4deg]",
-    position: "left-[2%] top-[15%]",
-    delay: 0,
-  },
-  {
-    title: "Portfolio Stats",
-    icon: BarChart3,
-    content: "Average Gross Yield",
-    detail: "8.5%",
-    rotation: "rotate-[2deg]",
-    position: "left-[22%] top-[5%]",
-    delay: 0.8,
-  },
-  {
-    title: "Featured Property",
-    icon: Home,
-    content: "4-bed semi, Birmingham",
-    detail: "£120,000 · 9.1% yield",
-    rotation: "rotate-[-1deg]",
-    position: "left-[42%] top-[0%]",
-    delay: 0.4,
-    featured: true,
-  },
-  {
-    title: "Market Insight",
-    icon: TrendingUp,
-    content: "North West prices",
-    detail: "+4.2% this quarter",
-    rotation: "rotate-[3deg]",
-    position: "left-[62%] top-[8%]",
-    delay: 1.2,
-  },
-  {
-    title: "Verified Deal",
-    icon: Shield,
-    content: "Due diligence complete",
-    detail: "Ready to exchange",
-    rotation: "rotate-[-2deg]",
-    position: "left-[80%] top-[18%]",
-    delay: 0.6,
-  },
+const partners = [
+  "Silks Property Academy",
+  "GoHighLevel",
+  "Rightmove",
+  "Zoopla",
+  "OnTheMarket",
+  "NRLA",
 ];
 
-function FloatingCards() {
+/* ── Floating Cards ── */
+
+function FloatingCardNewDeal() {
   return (
-    <div
-      className="relative w-full h-[280px] md:h-[320px] mt-8 overflow-hidden"
-      style={{
-        maskImage:
-          "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-        WebkitMaskImage:
-          "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-      }}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+      className="absolute left-[2%] top-[6%] z-20 hidden lg:block"
+      style={{ animation: "float 4s ease-in-out infinite" }}
     >
-      {floatingCards.map((card, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.5 + card.delay * 0.3 }}
-          className={`absolute ${card.position} ${card.rotation}`}
-          style={{
-            animation: `float ${3 + i * 0.4}s ease-in-out infinite`,
-            animationDelay: `${card.delay}s`,
-          }}
-        >
-          <div
-            className={`bg-white/[0.08] backdrop-blur-md border border-white/[0.15] rounded-2xl p-5 ${
-              card.featured ? "w-[220px] md:w-[260px]" : "w-[190px] md:w-[220px]"
-            } shadow-2xl shadow-black/20`}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <card.icon className="h-4 w-4 text-primary" />
-              <span className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
-                {card.title}
-              </span>
-            </div>
-            <p className="text-sm font-medium text-white/90 mb-1">
-              {card.content}
-            </p>
-            <p
-              className={`text-xs ${
-                card.featured
-                  ? "text-primary font-bold text-base"
-                  : "text-white/50"
-              }`}
-            >
-              {card.detail}
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[220px]">
+        <div className="flex items-center gap-2 mb-2">
+          <Home className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            New Deal Alert
+          </span>
+        </div>
+        <p className="text-sm font-medium text-foreground">
+          3-bed terraced · Manchester
+        </p>
+        <p className="text-xs text-muted-foreground">£85,000 · 8.2% yield</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function FloatingCardVerified() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.5 }}
+      className="absolute right-[2%] top-[6%] z-20 hidden lg:block"
+      style={{ animation: "float 4.5s ease-in-out infinite 0.5s" }}
+    >
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[210px]">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Verified Deal
+          </span>
+        </div>
+        <p className="text-sm font-medium text-foreground">
+          Due diligence complete
+        </p>
+        <p className="text-xs text-muted-foreground">Ready to exchange</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function FloatingCardToggles() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.7 }}
+      className="absolute left-[3%] bottom-[18%] z-20 hidden lg:block"
+      style={{ animation: "float 5s ease-in-out infinite 1s" }}
+    >
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-lg font-bold text-foreground">90%</span>
+            <p className="text-xs text-muted-foreground">Off-market only</p>
+          </div>
+          <Switch defaultChecked />
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-lg font-bold text-foreground">8x</span>
+            <p className="text-xs text-muted-foreground">
+              More deals than Rightmove
             </p>
           </div>
-        </motion.div>
-      ))}
+          <Switch />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function FloatingCardMarket() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: 0.9 }}
+      className="absolute right-[3%] bottom-[18%] z-20 hidden lg:block"
+      style={{ animation: "float 4.2s ease-in-out infinite 0.8s" }}
+    >
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[210px]">
+        <div className="flex items-center gap-2 mb-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Market Insight
+          </span>
+        </div>
+        <p className="text-sm font-medium text-foreground">
+          North West prices
+        </p>
+        <p className="text-xs text-green-600 font-semibold">
+          +4.2% this quarter
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Mobile floating cards (2x2 grid) ── */
+
+function MobileFloatingCards() {
+  return (
+    <div className="grid grid-cols-2 gap-3 mt-8 lg:hidden">
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Home className="h-4 w-4 text-primary" />
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            New Deal
+          </span>
+        </div>
+        <p className="text-xs font-medium text-foreground">
+          3-bed · Manchester
+        </p>
+        <p className="text-[10px] text-muted-foreground">
+          £85k · 8.2% yield
+        </p>
+      </div>
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="h-4 w-4 text-primary" />
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Verified
+          </span>
+        </div>
+        <p className="text-xs font-medium text-foreground">DD complete</p>
+        <p className="text-[10px] text-muted-foreground">Ready to exchange</p>
+      </div>
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-bold text-foreground">90%</span>
+          <span className="text-[10px] text-muted-foreground">Off-market</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-foreground">8x</span>
+          <span className="text-[10px] text-muted-foreground">
+            More deals
+          </span>
+        </div>
+      </div>
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Market
+          </span>
+        </div>
+        <p className="text-xs font-medium text-foreground">NW prices</p>
+        <p className="text-[10px] text-green-600 font-semibold">
+          +4.2% this quarter
+        </p>
+      </div>
     </div>
   );
 }
 
+/* ── Pipeline Flow (centre visual, lg only) ── */
+
+const propertyImages = [
+  "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=100&h=80&fit=crop",
+  "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=100&h=80&fit=crop",
+];
+
+const portals = [
+  { name: "Rightmove", color: "text-red-500" },
+  { name: "Zoopla", color: "text-purple-600" },
+  { name: "OnTheMarket", color: "text-green-600" },
+];
+
+const pipelineDeals = [
+  { name: "14 Lomax House, Blackburn", status: "green", img: propertyImages[0] },
+  { name: "Osmaston Road, Derby", status: "orange", img: propertyImages[3] },
+  { name: "Willenhall Portfolio", status: "green", img: propertyImages[6] },
+];
+
+function PipelineFlow() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.6 }}
+      className="hidden lg:flex items-center justify-center gap-6 mt-12 relative"
+    >
+      {/* 3x3 blurred property grid */}
+      <div className="grid grid-cols-3 gap-1.5 shrink-0">
+        {propertyImages.map((src, i) => (
+          <img
+            key={i}
+            src={src}
+            alt=""
+            className="w-[72px] h-[56px] object-cover rounded-lg grayscale blur-[1px] opacity-60"
+          />
+        ))}
+      </div>
+
+      {/* Dashed line → */}
+      <div className="flex items-center gap-0">
+        <div className="w-10 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
+        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
+      </div>
+
+      {/* Portal logos */}
+      <div className="flex flex-col items-center gap-2 relative">
+        {portals.map((p, i) => (
+          <div key={p.name} className="relative">
+            <span
+              className={`text-xs font-bold ${p.color} bg-white rounded-full px-3 py-1 shadow-sm border border-slate-100`}
+            >
+              {p.name}
+            </span>
+            {i < portals.length - 1 && (
+              <div className="absolute left-1/2 -translate-x-1/2 top-full w-px h-2 border-l-[1.5px] border-dashed border-[hsl(var(--border))]" />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Dashed line → */}
+      <div className="flex items-center gap-0">
+        <div className="w-8 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
+        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
+      </div>
+
+      {/* Add to Pipeline button */}
+      <button className="bg-primary text-primary-foreground rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow shrink-0">
+        <Zap className="h-4 w-4" />
+        Add to Pipeline
+      </button>
+
+      {/* Dashed line → */}
+      <div className="flex items-center gap-0">
+        <div className="w-8 border-t-[1.5px] border-dashed border-[hsl(var(--border))]" />
+        <ArrowRight className="h-4 w-4 text-primary -ml-1" />
+      </div>
+
+      {/* Pipeline panel */}
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[250px] shrink-0">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+          Deals in Your Pipeline
+        </p>
+        <div className="space-y-2.5">
+          {pipelineDeals.map((deal) => (
+            <div key={deal.name} className="flex items-center gap-2.5">
+              <img
+                src={deal.img}
+                alt=""
+                className="w-8 h-8 rounded-md object-cover"
+              />
+              <span className="text-xs text-foreground font-medium truncate flex-1">
+                {deal.name}
+              </span>
+              <span
+                className={`w-2 h-2 rounded-full shrink-0 ${
+                  deal.status === "green" ? "bg-green-500" : "bg-orange-400"
+                }`}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Main Hero ── */
+
 export function HeroSection() {
   return (
     <>
-      <section className="relative overflow-hidden bg-slate-900">
-        {/* Subtle radial glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(var(--primary)/0.15)_0%,_transparent_70%)] pointer-events-none" />
+      <section className="relative overflow-hidden bg-[hsl(210,33%,96%)] min-h-[85vh] flex flex-col justify-center">
+        <div className="container relative py-16 lg:py-24">
+          {/* Floating cards (desktop only, absolutely positioned) */}
+          <FloatingCardNewDeal />
+          <FloatingCardVerified />
+          <FloatingCardToggles />
+          <FloatingCardMarket />
 
-        <div className="container relative pt-20 pb-6 lg:pt-28 lg:pb-10">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            {/* Pill badge */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <Badge
-                variant="outline"
-                className="mb-6 px-4 py-1.5 text-sm font-medium gap-1.5 border-white/20 text-white/80"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                AI Property Analysis
-              </Badge>
-            </motion.div>
-
-            {/* Headline */}
+          {/* Centre content */}
+          <div className="flex flex-col items-center text-center max-w-3xl mx-auto relative z-10">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="font-display text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6 text-white"
+              transition={{ duration: 0.5 }}
+              className="font-display text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-5 text-foreground"
             >
               Off-market deals,{" "}
               <span className="text-primary">before anyone else.</span>
             </motion.h1>
 
-            {/* Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg md:text-xl text-white/60 mb-8 max-w-2xl"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl"
             >
               We connect property sellers with serious investors. No estate
               agents, no bidding wars — just verified deals with transparent
@@ -159,17 +335,16 @@ export function HeroSection() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-3 mb-4"
             >
               <Button
                 asChild
                 size="lg"
-                variant="gradient"
-                className="font-semibold text-base px-8 group"
+                className="font-semibold text-base px-8 group bg-primary text-primary-foreground hover:bg-primary/90"
               >
-                <Link to="/submit-property">
-                  I Want to Sell
+                <Link to="/register">
+                  I Want to Invest
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -177,30 +352,43 @@ export function HeroSection() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="font-semibold text-base px-8 border-white/30 text-white hover:bg-white/10 hover:text-white"
+                className="font-semibold text-base px-8 bg-white border-border text-foreground hover:bg-accent"
               >
-                <Link to="/register">I Want to Buy</Link>
+                <Link to="/submit-property">I Want to Sell</Link>
               </Button>
             </motion.div>
+
+            {/* Trust line */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="text-xs text-muted-foreground"
+            >
+              GDPR Compliant · No credit card required · No estate agent fees
+            </motion.p>
+
+            {/* Mobile floating cards */}
+            <MobileFloatingCards />
           </div>
 
-          {/* Floating cards */}
-          <FloatingCards />
+          {/* Pipeline flow (lg only) */}
+          <PipelineFlow />
         </div>
       </section>
 
-      {/* Trust logos strip */}
+      {/* Logo bar */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.8 }}
-        className="bg-background border-b border-border py-5"
+        className="bg-background border-b border-border py-6"
       >
         <div className="container flex flex-col items-center gap-3">
           <p className="text-xs text-muted-foreground tracking-wide uppercase">
-            Trusted by leading professionals
+            Trusted by investors across the UK
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-5">
             {partners.map((p) => (
               <span
                 key={p}
