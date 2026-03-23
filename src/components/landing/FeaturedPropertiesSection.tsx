@@ -81,7 +81,7 @@ export function FeaturedPropertiesSection() {
                     transition={{ duration: 0.5, delay: index * 0.1 }}
                   >
                     <Link to={`/properties/${property.id}`} className="group block">
-                      <Card className="overflow-hidden h-full rounded-xl border-border hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 hover:shadow-lg bg-card">
+                      <Card className="overflow-hidden h-full rounded-xl border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg bg-card">
                         {/* Image Container with interactive carousel */}
                         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                           <PropertyCardCarousel images={images} alt={property.title} />
