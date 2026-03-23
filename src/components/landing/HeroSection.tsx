@@ -39,7 +39,7 @@ function FloatingCardNewDeal() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
-      className="absolute left-[2%] top-[6%] z-20 hidden lg:block"
+      className="absolute top-[80px] left-[60px] z-20 hidden lg:block"
       style={{ animation: "float 4s ease-in-out infinite" }}
     >
       <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[220px]">
@@ -64,7 +64,7 @@ function FloatingCardVerified() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.5 }}
-      className="absolute right-[2%] top-[6%] z-20 hidden lg:block"
+      className="absolute top-[80px] right-[60px] z-20 hidden lg:block"
       style={{ animation: "float 4.5s ease-in-out infinite 0.5s" }}
     >
       <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[210px]">
@@ -89,7 +89,7 @@ function FloatingCardToggles() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.7 }}
-      className="absolute left-[3%] bottom-[18%] z-20 hidden lg:block"
+      className="absolute bottom-[120px] left-[40px] z-20 hidden lg:block"
       style={{ animation: "float 5s ease-in-out infinite 1s" }}
     >
       <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] min-h-[120px] space-y-2.5">
@@ -113,8 +113,6 @@ function FloatingCardToggles() {
     </motion.div>
   );
 }
-
-/* FloatingCardMarket moved inside PipelineFlow */
 
 /* ── Mobile floating cards (2x2 grid) ── */
 
@@ -187,10 +185,10 @@ const propertyImages = [
   "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=100&h=80&fit=crop",
 ];
 
-const portals = [
-  { name: "Rightmove", color: "text-red-500" },
-  { name: "Zoopla", color: "text-purple-600" },
-  { name: "OnTheMarket", color: "text-green-600" },
+const sources = [
+  { name: "👤 Direct Seller", color: "text-slate-700" },
+  { name: "📱 Social Media", color: "text-slate-700" },
+  { name: "🤝 Referral", color: "text-slate-700" },
 ];
 
 const pipelineDeals = [
@@ -205,7 +203,7 @@ function PipelineFlow() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, delay: 0.6 }}
-      className="hidden lg:flex items-center justify-center gap-6 mt-8 relative"
+      className="hidden lg:flex items-center justify-center gap-6 w-[80%] mx-auto mt-8"
     >
       {/* 3x3 blurred property grid */}
       <div className="grid grid-cols-3 gap-1.5 shrink-0">
@@ -219,26 +217,24 @@ function PipelineFlow() {
         ))}
       </div>
 
-      {/* Dashed arrow → */}
       <DashedArrow width={50} />
 
-      {/* Portal logos */}
+      {/* Source pills */}
       <div className="flex flex-col items-center gap-2 relative">
-        {portals.map((p, i) => (
-          <div key={p.name} className="relative">
+        {sources.map((s, i) => (
+          <div key={s.name} className="relative">
             <span
-              className={`text-xs font-bold ${p.color} bg-white rounded-full px-3 py-1 shadow-sm border border-slate-100`}
+              className={`text-xs font-bold ${s.color} bg-white rounded-full px-3 py-1 shadow-sm border border-slate-100`}
             >
-              {p.name}
+              {s.name}
             </span>
-            {i < portals.length - 1 && (
+            {i < sources.length - 1 && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full w-px h-2 border-l-[1.5px] border-dashed border-[hsl(var(--border))]" />
             )}
           </div>
         ))}
       </div>
 
-      {/* Dashed arrow → */}
       <DashedArrow width={40} />
 
       {/* Add to Pipeline button */}
@@ -247,7 +243,6 @@ function PipelineFlow() {
         Add to Pipeline
       </button>
 
-      {/* Dashed arrow → */}
       <DashedArrow width={40} />
 
       {/* Pipeline panel with Market Insight overlay */}
@@ -306,83 +301,80 @@ function PipelineFlow() {
 export function HeroSection() {
   return (
     <>
-      <section className="relative overflow-hidden bg-[hsl(210,33%,96%)]">
-        <div className="container relative py-16 lg:pt-24 lg:pb-10">
-          {/* Floating cards (desktop only, absolutely positioned) */}
-          <FloatingCardNewDeal />
-          <FloatingCardVerified />
-          <FloatingCardToggles />
-          {/* FloatingCardMarket now inside PipelineFlow */}
+      <section className="relative min-h-[85vh] bg-[hsl(210,33%,96%)]">
+        {/* Floating cards (desktop only, absolutely positioned to section) */}
+        <FloatingCardNewDeal />
+        <FloatingCardVerified />
+        <FloatingCardToggles />
 
-          {/* Centre content */}
-          <div className="flex flex-col items-center text-center max-w-3xl mx-auto relative z-10">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="font-display text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-5 text-foreground"
+        {/* Centre content — top half */}
+        <div className="relative z-10 flex flex-col items-center text-center max-w-3xl mx-auto pt-20 lg:pt-28 px-4">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="font-display text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-5 text-foreground"
+          >
+            Off-market deals,{" "}
+            <span className="text-primary">before anyone else.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl"
+          >
+            We connect property sellers with serious investors. No estate
+            agents, no bidding wars — just verified deals with transparent
+            returns.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-3 mb-4"
+          >
+            <Button
+              asChild
+              size="lg"
+              className="font-semibold text-base px-8 group bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              Off-market deals,{" "}
-              <span className="text-primary">before anyone else.</span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl"
+              <Link to="/register">
+                I Want to Invest
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-2 transition-transform group-hover:translate-x-1">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="font-semibold text-base px-8 bg-white border-border text-foreground hover:bg-accent"
             >
-              We connect property sellers with serious investors. No estate
-              agents, no bidding wars — just verified deals with transparent
-              returns.
-            </motion.p>
+              <Link to="/submit-property">I Want to Sell</Link>
+            </Button>
+          </motion.div>
 
-            {/* CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-3 mb-4"
-            >
-              <Button
-                asChild
-                size="lg"
-                className="font-semibold text-base px-8 group bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Link to="/register">
-                  I Want to Invest
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="ml-2 transition-transform group-hover:translate-x-1">
-                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="font-semibold text-base px-8 bg-white border-border text-foreground hover:bg-accent"
-              >
-                <Link to="/submit-property">I Want to Sell</Link>
-              </Button>
-            </motion.div>
+          {/* Trust line */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="text-xs text-muted-foreground"
+          >
+            GDPR Compliant · No credit card required · No estate agent fees
+          </motion.p>
 
-            {/* Trust line */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-xs text-muted-foreground"
-            >
-              GDPR Compliant · No credit card required · No estate agent fees
-            </motion.p>
-
-            {/* Mobile floating cards */}
-            <MobileFloatingCards />
-          </div>
-
-          {/* Pipeline flow (lg only) */}
-          <PipelineFlow />
+          {/* Mobile floating cards */}
+          <MobileFloatingCards />
         </div>
+
+        {/* Pipeline flow (lg only) — bottom half of hero */}
+        <PipelineFlow />
       </section>
 
       {/* Logo bar */}
