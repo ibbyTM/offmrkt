@@ -1,61 +1,34 @@
 
 
-## Break the White Wall — Alternating Section Backgrounds
-
-### Problem
-Nearly every landing section uses `bg-background` (white). The two that use `bg-muted/30` are barely distinguishable. The page reads as one continuous white surface with no visual rhythm.
-
-### Strategy
-Alternate between three background treatments to create clear section breaks:
-1. **White** (`bg-background`) — default
-2. **Light grey** (`bg-slate-50`) — visible but neutral
-3. **Dark** (`bg-slate-900 text-white`) — high impact for key sections
-
-### Section Background Map
-
-```text
-Hero            → bg-background (white)
-DualPath        → bg-background (white) — already has colored cards
-Benefits        → bg-slate-50 (light grey)
-FeaturedProps   → bg-background (white) — cards provide contrast
-HowItWorks     → bg-slate-900 (dark) — strong visual break
-Testimonials    → bg-slate-50 (light grey)
-Aftercare       → bg-background (white)
-FAQ             → bg-slate-50 (light grey)
-Contact         → bg-slate-900 (dark) — pre-footer dark band
-Footer          → bg-slate-900 (already dark)
-```
-
-This gives a rhythm of: white → white → grey → white → **dark** → grey → white → grey → **dark** → dark
+## Hero — Image Background + Trimmed Stats
 
 ### Changes
 
-**1. `src/components/landing/BenefitsSection.tsx`**
-- Change `bg-background` → `bg-slate-50`
+**`src/components/landing/HeroSection.tsx`**
 
-**2. `src/components/landing/HowItWorksSection.tsx`**
-- Change `bg-muted/30` → `bg-slate-900`
-- All text: `text-white`, `text-slate-400` for descriptions
-- Step circles: `border-white` with `bg-slate-900`, number text `text-white`
-- Connecting line: `bg-slate-700`
+1. **Full-bleed image background** — Add an Unsplash aerial property/cityscape photo as `bg-cover bg-center` with a dark gradient overlay (`from-slate-900/90 via-slate-900/70 to-slate-900/40`). Taller section (`py-24 lg:py-36`).
 
-**3. `src/components/landing/TestimonialsSection.tsx`**
-- Change `bg-background` → `bg-slate-50`
+2. **All text → white** — Headline `text-white`, accent span stays `text-primary`, subtitle `text-white/70`, "I Want to Buy" button gets `border-white/30 text-white hover:bg-white/10`.
 
-**4. `src/components/landing/FAQSection.tsx`**
-- Change `bg-muted/30` → `bg-slate-50` (actually visible now)
+3. **Stats grid → glass cards** — `bg-white/10 backdrop-blur-sm border-white/20 text-white`. Accent card stays `bg-primary`.
 
-**5. `src/components/landing/ContactSection.tsx`**
-- Change `bg-background` → `bg-slate-900`
-- All text white/slate-300, form inputs get `bg-slate-800 border-slate-700 text-white`
-- Contact cards: `bg-slate-800 border-slate-700`
-- Map placeholder: `bg-slate-800`
-- Flows into the dark footer seamlessly
+4. **Remove investor/investment stats** — Drop "1,200+ investors" and "£50M+ Total invested". Keep:
+   - `500+` Properties listed
+   - `8.5%` Average gross yield (accent)
+   - `7 days` Avg time to completion
+   - Replace 4th with `£0` Seller fees
+
+5. **Remove trust line** — Delete the "1,200+ investors · £50M+ invested · 8.5% avg yield" text entirely.
+
+6. **Mobile** — Overlay more opaque (`from-slate-900/95`) for readability.
+
+**`src/components/landing/DualPathSection.tsx`**
+
+7. **Bigger cards** — `p-10 md:p-12`, `max-w-5xl`, card titles `text-3xl`.
+8. **Richer backgrounds** — Sell: `bg-gradient-to-br from-primary to-primary/80`. Buy: `bg-slate-900 text-white` (replacing `bg-foreground`).
+9. **Section bg** — `bg-slate-50` so cards pop.
 
 ### Files Changed
-- `src/components/landing/BenefitsSection.tsx` — bg-slate-50
-- `src/components/landing/HowItWorksSection.tsx` — dark section
-- `src/components/landing/TestimonialsSection.tsx` — bg-slate-50
-- `src/components/landing/FAQSection.tsx` — bg-slate-50
-- `src/components/landing/ContactSection.tsx` — dark section
+- `src/components/landing/HeroSection.tsx`
+- `src/components/landing/DualPathSection.tsx`
 
