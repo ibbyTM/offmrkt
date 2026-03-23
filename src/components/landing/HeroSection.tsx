@@ -25,12 +25,10 @@ function DashedArrow({ width = 50 }: { width?: number }) {
 }
 
 const partners = [
-  "Silks Property Academy",
-  "GoHighLevel",
-  "Rightmove",
-  "Zoopla",
-  "OnTheMarket",
-  "NRLA",
+  "Verified Investors",
+  "Active Landlords",
+  "Property Professionals",
+  "Sourcing Agents",
 ];
 
 /* ── Floating Cards ── */
@@ -94,7 +92,7 @@ function FloatingCardToggles() {
       className="absolute left-[3%] bottom-[18%] z-20 hidden lg:block"
       style={{ animation: "float 5s ease-in-out infinite 1s" }}
     >
-      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] space-y-3">
+      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[240px] min-h-[120px] space-y-2.5">
         <div className="flex items-center justify-between">
           <div>
             <span className="text-lg font-bold text-foreground">90%</span>
@@ -104,8 +102,8 @@ function FloatingCardToggles() {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-lg font-bold text-foreground">8x</span>
-            <p className="text-xs text-muted-foreground">
+            <span className="text-base font-bold text-foreground">8x</span>
+            <p className="text-[11px] text-muted-foreground">
               More deals than Rightmove
             </p>
           </div>
@@ -309,7 +307,7 @@ export function HeroSection() {
   return (
     <>
       <section className="relative overflow-hidden bg-[hsl(210,33%,96%)] min-h-[85vh] flex flex-col justify-center">
-        <div className="container relative py-16 lg:py-24">
+        <div className="container relative py-16 lg:pt-24 lg:pb-10">
           {/* Floating cards (desktop only, absolutely positioned) */}
           <FloatingCardNewDeal />
           <FloatingCardVerified />
