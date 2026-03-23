@@ -40,7 +40,7 @@ export function FAQSection() {
   const [openItem, setOpenItem] = useState<string | undefined>("item-0");
 
   return (
-    <section id="faq" className="py-20 bg-slate-50">
+    <section id="faq" className="py-20 bg-muted/30">
       <div className="container">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -75,7 +75,7 @@ export function FAQSection() {
                 <AccordionItem
                   key={i}
                   value={`item-${i}`}
-                  className="bg-card border border-border rounded-xl px-6 data-[state=open]:shadow-md hover:shadow-md hover:border-primary/30 transition-all"
+                  className="bg-card border border-border rounded-xl px-6 data-[state=open]:shadow-md transition-shadow"
                 >
                   <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline py-5">
                     {faq.question}

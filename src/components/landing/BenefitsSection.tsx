@@ -1,15 +1,5 @@
 import { motion } from "framer-motion";
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-};
-
 const features = [
   {
     number: "01",
@@ -47,13 +37,12 @@ const features = [
 
 export function BenefitsSection() {
   return (
-    <section id="features" className="py-20 bg-slate-50">
+    <section id="features" className="py-20 bg-background">
       <div className="container">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
           className="mb-14"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -64,22 +53,22 @@ export function BenefitsSection() {
           </p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="space-y-0 divide-y divide-border"
-        >
-          {features.map((feature) => (
+        <div className="space-y-0 divide-y divide-border">
+          {features.map((feature, i) => (
             <motion.div
               key={feature.number}
-              variants={itemVariants}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.08 }}
               className="grid md:grid-cols-[4rem_1fr_8rem] gap-4 md:gap-8 items-baseline py-8 first:pt-0"
             >
+              {/* Number */}
               <span className="text-sm font-mono text-muted-foreground hidden md:block">
                 {feature.number}
               </span>
+
+              {/* Text */}
               <div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">
                   {feature.title}
@@ -88,13 +77,15 @@ export function BenefitsSection() {
                   {feature.description}
                 </p>
               </div>
+
+              {/* Stat */}
               <div className="text-right">
                 <div className="text-2xl font-bold text-foreground">{feature.stat}</div>
                 <div className="text-xs text-muted-foreground">{feature.statLabel}</div>
               </div>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

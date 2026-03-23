@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, User } from "lucide-react";
+import { Menu, X, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import logo from "@/assets/offthemarkets-logo.png";
 
 const navLinks = [
@@ -14,6 +12,7 @@ const navLinks = [
   { href: "/submit-property", label: "Submit Property" },
 ];
 
+// Landing page section links for smooth scrolling
 const landingLinks = [
   { href: "#features", label: "Features" },
   { href: "#properties", label: "Properties" },
@@ -24,6 +23,7 @@ const landingLinks = [
 ];
 
 export function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
@@ -41,8 +41,10 @@ export function Header() {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+    setMobileMenuOpen(false);
   };
 
+  // Handle smooth scroll for anchor links
   const handleScrollToSection = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string
@@ -54,11 +56,17 @@ export function Header() {
         const headerOffset = 80;
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
       }
+      setMobileMenuOpen(false);
     }
   };
 
+  // Track active section on scroll (landing page only)
   useEffect(() => {
     if (!isLandingPage) return;
 
@@ -81,7 +89,9 @@ export function Header() {
     return () => observer.disconnect();
   }, [isLandingPage]);
 
+  // Build dynamic nav links based on auth state and current page
   const getNavLinks = () => {
+    // If user is logged in, always show app navigation (not landing links)
     if (user) {
       const links = [...navLinks];
       if (hasCompletedQuestionnaire) {
@@ -92,7 +102,12 @@ export function Header() {
       }
       return links;
     }
-    if (isLandingPage) return landingLinks;
+
+    // Not logged in - show landing links on landing page, app links elsewhere
+    if (isLandingPage) {
+      return landingLinks;
+    }
+
     return navLinks;
   };
 
@@ -109,42 +124,37 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-1 relative">
-          {currentNavLinks.map((link) => {
-            const active = isActive(link.href);
-            return link.href.startsWith("#") ? (
+        <nav className="hidden md:flex items-center gap-1">
+          {currentNavLinks.map((link) => (
+            link.href.startsWith("#") ? (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={(e) => handleScrollToSection(e, link.href)}
-                className="relative px-4 py-2 text-sm font-medium rounded-full transition-colors cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                {active && (
-                  <motion.span
-                    layoutId="nav-pill"
-                    className="absolute inset-0 bg-primary/10 rounded-full"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                  />
+                className={cn(
+                  "px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer",
+                  isActive(link.href)
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
-                <span className={cn("relative z-10", active && "text-primary")}>{link.label}</span>
+              >
+                {link.label}
               </a>
             ) : (
               <Link
                 key={link.href}
                 to={link.href}
-                className="relative px-4 py-2 text-sm font-medium rounded-full transition-colors text-muted-foreground hover:text-foreground"
-              >
-                {active && (
-                  <motion.span
-                    layoutId="nav-pill"
-                    className="absolute inset-0 bg-primary/10 rounded-full"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                  />
+                className={cn(
+                  "px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                  isActive(link.href)
+                    ? "text-primary bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                 )}
-                <span className={cn("relative z-10", active && "text-primary")}>{link.label}</span>
+              >
+                {link.label}
               </Link>
-            );
-          })}
+            )
+          ))}
         </nav>
 
         {/* Desktop Auth Buttons */}
@@ -175,78 +185,84 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile Menu — Sheet Drawer */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <button
-              type="button"
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground"
-              aria-label="Toggle menu"
-            >
-              <Menu className="h-6 w-6" />
-            </button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-72 pt-12">
-            <nav className="space-y-2">
-              {currentNavLinks.map((link) =>
-                link.href.startsWith("#") ? (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={(e) => handleScrollToSection(e, link.href)}
-                    className={cn(
-                      "block px-4 py-3 text-sm font-medium rounded-lg transition-colors",
-                      isActive(link.href)
-                        ? "text-primary bg-primary/10"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    )}
-                  >
-                    {link.label}
-                  </a>
-                ) : (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className={cn(
-                      "block px-4 py-3 text-sm font-medium rounded-lg transition-colors",
-                      isActive(link.href)
-                        ? "text-primary bg-primary/10"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    )}
-                  >
-                    {link.label}
-                  </Link>
-                )
-              )}
-              <div className="pt-4 space-y-2 border-t border-border">
-                {user ? (
-                  <>
-                    <div className="px-4 py-2 text-sm text-muted-foreground flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span className="truncate">
-                        {user.user_metadata?.full_name || user.email}
-                      </span>
-                    </div>
-                    <Button variant="outline" className="w-full" onClick={handleSignOut}>
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Log out
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link to="/login">Log in</Link>
-                    </Button>
-                    <Button className="w-full" asChild>
-                      <Link to="/register">Get Started</Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </nav>
-          </SheetContent>
-        </Sheet>
+        {/* Mobile Menu Button */}
+        <button
+          type="button"
+          className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-border bg-background">
+          <nav className="container py-4 space-y-2">
+            {currentNavLinks.map((link) => (
+              link.href.startsWith("#") ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={(e) => handleScrollToSection(e, link.href)}
+                  className={cn(
+                    "block px-4 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer",
+                    isActive(link.href)
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "block px-4 py-2 text-sm font-medium rounded-md transition-colors",
+                    isActive(link.href)
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              )
+            ))}
+            <div className="pt-4 space-y-2 border-t border-border">
+              {user ? (
+                <>
+                  <div className="px-4 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span className="truncate">
+                      {user.user_metadata?.full_name || user.email}
+                    </span>
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                      Log in
+                    </Link>
+                  </Button>
+                  <Button className="w-full" asChild>
+                    <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                      Get Started
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
