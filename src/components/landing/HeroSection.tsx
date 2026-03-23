@@ -116,32 +116,7 @@ function FloatingCardToggles() {
   );
 }
 
-function FloatingCardMarket() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.9 }}
-      className="absolute right-[3%] bottom-[18%] z-20 hidden lg:block"
-      style={{ animation: "float 4.2s ease-in-out infinite 0.8s" }}
-    >
-      <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-4 w-[210px]">
-        <div className="flex items-center gap-2 mb-2">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Market Insight
-          </span>
-        </div>
-        <p className="text-sm font-medium text-foreground">
-          North West prices
-        </p>
-        <p className="text-xs text-green-600 font-semibold">
-          +4.2% this quarter
-        </p>
-      </div>
-    </motion.div>
-  );
-}
+/* FloatingCardMarket moved inside PipelineFlow */
 
 /* ── Mobile floating cards (2x2 grid) ── */
 
