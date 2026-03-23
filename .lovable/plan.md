@@ -1,34 +1,63 @@
 
 
-## Hero — Image Background + Trimmed Stats
+## Hero Redesign — Centered Text + 3D Crystal House
 
-### Changes
+Replace the current dark-photo hero with a Runway-inspired clean layout: centered headline, subtitle, dual CTAs, trust logos — and a floating 3D glass/crystal house object rendered with Three.js below the text.
 
-**`src/components/landing/HeroSection.tsx`**
+### Layout
 
-1. **Full-bleed image background** — Add an Unsplash aerial property/cityscape photo as `bg-cover bg-center` with a dark gradient overlay (`from-slate-900/90 via-slate-900/70 to-slate-900/40`). Taller section (`py-24 lg:py-36`).
+```text
+┌─────────────────────────────────────────┐
+│          [small pill badge]             │
+│                                         │
+│     Off-market deals,                   │
+│     before anyone else.                 │
+│                                         │
+│   subtitle text centered                │
+│                                         │
+│   [I Want to Sell →]  [I Want to Buy]   │
+│                                         │
+│   Trusted by leading professionals      │
+│   [RICS]  [ARLA]  [PropertyMark] ...    │
+│                                         │
+│         ┌─────────────┐                 │
+│         │  3D Crystal  │                │
+│         │    House     │                │
+│         └─────────────┘                 │
+│                                         │
+│   ──── stats bar (3 items) ────         │
+└─────────────────────────────────────────┘
+```
 
-2. **All text → white** — Headline `text-white`, accent span stays `text-primary`, subtitle `text-white/70`, "I Want to Buy" button gets `border-white/30 text-white hover:bg-white/10`.
+### Visual Details
+- **Background**: Light/white with a subtle gradient wash (soft pink-to-blue like Runway, or keep white-to-slate-50)
+- **Headline**: Centered, `text-5xl lg:text-7xl`, dark text (`text-foreground`), accent word in `text-primary`
+- **Pill badge**: Above headline — "New: AI Property Analysis" or similar, small rounded-full border pill
+- **CTAs**: Centered row, primary gradient + outline secondary
+- **Trust logos**: Inline partner names below CTAs (merge PartnerLogos into hero)
+- **3D Object**: A glass/crystal house shape using `@react-three/fiber` + `@react-three/drei`. Slowly auto-rotates, catches light with a glass material (`MeshTransmissionMaterial` or `MeshPhysicalMaterial` with transmission). Sits below the text block, roughly 300-400px tall.
+- **Stats bar**: Below the 3D object — 3 stats in a row ("500+ Properties", "8.5% Avg Yield", "7 Days to Completion"), simple text, no cards
 
-3. **Stats grid → glass cards** — `bg-white/10 backdrop-blur-sm border-white/20 text-white`. Accent card stays `bg-primary`.
+### Technical Approach
 
-4. **Remove investor/investment stats** — Drop "1,200+ investors" and "£50M+ Total invested". Keep:
-   - `500+` Properties listed
-   - `8.5%` Average gross yield (accent)
-   - `7 days` Avg time to completion
-   - Replace 4th with `£0` Seller fees
+**New file: `src/components/landing/CrystalHouse.tsx`**
+- React Three Fiber canvas with a simple house geometry (box base + pyramid roof, or extruded shape)
+- `MeshPhysicalMaterial` with `transmission: 0.9`, `roughness: 0.05`, `ior: 1.5` for glass look
+- `Float` from drei for gentle bobbing animation
+- `OrbitControls` disabled (auto-rotate only via `useFrame`)
+- Environment map from drei (`<Environment preset="city" />`) for reflections
+- Responsive: smaller on mobile (`h-[250px]` vs `h-[400px]`)
 
-5. **Remove trust line** — Delete the "1,200+ investors · £50M+ invested · 8.5% avg yield" text entirely.
+**Modified: `src/components/landing/HeroSection.tsx`**
+- Remove background image, dark overlay, and 2-column grid
+- Center everything, add pill badge, integrate trust logos
+- Lazy-load `CrystalHouse` with Suspense fallback
+- Stats as a simple flex row below
 
-6. **Mobile** — Overlay more opaque (`from-slate-900/95`) for readability.
-
-**`src/components/landing/DualPathSection.tsx`**
-
-7. **Bigger cards** — `p-10 md:p-12`, `max-w-5xl`, card titles `text-3xl`.
-8. **Richer backgrounds** — Sell: `bg-gradient-to-br from-primary to-primary/80`. Buy: `bg-slate-900 text-white` (replacing `bg-foreground`).
-9. **Section bg** — `bg-slate-50` so cards pop.
+**Dependencies**: `@react-three/fiber@^8.18`, `three@^0.170`, `@react-three/drei@^9.122.0`
 
 ### Files Changed
-- `src/components/landing/HeroSection.tsx`
-- `src/components/landing/DualPathSection.tsx`
+- `src/components/landing/CrystalHouse.tsx` — new 3D component
+- `src/components/landing/HeroSection.tsx` — centered layout with 3D object
+- `package.json` — add three.js dependencies
 
