@@ -142,14 +142,14 @@ export function PropertyCardCarousel({ images, alt, focalPoint }: PropertyCardCa
         <>
           <button
             onClick={goToPrevious}
-            className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-all opacity-0 group-hover:opacity-100 z-10"
+            className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-all opacity-70 md:opacity-0 md:group-hover:opacity-100 z-10"
             aria-label="Previous image"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-all opacity-0 group-hover:opacity-100 z-10"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-all opacity-70 md:opacity-0 md:group-hover:opacity-100 z-10"
             aria-label="Next image"
           >
             <ChevronRight className="h-5 w-5" />
@@ -164,7 +164,7 @@ export function PropertyCardCarousel({ images, alt, focalPoint }: PropertyCardCa
             <button
               key={i}
               onClick={(e) => goToSlide(e, i)}
-              className={`h-2 w-2 rounded-full transition-all hover:scale-125 ${
+              className={`h-2.5 w-2.5 rounded-full p-1.5 box-content transition-all hover:scale-125 ${
                 i === currentIndex ? "bg-white" : "bg-white/50 hover:bg-white/70"
               }`}
               aria-label={`Go to image ${i + 1}`}

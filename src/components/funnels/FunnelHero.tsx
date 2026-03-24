@@ -78,14 +78,14 @@ export function FunnelHero({
             >
               <motion.h1
                 variants={itemVariants}
-                className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
+                className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
               >
                 {headline}
               </motion.h1>
 
               <motion.p
                 variants={itemVariants}
-                className="text-xl text-muted-foreground"
+                className="text-lg sm:text-xl text-muted-foreground"
               >
                 {subheadline}
               </motion.p>
@@ -186,14 +186,14 @@ export function FunnelHero({
         >
           <motion.h1
             variants={itemVariants}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
           >
             {headline}
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
-            className="text-xl md:text-2xl text-muted-foreground"
+            className="text-lg sm:text-xl md:text-2xl text-muted-foreground"
           >
             {subheadline}
           </motion.p>
