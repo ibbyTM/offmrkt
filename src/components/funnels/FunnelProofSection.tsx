@@ -8,7 +8,10 @@ import huddersfieldExterior from '@/assets/projects/huddersfield-exterior.png';
 import huddersfieldBedroom from '@/assets/projects/huddersfield-bedroom.jpeg';
 import huddersfieldKitchen from '@/assets/projects/huddersfield-kitchen.jpeg';
 import huddersfieldBathroom from '@/assets/projects/huddersfield-bathroom.jpeg';
-import specialistCareExterior from '@/assets/projects/specialist-care-exterior.png';
+import specialistCareExterior from '@/assets/projects/specialist-care-exterior-clean.png';
+import specialistCareKitchen from '@/assets/projects/specialist-care-kitchen.jpg';
+import specialistCareBathroom from '@/assets/projects/specialist-care-bathroom.jpg';
+import specialistCareGarden from '@/assets/projects/specialist-care-garden.jpg';
 
 const completedProjects = [
   {
@@ -23,7 +26,7 @@ const completedProjects = [
     subtitle: 'Purpose-built for vulnerable residents. High-spec kitchens, safety-adapted hardware, and secure outdoor spaces. Council-backed tenants.',
     tag: 'HANDED OVER',
     highlights: ['High-spec throughout', 'Safety-adapted hardware', 'Secure outdoor spaces', 'Guaranteed rent'],
-    images: [specialistCareExterior],
+    images: [specialistCareExterior, specialistCareKitchen, specialistCareBathroom, specialistCareGarden],
   },
 ];
 
