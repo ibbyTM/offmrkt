@@ -26,7 +26,7 @@ const completedProjects = [
     subtitle: 'Purpose-built for vulnerable residents. High-spec kitchens, safety-adapted hardware, and secure outdoor spaces. Council-backed tenants.',
     tag: 'HANDED OVER',
     highlights: ['High-spec throughout', 'Safety-adapted hardware', 'Secure outdoor spaces', 'Guaranteed rent'],
-    images: [specialistCareExterior],
+    images: [specialistCareExterior, specialistCareKitchen, specialistCareBathroom, specialistCareGarden],
   },
 ];
 
