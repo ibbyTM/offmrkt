@@ -135,6 +135,11 @@ html {
   .safe-area-pb {
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 /* Branded shimmer for skeleton loaders */

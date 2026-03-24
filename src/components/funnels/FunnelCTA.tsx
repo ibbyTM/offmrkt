@@ -87,7 +87,7 @@ export function FunnelCTA({
             viewport={{ once: true }}
             className="text-center text-primary-foreground"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
             {subheadline && (
               <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
                 {subheadline}
@@ -134,7 +134,7 @@ export function FunnelCTA({
           viewport={{ once: true }}
           className="max-w-3xl mx-auto text-center"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">{headline}</h2>
           {subheadline && (
             <p className="text-lg text-muted-foreground mb-8">{subheadline}</p>
           )}

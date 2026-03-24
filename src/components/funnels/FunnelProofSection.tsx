@@ -70,7 +70,7 @@ function ProjectCarousel({ images, title }: { images: string[]; title: string })
 
   return (
     <div
-      className="relative h-64 md:h-80 bg-muted overflow-hidden group"
+      className="relative h-56 md:h-80 bg-muted overflow-hidden group"
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -81,15 +81,15 @@ function ProjectCarousel({ images, title }: { images: string[]; title: string })
       />
       {images.length > 1 && (
         <>
-          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white opacity-70 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <ChevronRight className="h-5 w-5" />
           </button>
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
             {images.map((_, i) => (
-              <button key={i} onClick={() => setCurrent(i)} className={`h-2 w-2 rounded-full transition-all ${i === current ? 'bg-white' : 'bg-white/50 hover:bg-white/70'}`} />
+              <button key={i} onClick={() => setCurrent(i)} className={`h-2.5 w-2.5 rounded-full p-2 box-content transition-all ${i === current ? 'bg-white' : 'bg-white/50 hover:bg-white/70'}`} />
             ))}
           </div>
         </>
@@ -173,7 +173,7 @@ export function FeaturedLiveDeal({ onCtaClick }: { onCtaClick: () => void }) {
                 {deal.property_city}, {deal.property_postcode}
               </div>
 
-              <div className="grid grid-cols-3 gap-4 mb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
                 <div>
                   <p className="text-lg font-bold font-display">{formatPrice(deal.asking_price)}</p>
                   <p className="text-xs text-muted-foreground">Price</p>

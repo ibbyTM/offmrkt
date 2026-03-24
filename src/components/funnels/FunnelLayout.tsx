@@ -52,7 +52,7 @@ export function FunnelLayout({
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           {/* Back Button or Spacer */}
-          <div className="w-24">
+          <div className="w-20 sm:w-24">
             {showBackButton && currentStep > 1 && (
               <Button
                 variant="ghost"
@@ -80,7 +80,7 @@ export function FunnelLayout({
           )}
 
           {/* Step Counter */}
-          <div className="w-24 text-right">
+          <div className="w-20 sm:w-24 text-right">
             {showProgress && totalSteps > 1 && (
               <span className="text-sm text-muted-foreground">
                 Step {currentStep} of {totalSteps}
