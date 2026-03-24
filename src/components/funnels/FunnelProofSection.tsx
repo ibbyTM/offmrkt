@@ -1,4 +1,5 @@
-import { Check, ArrowRight, Bed, MapPin, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { Check, ArrowRight, Bed, MapPin, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useProperties } from '@/hooks/useProperties';
@@ -52,6 +53,51 @@ export function DealStatsStrip() {
   );
 }
 
+function ProjectCarousel({ images, title }: { images: string[]; title: string }) {
+  const [current, setCurrent] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+
+  const prev = () => setCurrent(i => (i === 0 ? images.length - 1 : i - 1));
+  const next = () => setCurrent(i => (i === images.length - 1 ? 0 : i + 1));
+
+  const onTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+    setTouchStart(null);
+  };
+
+  return (
+    <div
+      className="relative h-64 md:h-80 bg-muted overflow-hidden group"
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      <img
+        src={images[current]}
+        alt={`${title} - photo ${current + 1}`}
+        className="w-full h-full object-cover transition-opacity duration-300"
+      />
+      {images.length > 1 && (
+        <>
+          <button onClick={prev} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button onClick={next} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {images.map((_, i) => (
+              <button key={i} onClick={() => setCurrent(i)} className={`h-2 w-2 rounded-full transition-all ${i === current ? 'bg-white' : 'bg-white/50 hover:bg-white/70'}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function CompletedProjects() {
   return (
     <section className="py-16 bg-background">
@@ -64,23 +110,9 @@ export function CompletedProjects() {
 
           <div className="space-y-8">
             {completedProjects.map((project, i) => (
-              <div
-                key={i}
-                className="border rounded-lg overflow-hidden md:grid md:grid-cols-2"
-              >
-                {/* Photo grid */}
-                <div className={`grid ${project.images.length > 1 ? 'grid-cols-2' : 'grid-cols-1'} gap-0.5 bg-muted`}>
-                  {project.images.slice(0, 4).map((img, j) => (
-                    <img
-                      key={j}
-                      src={img}
-                      alt={`${project.title} - photo ${j + 1}`}
-                      className={`w-full object-cover ${project.images.length === 1 ? 'h-64 md:h-full' : 'h-40 md:h-48'}`}
-                    />
-                  ))}
-                </div>
+              <div key={i} className="border rounded-lg overflow-hidden md:grid md:grid-cols-2">
+                <ProjectCarousel images={project.images} title={project.title} />
 
-                {/* Details */}
                 <div className="p-6 md:p-8 flex flex-col justify-center">
                   <Badge variant="secondary" className="w-fit mb-3 text-[10px] tracking-wider font-semibold rounded-sm">
                     {project.tag}
