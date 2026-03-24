@@ -1,14 +1,23 @@
 
 
-## Fix: Remove Huddersfield Social Media Post Image
+## Completed Projects — Image Carousel
 
-The `huddersfield-exterior.png` is the social media screenshot with text overlay. Unlike the specialist care project, the user didn't provide a separate clean exterior for Huddersfield — only 3 clean interior shots (bedroom, kitchen, bathroom).
+Currently the project photos display as a small 2x2 grid (each image ~h-40). Replace the grid with a full-height carousel/slideshow so each photo gets proper showcase space.
 
 ### Change
-**`src/components/funnels/FunnelProofSection.tsx`**
-- Remove `huddersfieldExterior` import
-- Update the Huddersfield project's `images` array to use only the 3 clean photos: `[huddersfieldBedroom, huddersfieldKitchen, huddersfieldBathroom]`
-- The photo grid already handles variable image counts (1 or 2+ columns), so 3 photos will render as a 2x2 grid with 3 cells filled
 
-Single file change — remove 1 import, update 1 array.
+**`src/components/funnels/FunnelProofSection.tsx`** — replace the photo grid with an image carousel:
+
+- Import `useState` and add prev/next navigation
+- Each project card keeps the `md:grid md:grid-cols-2` layout, but the left half becomes a single large image with arrow navigation and dot indicators
+- Image fills the full left column height (`h-64 md:h-80`) with `object-cover`
+- Semi-transparent prev/next arrow buttons overlaid on the image (similar to `PropertyCardCarousel` pattern)
+- Dot indicators at the bottom showing current position
+- Touch swipe support for mobile
+- Current image index tracked per project card via local state
+
+No external carousel library needed — simple state-driven slideshow matching the existing `PropertyCardCarousel` pattern already in the codebase.
+
+### Files Changed
+- `src/components/funnels/FunnelProofSection.tsx` — replace photo grid with carousel per project card
 
