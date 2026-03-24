@@ -113,12 +113,6 @@ export default function InvestFunnelV1({ config }: InvestFunnelV1Props) {
           subheadline={subheadline}
           ctaText={ctaText}
           ctaAction={scrollToForm}
-          testimonial={{
-            quote: 'Found a 12% yield deal within a week of signing up!',
-            author: 'James R.',
-            location: 'Birmingham',
-            rating: 5,
-          }}
         />
 
         <section id="funnel-form" className="py-12 bg-muted/30">
