@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { useProperties } from '@/hooks/useProperties';
 import { formatPrice, formatYield } from '@/lib/propertyUtils';
 
-import huddersfieldExterior from '@/assets/projects/huddersfield-exterior.png';
 import huddersfieldBedroom from '@/assets/projects/huddersfield-bedroom.jpeg';
 import huddersfieldKitchen from '@/assets/projects/huddersfield-kitchen.jpeg';
 import huddersfieldBathroom from '@/assets/projects/huddersfield-bathroom.jpeg';
@@ -19,7 +18,7 @@ const completedProjects = [
     subtitle: 'Victorian building. Full refurbishment. 1 & 2 bed apartments on long-term, guaranteed-rent leases backed by the local authority.',
     tag: 'COMPLETED THIS WEEK',
     highlights: ['Guaranteed rent', 'Minimal voids', 'Long-term contracts', 'Social impact'],
-    images: [huddersfieldExterior, huddersfieldBedroom, huddersfieldKitchen, huddersfieldBathroom],
+    images: [huddersfieldBedroom, huddersfieldKitchen, huddersfieldBathroom],
   },
   {
     title: '4 Adapted Flats — Specialist Care',
