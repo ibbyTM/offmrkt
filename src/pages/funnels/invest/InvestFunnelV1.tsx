@@ -28,6 +28,7 @@ import { FunnelBenefits, defaultInvestorBenefits } from '@/components/funnels/Fu
 import { FunnelCTA } from '@/components/funnels/FunnelCTA';
 import { FunnelLeadForm } from '@/components/funnels/FunnelLeadForm';
 import { FunnelSteps } from '@/components/funnels/FunnelSteps';
+import { DealStatsStrip, CompletedProjects, FeaturedLiveDeal } from '@/components/funnels/FunnelProofSection';
 import { useFunnel } from '@/contexts/FunnelContext';
 import { useFunnelTracking } from '@/hooks/useFunnelTracking';
 
@@ -115,6 +116,8 @@ export default function InvestFunnelV1({ config }: InvestFunnelV1Props) {
           ctaAction={scrollToForm}
         />
 
+        <DealStatsStrip />
+
         <section id="funnel-form" className="py-12 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto">
@@ -151,6 +154,9 @@ export default function InvestFunnelV1({ config }: InvestFunnelV1Props) {
             </div>
           </div>
         </section>
+
+        <CompletedProjects />
+        <FeaturedLiveDeal onCtaClick={scrollToForm} />
 
         <FunnelBenefits
           benefits={defaultInvestorBenefits}
