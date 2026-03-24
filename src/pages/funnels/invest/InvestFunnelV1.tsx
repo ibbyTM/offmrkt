@@ -24,7 +24,7 @@ import {
 import { FunnelLayout } from '@/components/funnels/FunnelLayout';
 import { FunnelHero } from '@/components/funnels/FunnelHero';
 import { FunnelBenefits, defaultInvestorBenefits } from '@/components/funnels/FunnelBenefits';
-import { FunnelTestimonials, defaultTestimonials } from '@/components/funnels/FunnelTestimonials';
+
 import { FunnelCTA } from '@/components/funnels/FunnelCTA';
 import { FunnelLeadForm } from '@/components/funnels/FunnelLeadForm';
 import { FunnelSteps } from '@/components/funnels/FunnelSteps';
@@ -163,10 +163,9 @@ export default function InvestFunnelV1({ config }: InvestFunnelV1Props) {
           variant="cards"
           columns={4}
         />
-        <FunnelTestimonials testimonials={defaultTestimonials} variant="cards" />
         <FunnelCTA
           headline="Ready to Access Off-Market Deals?"
-          subheadline="Join hundreds of investors already receiving exclusive deal alerts."
+          subheadline="Join verified investors already accessing exclusive UK off-market deals."
           ctaText="Get Early Access"
           ctaAction={scrollToForm}
           variant="gradient"
