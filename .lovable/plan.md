@@ -1,21 +1,14 @@
 
 
-## Replace Specialist Care Post Image with Clean Photos
+## Fix: Remove Huddersfield Social Media Post Image
 
-The specialist care project currently shows a single social media screenshot with text overlay. Replace with the 4 clean photos the user uploaded.
+The `huddersfield-exterior.png` is the social media screenshot with text overlay. Unlike the specialist care project, the user didn't provide a separate clean exterior for Huddersfield — only 3 clean interior shots (bedroom, kitchen, bathroom).
 
-### Changes
+### Change
+**`src/components/funnels/FunnelProofSection.tsx`**
+- Remove `huddersfieldExterior` import
+- Update the Huddersfield project's `images` array to use only the 3 clean photos: `[huddersfieldBedroom, huddersfieldKitchen, huddersfieldBathroom]`
+- The photo grid already handles variable image counts (1 or 2+ columns), so 3 photos will render as a 2x2 grid with 3 cells filled
 
-**1. Add 4 new images to `src/assets/projects/`**
-- `specialist-care-exterior-clean.png` (exterior, no text)
-- `specialist-care-kitchen.jpg` (kitchen shot)
-- `specialist-care-bathroom.jpg` (bathroom)
-- `specialist-care-garden.jpg` (garden/outdoor)
-
-**2. Update `src/components/funnels/FunnelProofSection.tsx`**
-- Replace the `specialistCareExterior` import with 4 new image imports
-- Update the specialist care project's `images` array: `[exterior, kitchen, bathroom, garden]`
-- This gives it a 4-photo grid matching the Huddersfield card
-
-Single file changed + 4 new assets.
+Single file change — remove 1 import, update 1 array.
 
