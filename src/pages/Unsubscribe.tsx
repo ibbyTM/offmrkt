@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle, Loader2, MailX } from "lucide-react";
-import Layout from "@/components/layout/Layout";
+import { Layout } from "@/components/layout/Layout";
 
 type Status = "loading" | "valid" | "already_unsubscribed" | "invalid" | "success" | "error";
 
