@@ -26,6 +26,7 @@ import GDPR from "./pages/GDPR";
 import NotFound from "./pages/NotFound";
 import FunnelRouter from "./pages/funnels/FunnelRouter";
 import AdCreatives from "./pages/AdCreatives";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
