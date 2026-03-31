@@ -68,7 +68,14 @@ const Admin = () => {
   const pendingSubs = submissions.filter((s) => s.admin_status === "pending").length;
 
   const handleUpdateAppStatus = (applicationId: string, status: ApplicationStatus, notes?: string) => {
-    updateAppStatus({ applicationId, status, adminNotes: notes });
+    const app = applications.find((a) => a.id === applicationId);
+    updateAppStatus({
+      applicationId,
+      status,
+      adminNotes: notes,
+      recipientEmail: app?.profile?.email,
+      recipientName: app?.profile?.full_name,
+    });
   };
 
   const handleUpdateSubStatus = (submissionId: string, status: SubmissionStatus, notes?: string) => {
