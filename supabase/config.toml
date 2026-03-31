@@ -11,3 +11,5 @@ project_id = "uruqmzpihbxzzowrsrny"
     verify_jwt = false
   [functions.detect-focal-point]
     verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
