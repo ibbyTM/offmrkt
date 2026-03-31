@@ -1,63 +1,47 @@
 
 
-## Full Mobile Optimisation Audit & Fix
+## Transactional Email Notifications for Investors
 
-### Issues Found
+Your email domain is verified and ready. Here's the implementation plan for the 4 email templates you specified.
 
-1. **Viewport meta** missing `maximum-scale=1.0` — iOS auto-zooms on input focus
-2. **`src/App.css`** — dead Vite boilerplate with `max-width: 1280px; padding: 2rem` on `#root`. Not currently imported but a risk
-3. **Carousel nav arrows 32px** (`h-8 w-8`) — below 44px touch minimum, in both `FunnelProofSection` and `PropertyCardCarousel`
-4. **Carousel arrows invisible on mobile** — `opacity-0 group-hover:opacity-100` never triggers on touch devices
-5. **Carousel dot indicators 8px** (`h-2 w-2`) — too small for touch
-6. **Hero headings `text-4xl`** at smallest breakpoint can overflow on 320px screens
-7. **FunnelCTA gradient heading** `text-3xl` at smallest — tight on small screens
-8. **FunnelLayout header** uses fixed `w-24` spacers that clip on narrow screens
+### Step 1: Set Up Email Infrastructure
 
-### Changes
+Run the email infrastructure setup (creates email queue, database tables, cron job for processing). Then scaffold the transactional email Edge Functions (`send-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`).
 
-**1. `index.html`** (line 5)
-- Change viewport to: `width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no`
+### Step 2: Create 4 Email Templates
 
-**2. Delete `src/App.css`**
-- Unused Vite boilerplate
+Create branded React Email templates in `supabase/functions/_shared/transactional-email-templates/` matching your exact copy, styled with the project's Royal Blue palette (`hsl(220, 70%, 55%)` primary, `hsl(220, 25%, 15%)` foreground):
 
-**3. `src/index.css`** — Add touch-target utility
-```css
-@layer utilities {
-  .touch-target { min-height: 44px; min-width: 44px; }
-}
-```
+1. **`welcome-application.tsx`** — "Your Application Has Been Received"
+2. **`application-approved.tsx`** — "You're Approved — Welcome to Off The Markets" (with "View Available Deals" CTA button linking to `/properties`)
+3. **`application-rejected.tsx`** — "Your Off The Markets Application"
+4. **`new-property-alert.tsx`** — "New Deal Alert: [Address] — [Yield]% Yield" (with property stats and "View Full Property Details" CTA)
 
-**4. `src/components/funnels/FunnelProofSection.tsx`**
-- Nav arrows: `h-8 w-8` → `h-10 w-10`, visible on mobile: `opacity-70 md:opacity-0 md:group-hover:opacity-100`
-- Dot indicators: `h-2 w-2` → `h-2.5 w-2.5` with `p-1` wrapper for 44px tap area
-- Carousel height: `h-64` → `h-56` on mobile for better proportion
-- `FeaturedLiveDeal` stats grid: `grid-cols-3` → `grid-cols-1 sm:grid-cols-3` to stack on small screens
+Register all 4 in `registry.ts`. Deploy all edge functions.
 
-**5. `src/components/properties/PropertyCardCarousel.tsx`**
-- Nav arrows: `h-8 w-8` → `h-10 w-10`
-- Arrow visibility: `opacity-0 group-hover:opacity-100` → `opacity-70 md:opacity-0 md:group-hover:opacity-100`
-- Dot indicators: `h-2 w-2` → `h-2.5 w-2.5` with padding for tap area
+### Step 3: Wire Up Triggers
 
-**6. `src/components/funnels/FunnelHero.tsx`**
-- Heading: `text-4xl md:text-5xl lg:text-6xl` → `text-3xl sm:text-4xl md:text-5xl lg:text-6xl` (both variants)
-- Subheadline centered: `text-xl md:text-2xl` → `text-lg sm:text-xl md:text-2xl`
-- Subheadline split: `text-xl` → `text-lg sm:text-xl`
+**Welcome email** — In `QuestionnaireForm.tsx`, after successful application insert (line ~216), call `send-transactional-email` with the user's email and first name.
 
-**7. `src/components/funnels/FunnelCTA.tsx`**
-- Gradient heading: `text-3xl md:text-4xl` → `text-2xl sm:text-3xl md:text-4xl`
-- Default heading: same treatment
+**Approved/Rejected emails** — In `useAdminApplications.ts` `useUpdateApplicationStatus`, in the `onSuccess` callback, call `send-transactional-email` with the appropriate template based on status. Will need to pass `recipientEmail` and `recipientName` through the mutation variables.
 
-**8. `src/components/funnels/FunnelLayout.tsx`**
-- Header spacers: `w-24` → `w-20 sm:w-24`
+**New Property Alert** — This is the most complex one. When an admin lists a new property, we need to query approved investors whose `min_budget`/`max_budget` range overlaps the property price. However, per the transactional email rules, each email must be triggered by a specific event for a specific recipient. The trigger here is "admin listed a property that matches YOUR criteria" — each investor gets their own personalised email. Will add this to the admin property creation flow.
 
-### Files Changed
-- `index.html`
-- `src/App.css` (delete)
-- `src/index.css`
-- `src/components/funnels/FunnelProofSection.tsx`
-- `src/components/properties/PropertyCardCarousel.tsx`
-- `src/components/funnels/FunnelHero.tsx`
-- `src/components/funnels/FunnelCTA.tsx`
-- `src/components/funnels/FunnelLayout.tsx`
+### Step 4: Unsubscribe Page
+
+Create `src/pages/Unsubscribe.tsx` with a branded page that validates unsubscribe tokens and confirms opt-out. Add `/unsubscribe` route to `App.tsx`.
+
+### Files Created
+- `supabase/functions/_shared/transactional-email-templates/welcome-application.tsx`
+- `supabase/functions/_shared/transactional-email-templates/application-approved.tsx`
+- `supabase/functions/_shared/transactional-email-templates/application-rejected.tsx`
+- `supabase/functions/_shared/transactional-email-templates/new-property-alert.tsx`
+- `supabase/functions/_shared/transactional-email-templates/registry.ts`
+- `src/pages/Unsubscribe.tsx`
+
+### Files Modified
+- `src/components/questionnaire/QuestionnaireForm.tsx` — add welcome email trigger after submit
+- `src/hooks/useAdminApplications.ts` — add approved/rejected email triggers in mutation
+- `src/App.tsx` — add `/unsubscribe` route
+- `supabase/config.toml` — new function entries
 
