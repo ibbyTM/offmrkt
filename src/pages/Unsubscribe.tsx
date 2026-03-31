@@ -106,7 +106,7 @@ const Unsubscribe = () => {
 
             {status === "success" && (
               <>
-                <CheckCircle className="h-10 w-10 text-green-600 mx-auto" />
+                <CheckCircle className="h-10 w-10 text-primary mx-auto" />
                 <h1 className="text-xl font-bold">You've Been Unsubscribed</h1>
                 <p className="text-muted-foreground text-sm">
                   You will no longer receive email notifications from Off The Markets.
