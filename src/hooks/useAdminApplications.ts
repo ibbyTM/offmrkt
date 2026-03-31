@@ -64,10 +64,14 @@ export const useUpdateApplicationStatus = () => {
       applicationId,
       status,
       adminNotes,
+      recipientEmail,
+      recipientName,
     }: {
       applicationId: string;
       status: ApplicationStatus;
       adminNotes?: string;
+      recipientEmail?: string;
+      recipientName?: string;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -82,6 +86,21 @@ export const useUpdateApplicationStatus = () => {
         .eq("id", applicationId);
 
       if (error) throw error;
+
+      // Send status email
+      if (recipientEmail && (status === "approved" || status === "rejected")) {
+        const templateName = status === "approved" ? "application-approved" : "application-rejected";
+        const firstName = recipientName?.split(" ")[0] || "Investor";
+
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName,
+            recipientEmail,
+            idempotencyKey: `app-${status}-${applicationId}`,
+            templateData: { name: firstName },
+          },
+        });
+      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-applications"] });

@@ -216,6 +216,24 @@ export const QuestionnaireForm = () => {
 
       if (error) throw error;
 
+      // Send welcome email
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profile?.email) {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "welcome-application",
+            recipientEmail: profile.email,
+            idempotencyKey: `welcome-app-${user.id}`,
+            templateData: { name: profile.full_name?.split(" ")[0] || "Investor" },
+          },
+        });
+      }
+
       await refreshInvestorStatus();
 
       toast({
