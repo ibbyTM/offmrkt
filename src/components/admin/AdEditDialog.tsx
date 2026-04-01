@@ -121,7 +121,7 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
             <ToggleGroup
               type="single"
               value={decorStyle}
-              onValueChange={(val) => val && setDecorStyle(val)}
+              onValueChange={(val) => val && setDecorStyle(val as typeof decorStyle)}
               className="flex flex-wrap justify-start gap-1"
             >
               {DECOR_STYLES.map((style) => (
