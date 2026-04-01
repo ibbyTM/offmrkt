@@ -1,47 +1,49 @@
 
 
-## Transactional Email Notifications for Investors
+## Add Investor Ad Creatives
 
-Your email domain is verified and ready. Here's the implementation plan for the 4 email templates you specified.
+Currently there are 25 seller-focused creatives (9 square, 8 story, 4 portrait, 4 landscape). I'll create a matching set of 25 investor-focused creatives and update the page to show both sets separated by audience tabs.
 
-### Step 1: Set Up Email Infrastructure
+### New Investor Creatives (25 total)
 
-Run the email infrastructure setup (creates email queue, database tables, cron job for processing). Then scaffold the transactional email Edge Functions (`send-transactional-email`, `handle-email-unsubscribe`, `handle-email-suppression`).
+**9 Square (1080×1080):**
+1. "Off-Market Deals. Before Anyone Else." — exclusive access pitch, navy, stats (1,200+ investors, £48M+ deals)
+2. "7%+ Yields. Guaranteed Tenants." — yield-focused, teal, bullet points
+3. "Free Investment Analysis on Every Deal" — value prop, white
+4. "Why 1,200+ Investors Choose Us" — social proof, gradient, stats
+5. "HMO Deals Starting at £125K" — strategy-specific, navy, stats
+6. "No Sourcing Fees. No Middlemen." — cost savings, dark
+7. "BMV Deals You Won't Find on Rightmove" — exclusivity, teal, bullets
+8. "Build a Portfolio. Not a Headache." — lifestyle, white, bullets
+9. "UK Property Market Update" — market data, dark/grid, stats
 
-### Step 2: Create 4 Email Templates
+**8 Story (1080×1920):**
+1. "New Deal Just Listed" — urgency, navy
+2. "Start Investing With £80K" — accessibility, teal, bullets
+3. "Your Portfolio. Our Deals. Real Returns." — gradient, stats
+4. "First-Time Investor?" — education, white, bullets
+5. "3 Deals Left This Month" — scarcity, navy
+6. "Apply in 60 Seconds" — friction-free, gradient, stats
+7. "5 Signs of a Great BTL Deal" — tips, dark/waves, bullets
+8. "Ready to Invest?" — CTA, split/waves, stats
 
-Create branded React Email templates in `supabase/functions/_shared/transactional-email-templates/` matching your exact copy, styled with the project's Royal Blue palette (`hsl(220, 70%, 55%)` primary, `hsl(220, 25%, 15%)` foreground):
+**4 Portrait (1080×1350):**
+1. "This Week's Top Deals" — deal roundup, dark/grid, stats
+2. "Cash vs Mortgage: Which Strategy Wins?" — education, navy, stats
+3. "\"Best platform I've used\" — James K." — testimonial, white
+4. "Top 3 High-Yield Areas in 2026" — data, teal, bullets
 
-1. **`welcome-application.tsx`** — "Your Application Has Been Received"
-2. **`application-approved.tsx`** — "You're Approved — Welcome to Off The Markets" (with "View Available Deals" CTA button linking to `/properties`)
-3. **`application-rejected.tsx`** — "Your Off The Markets Application"
-4. **`new-property-alert.tsx`** — "New Deal Alert: [Address] — [Yield]% Yield" (with property stats and "View Full Property Details" CTA)
+**4 Landscape (1200×628):**
+1. "How to Build a 5-Property Portfolio" — guide, navy
+2. "Just Listed: 4-Bed HMO, Leeds" — listing, gradient, stats
+3. "Why Off-Market Beats Rightmove" — thought leadership, dark, stats
+4. "Join 1,200+ Verified Investors" — milestone, split, stats
 
-Register all 4 in `registry.ts`. Deploy all edge functions.
+### Page Update
 
-### Step 3: Wire Up Triggers
-
-**Welcome email** — In `QuestionnaireForm.tsx`, after successful application insert (line ~216), call `send-transactional-email` with the user's email and first name.
-
-**Approved/Rejected emails** — In `useAdminApplications.ts` `useUpdateApplicationStatus`, in the `onSuccess` callback, call `send-transactional-email` with the appropriate template based on status. Will need to pass `recipientEmail` and `recipientName` through the mutation variables.
-
-**New Property Alert** — This is the most complex one. When an admin lists a new property, we need to query approved investors whose `min_budget`/`max_budget` range overlaps the property price. However, per the transactional email rules, each email must be triggered by a specific event for a specific recipient. The trigger here is "admin listed a property that matches YOUR criteria" — each investor gets their own personalised email. Will add this to the admin property creation flow.
-
-### Step 4: Unsubscribe Page
-
-Create `src/pages/Unsubscribe.tsx` with a branded page that validates unsubscribe tokens and confirms opt-out. Add `/unsubscribe` route to `App.tsx`.
-
-### Files Created
-- `supabase/functions/_shared/transactional-email-templates/welcome-application.tsx`
-- `supabase/functions/_shared/transactional-email-templates/application-approved.tsx`
-- `supabase/functions/_shared/transactional-email-templates/application-rejected.tsx`
-- `supabase/functions/_shared/transactional-email-templates/new-property-alert.tsx`
-- `supabase/functions/_shared/transactional-email-templates/registry.ts`
-- `src/pages/Unsubscribe.tsx`
+Update `AdCreatives.tsx` to add a **Tabs** component at the top: "Seller Creatives" and "Investor Creatives". Each tab shows the same 4 aspect-ratio sections but with its own dataset. The data file will export two arrays: `sellerCreatives` (existing) and `investorCreatives` (new).
 
 ### Files Modified
-- `src/components/questionnaire/QuestionnaireForm.tsx` — add welcome email trigger after submit
-- `src/hooks/useAdminApplications.ts` — add approved/rejected email triggers in mutation
-- `src/App.tsx` — add `/unsubscribe` route
-- `supabase/config.toml` — new function entries
+- `src/data/adCreatives.ts` — rename export to `sellerCreatives`, add `investorCreatives` array with 25 entries
+- `src/pages/AdCreatives.tsx` — add Tabs UI to switch between seller and investor sets
 
