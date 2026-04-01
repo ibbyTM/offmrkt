@@ -5,7 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, RotateCcw } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { AdCreativeConfig } from "./AdCreativeCard";
+
+const VARIANTS = [
+  { value: "navy", label: "Navy", bg: "bg-[hsl(220,40%,20%)]" },
+  { value: "teal", label: "Teal", bg: "bg-[hsl(180,50%,35%)]" },
+  { value: "white", label: "White", bg: "bg-white border border-border" },
+  { value: "gradient", label: "Gradient", bg: "bg-gradient-to-br from-[hsl(220,40%,20%)] to-[hsl(180,50%,35%)]" },
+  { value: "dark", label: "Dark", bg: "bg-[hsl(220,20%,12%)]" },
+  { value: "split", label: "Split", bg: "bg-gradient-to-r from-[hsl(220,40%,20%)] to-[hsl(180,50%,35%)]" },
+] as const;
+
+const DECOR_STYLES = ["none", "circles", "lines", "dots", "geometric", "waves", "grid"] as const;
 
 interface AdEditDialogProps {
   open: boolean;
@@ -23,6 +35,8 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
   const [badge, setBadge] = useState(config.badge || "");
   const [bulletPoints, setBulletPoints] = useState<string[]>(config.bulletPoints || []);
   const [stats, setStats] = useState<{ value: string; label: string }[]>(config.stats || []);
+  const [variant, setVariant] = useState(config.variant);
+  const [decorStyle, setDecorStyle] = useState(config.decorStyle || "none");
 
   const handleSave = () => {
     onSave({
@@ -32,6 +46,8 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
       badge: badge || undefined,
       bulletPoints: bulletPoints.length > 0 ? bulletPoints : undefined,
       stats: stats.length > 0 ? stats : undefined,
+      variant,
+      decorStyle: decorStyle === "none" ? undefined : decorStyle,
     });
     onOpenChange(false);
   };
@@ -43,6 +59,8 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
     setBadge(original.badge || "");
     setBulletPoints(original.bulletPoints || []);
     setStats(original.stats || []);
+    setVariant(original.variant);
+    setDecorStyle(original.decorStyle || "none");
     onReset();
     onOpenChange(false);
   };
@@ -73,6 +91,50 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
           <div>
             <Label>Badge (optional)</Label>
             <Input value={badge} onChange={(e) => setBadge(e.target.value)} placeholder="e.g. ⚡ FAST SALE" />
+          </div>
+
+          {/* Colour Theme */}
+          <div>
+            <Label className="mb-2 block">Colour Theme</Label>
+            <div className="flex flex-wrap gap-2">
+              {VARIANTS.map((v) => (
+                <button
+                  key={v.value}
+                  type="button"
+                  onClick={() => setVariant(v.value as AdCreativeConfig["variant"])}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                    variant === v.value
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "ring-1 ring-border hover:ring-foreground/30"
+                  }`}
+                >
+                  <span className={`inline-block h-3.5 w-3.5 rounded-full ${v.bg}`} />
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Decoration Style */}
+          <div>
+            <Label className="mb-2 block">Decoration</Label>
+            <ToggleGroup
+              type="single"
+              value={decorStyle}
+              onValueChange={(val) => val && setDecorStyle(val as typeof decorStyle)}
+              className="flex flex-wrap justify-start gap-1"
+            >
+              {DECOR_STYLES.map((style) => (
+                <ToggleGroupItem
+                  key={style}
+                  value={style}
+                  size="sm"
+                  className="rounded-full px-3 text-xs capitalize"
+                >
+                  {style}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
 
           {/* Bullet Points */}
