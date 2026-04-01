@@ -90,7 +90,53 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
 
           <div>
             <Label>Badge (optional)</Label>
+          <div>
+            <Label>Badge (optional)</Label>
             <Input value={badge} onChange={(e) => setBadge(e.target.value)} placeholder="e.g. ⚡ FAST SALE" />
+          </div>
+
+          {/* Colour Theme */}
+          <div>
+            <Label className="mb-2 block">Colour Theme</Label>
+            <div className="flex flex-wrap gap-2">
+              {VARIANTS.map((v) => (
+                <button
+                  key={v.value}
+                  type="button"
+                  onClick={() => setVariant(v.value as AdCreativeConfig["variant"])}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                    variant === v.value
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "ring-1 ring-border hover:ring-foreground/30"
+                  }`}
+                >
+                  <span className={`inline-block h-3.5 w-3.5 rounded-full ${v.bg}`} />
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Decoration Style */}
+          <div>
+            <Label className="mb-2 block">Decoration</Label>
+            <ToggleGroup
+              type="single"
+              value={decorStyle}
+              onValueChange={(val) => val && setDecorStyle(val)}
+              className="flex flex-wrap justify-start gap-1"
+            >
+              {DECOR_STYLES.map((style) => (
+                <ToggleGroupItem
+                  key={style}
+                  value={style}
+                  size="sm"
+                  className="rounded-full px-3 text-xs capitalize"
+                >
+                  {style}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           </div>
 
           {/* Bullet Points */}
