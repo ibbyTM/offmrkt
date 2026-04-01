@@ -35,6 +35,8 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
   const [badge, setBadge] = useState(config.badge || "");
   const [bulletPoints, setBulletPoints] = useState<string[]>(config.bulletPoints || []);
   const [stats, setStats] = useState<{ value: string; label: string }[]>(config.stats || []);
+  const [variant, setVariant] = useState(config.variant);
+  const [decorStyle, setDecorStyle] = useState(config.decorStyle || "none");
 
   const handleSave = () => {
     onSave({
