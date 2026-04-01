@@ -46,6 +46,8 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
       badge: badge || undefined,
       bulletPoints: bulletPoints.length > 0 ? bulletPoints : undefined,
       stats: stats.length > 0 ? stats : undefined,
+      variant,
+      decorStyle: decorStyle === "none" ? undefined : decorStyle,
     });
     onOpenChange(false);
   };
