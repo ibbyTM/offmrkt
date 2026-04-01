@@ -90,8 +90,6 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
 
           <div>
             <Label>Badge (optional)</Label>
-          <div>
-            <Label>Badge (optional)</Label>
             <Input value={badge} onChange={(e) => setBadge(e.target.value)} placeholder="e.g. ⚡ FAST SALE" />
           </div>
 
