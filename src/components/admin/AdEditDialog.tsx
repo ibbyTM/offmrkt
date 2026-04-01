@@ -59,6 +59,8 @@ export function AdEditDialog({ open, onOpenChange, config, original, onSave, onR
     setBadge(original.badge || "");
     setBulletPoints(original.bulletPoints || []);
     setStats(original.stats || []);
+    setVariant(original.variant);
+    setDecorStyle(original.decorStyle || "none");
     onReset();
     onOpenChange(false);
   };
