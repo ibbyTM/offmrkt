@@ -5,7 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, RotateCcw } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { AdCreativeConfig } from "./AdCreativeCard";
+
+const VARIANTS = [
+  { value: "navy", label: "Navy", bg: "bg-[hsl(220,40%,20%)]" },
+  { value: "teal", label: "Teal", bg: "bg-[hsl(180,50%,35%)]" },
+  { value: "white", label: "White", bg: "bg-white border border-border" },
+  { value: "gradient", label: "Gradient", bg: "bg-gradient-to-br from-[hsl(220,40%,20%)] to-[hsl(180,50%,35%)]" },
+  { value: "dark", label: "Dark", bg: "bg-[hsl(220,20%,12%)]" },
+  { value: "split", label: "Split", bg: "bg-gradient-to-r from-[hsl(220,40%,20%)] to-[hsl(180,50%,35%)]" },
+] as const;
+
+const DECOR_STYLES = ["none", "circles", "lines", "dots", "geometric", "waves", "grid"] as const;
 
 interface AdEditDialogProps {
   open: boolean;
