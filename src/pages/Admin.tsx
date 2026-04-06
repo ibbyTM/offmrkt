@@ -175,7 +175,7 @@ const Admin = () => {
   );
 
   // Show loading state while checking auth
-  if (authLoading || isCheckingAdmin) {
+  if (authLoading) {
     return (
       <AppLayout 
         pageTitle="Admin Panel" 

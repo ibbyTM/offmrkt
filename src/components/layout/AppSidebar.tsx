@@ -33,8 +33,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { selectedProperties } = useComparison();
-  const { isAdmin } = useAuth();
-  const { signOut } = useAuth();
+  const { isAdmin, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
