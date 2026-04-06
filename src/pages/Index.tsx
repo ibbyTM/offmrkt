@@ -26,15 +26,16 @@ const Index = () => {
     }
   }, [user, loading, navigate]);
 
-  if (loading) {
+  // If already authenticated, show a brief loader while redirecting
+  if (!loading && user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-muted-foreground text-sm">Loading...</p>
       </div>
     );
   }
 
+  // Render landing page immediately — don't block on auth loading
   return (
     <Layout>
       <HeroSection />

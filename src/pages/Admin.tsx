@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   useAdminApplications,
   useUpdateApplicationStatus,
-  useIsAdmin,
   type ApplicationStatus,
 } from "@/hooks/useAdminApplications";
 import {
@@ -39,8 +38,7 @@ import { Link } from "react-router-dom";
 type AdminSection = 'home' | 'applications' | 'crm' | 'submissions' | 'mortgage-leads' | 'leads' | 'funnels';
 
 const Admin = () => {
-  const { user, loading: authLoading } = useAuth();
-  const { data: isAdmin, isLoading: isCheckingAdmin } = useIsAdmin();
+  const { user, loading: authLoading, isAdmin } = useAuth();
   const [currentSection, setCurrentSection] = useState<AdminSection>('home');
   
   // Only fetch data when the relevant section is active
@@ -177,7 +175,7 @@ const Admin = () => {
   );
 
   // Show loading state while checking auth
-  if (authLoading || isCheckingAdmin) {
+  if (authLoading) {
     return (
       <AppLayout 
         pageTitle="Admin Panel" 
