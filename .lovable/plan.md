@@ -1,22 +1,45 @@
 
+Goal: remove the “Loading…” dead-end and make the app recover cleanly when auth is slow or fails.
 
-## Add Style Switcher to Ad Creative Edit Dialog
+What I found
+- The spinner in your screenshot matches `src/pages/Index.tsx` exactly, not the Ad Creatives page.
+- `Index.tsx` fully blocks the page while `useAuth().loading` is `true`.
+- `AuthContext.tsx` relies on auth bootstrap completing cleanly; if that stalls on the custom domain, the home page can stay stuck forever.
+- Admin status is fetched twice: once in `AuthContext` and again via `useIsAdmin()` in `AppSidebar`/`Admin`, which adds unnecessary auth/backend churn.
 
-### What
-Add a "Style" selector to the existing edit dialog so you can switch between the 6 colour variants (`navy`, `teal`, `white`, `gradient`, `dark`, `split`) and 7 decoration styles (`none`, `circles`, `lines`, `dots`, `geometric`, `waves`, `grid`) — the creative preview updates live.
+Implementation plan
+1. Harden auth bootstrap in `src/contexts/AuthContext.tsx`
+- Wrap initial session loading in safer error handling.
+- Ensure `loading` is always cleared, even if auth/session calls fail.
+- Add a small fallback timeout/escape hatch so the app never stays in a permanent loading state.
+- Keep investor/admin fetches non-blocking after auth resolves.
 
-### Changes
+2. Remove the full-page auth blocker from `src/pages/Index.tsx`
+- Render the landing page immediately instead of showing an infinite full-screen loader.
+- If a user is authenticated, redirect them to `/properties` once auth resolves.
+- This means slow auth no longer traps visitors on a blank loading screen.
 
-**`src/components/admin/AdEditDialog.tsx`**
-- Add `variant` and `decorStyle` to local state (initialised from `config`)
-- Add a "Colour Theme" section with 6 clickable swatches/chips (navy, teal, white, gradient, dark, split) — highlight the active one
-- Add a "Decoration" section with 7 chips (none, circles, lines, dots, geometric, waves, grid)
-- Include both fields in `handleSave` and `handleReset`
+3. Use one source of truth for admin state
+- Update `src/components/layout/AppSidebar.tsx` to use `useAuth().isAdmin` instead of `useIsAdmin()`.
+- Update `src/pages/Admin.tsx` to rely on auth context admin state instead of a second role query.
+- This removes duplicated checks and reduces the chance of extra loading loops.
 
-**`src/components/admin/AdCreativeCard.tsx`** — no changes needed, already renders based on `config.variant` and `config.decorStyle`
+4. Keep Ad Creatives accessible and stable
+- Verify `src/pages/AdCreatives.tsx` stays independent of auth-loading spinners except for sidebar rendering.
+- If needed, add a lightweight admin guard later, but that is separate from the loading bug.
 
-### UI Design
-- Colour chips: small rounded pills with the actual background colour as a swatch + label, bordered when selected
-- Decoration chips: text-only toggle group, one active at a time
-- Both sections sit between the Badge input and Bullet Points section
+5. QA to verify the fix
+- Test `/` logged out on the custom domain: landing page should appear immediately.
+- Test `/` logged in: should redirect to `/properties` once auth resolves.
+- Test direct refresh on `/admin/ad-creatives`.
+- Test clicking the logo from admin/sidebar back to home.
+- Test both preview and published domain behavior.
 
+Technical details
+- Files to update:
+  - `src/contexts/AuthContext.tsx`
+  - `src/pages/Index.tsx`
+  - `src/components/layout/AppSidebar.tsx`
+  - `src/pages/Admin.tsx`
+- Most likely root cause:
+  - a blocking home-page loader combined with fragile auth initialization and duplicated admin-role fetching.
