@@ -70,6 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // Safety timeout: never stay in loading state longer than 5 seconds
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -92,18 +97,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
 
-      if (session?.user) {
-        fetchInvestorStatus(session.user.id);
-        fetchAdminStatus(session.user.id);
-      }
-    });
+        if (session?.user) {
+          fetchInvestorStatus(session.user.id);
+          fetchAdminStatus(session.user.id);
+        }
+      })
+      .catch((err) => {
+        console.error("Auth session fetch failed:", err);
+        setLoading(false);
+      });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {

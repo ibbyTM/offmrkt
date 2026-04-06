@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { useComparison } from "@/contexts/ComparisonContext";
-import { useIsAdmin } from "@/hooks/useAdminApplications";
 import logo from "@/assets/offthemarkets-logo.png";
 
 interface AppSidebarProps {
@@ -34,7 +33,7 @@ export function AppSidebar({ children }: AppSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const { selectedProperties } = useComparison();
-  const { data: isAdmin } = useIsAdmin();
+  const { isAdmin } = useAuth();
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
