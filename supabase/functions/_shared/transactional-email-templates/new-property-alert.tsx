@@ -17,6 +17,8 @@ interface NewPropertyAlertProps {
   propertyType?: string
   strategy?: string
   propertyId?: string
+  matchType?: 'full' | 'partial'
+  matchedCriteria?: string[]
 }
 
 const formatPrice = (price?: number) => {
@@ -38,22 +40,29 @@ const NewPropertyAlertEmail = ({
   propertyType,
   strategy,
   propertyId,
+  matchType = 'full',
+  matchedCriteria,
 }: NewPropertyAlertProps) => (
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>
-      New Deal Alert: {propertyAddress || 'New Property'} — {grossYield ? `${grossYield}%` : 'High'} Yield
+      {matchType === 'partial' ? 'A Deal You Might Like' : 'New Deal Alert'}: {propertyAddress || 'New Property'} — {grossYield ? `${grossYield}%` : 'High'} Yield
     </Preview>
     <Body style={main}>
       <Container style={container}>
         <Img src={LOGO_URL} alt={SITE_NAME} width="160" height="auto" style={logo} />
-        <Heading style={h1}>New Deal Alert</Heading>
+        <Heading style={h1}>{matchType === 'partial' ? 'A Deal You Might Like' : 'New Deal Alert'}</Heading>
         <Text style={text}>
           Dear {name || 'Investor'},
         </Text>
         <Text style={text}>
-          A new off-market property has been listed that matches your investment criteria.
+          {matchType === 'partial'
+            ? 'A new off-market property has been listed that partially matches your investment criteria. It may still be worth a look.'
+            : 'A new off-market property has been listed that matches your investment criteria.'}
         </Text>
+        {matchType === 'partial' && matchedCriteria && matchedCriteria.length > 0 && (
+          <Text style={matchNote}>Matched on: {matchedCriteria.join(', ')}</Text>
+        )}
 
         <Section style={propertyCard}>
           <Text style={propertyTitle}>{propertyAddress || 'New Property Listing'}</Text>
@@ -92,7 +101,9 @@ const NewPropertyAlertEmail = ({
 export const template = {
   component: NewPropertyAlertEmail,
   subject: (data: Record<string, any>) =>
-    `New Deal Alert: ${data.propertyAddress || 'New Property'} — ${data.grossYield ? `${data.grossYield}%` : 'High'} Yield`,
+    data.matchType === 'partial'
+      ? `A Deal You Might Like: ${data.propertyAddress || 'New Property'}`
+      : `New Deal Alert: ${data.propertyAddress || 'New Property'} — ${data.grossYield ? `${data.grossYield}%` : 'High'} Yield`,
   displayName: 'New property alert',
   previewData: {
     name: 'Jane',
@@ -159,3 +170,10 @@ const signoff = {
   fontWeight: '600' as const,
 }
 const link = { color: '#14B8A6', textDecoration: 'underline', fontSize: '14px' }
+const matchNote = {
+  fontSize: '13px',
+  color: '#14B8A6',
+  fontWeight: '600' as const,
+  margin: '0 0 16px',
+  lineHeight: '1.6',
+}

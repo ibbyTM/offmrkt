@@ -21,3 +21,5 @@ project_id = "uruqmzpihbxzzowrsrny"
     verify_jwt = false
   [functions.handle-email-suppression]
     verify_jwt = false
+  [functions.notify-matching-investors]
+    verify_jwt = false
