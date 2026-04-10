@@ -39,6 +39,14 @@ export function useUpdatePropertyStatus() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["property", variables.propertyId] });
       queryClient.invalidateQueries({ queryKey: ["properties"] });
+
+      // Trigger investor matching when property becomes available
+      if (variables.status === "available") {
+        supabase.functions.invoke("notify-matching-investors", {
+          body: { propertyId: variables.propertyId },
+        }).catch((err) => console.error("Failed to notify investors:", err));
+      }
+
       toast({
         title: "Status Updated",
         description: `Property marked as ${variables.status.replace("_", " ")}.`,

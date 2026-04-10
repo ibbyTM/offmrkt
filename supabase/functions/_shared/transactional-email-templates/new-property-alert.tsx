@@ -170,3 +170,10 @@ const signoff = {
   fontWeight: '600' as const,
 }
 const link = { color: '#14B8A6', textDecoration: 'underline', fontSize: '14px' }
+const matchNote = {
+  fontSize: '13px',
+  color: '#14B8A6',
+  fontWeight: '600' as const,
+  margin: '0 0 16px',
+  lineHeight: '1.6',
+}

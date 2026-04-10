@@ -153,9 +153,16 @@ export const useConvertToListing = () => {
 
       return property;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["seller-submissions"] });
       queryClient.invalidateQueries({ queryKey: ["properties"] });
+
+      // Trigger investor matching notifications for the new listing
+      if (data?.id) {
+        supabase.functions.invoke("notify-matching-investors", {
+          body: { propertyId: data.id },
+        }).catch((err) => console.error("Failed to notify investors:", err));
+      }
       
       const message = variables.enhancedContent
         ? "Property has been published with AI-enhanced content."
