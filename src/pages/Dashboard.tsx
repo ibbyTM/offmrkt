@@ -5,13 +5,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Loader2, Heart, Clock, CheckCircle, Building, Building2, 
-  LayoutDashboard, Rocket, TrendingUp, User, LogOut
+  LayoutDashboard, Rocket, TrendingUp, User, LogOut, Phone
 } from "lucide-react";
 import { MyListingsTab } from "@/components/dashboard/MyListingsTab";
 import { StatCard } from "@/components/dashboard/StatCard";
