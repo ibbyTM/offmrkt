@@ -6,14 +6,16 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
   requireApproved?: boolean;
   requireQuestionnaire?: boolean;
+  requireAdmin?: boolean;
 }
 
 export const ProtectedRoute = ({
   children,
   requireApproved = false,
   requireQuestionnaire = false,
+  requireAdmin = false,
 }: ProtectedRouteProps) => {
-  const { user, loading, investorStatus, hasCompletedQuestionnaire } = useAuth();
+  const { user, loading, investorStatus, hasCompletedQuestionnaire, isAdmin } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -26,6 +28,11 @@ export const ProtectedRoute = ({
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If route requires admin role
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   // If user hasn't completed questionnaire and we're not on the questionnaire page
