@@ -1,32 +1,29 @@
 
 
-## Add Required Phone Number for Investors
+## Make Phone Number Prompt Global and Urgent
 
-**Problem**: 0 out of 29 approved investors have phone numbers on file. The registration form and investor questionnaire never collect a phone number.
+Currently the phone-missing banner only appears on the Dashboard page. Move it to a global blocking dialog that appears on every authenticated page until the user adds their number.
 
 ### Approach
 
-Add a required phone number field to the investor questionnaire (Step 1 — Financial Qualification), and save it to the `profiles` table when the questionnaire is submitted. For existing investors who already completed the questionnaire, add a prompt on the dashboard that asks them to add their phone number before they can access properties.
+Create a new `PhoneNumberPrompt` component that renders a **modal dialog** (not dismissible without entering a phone number) and place it in the `AuthProvider` or at the app root level so it appears on every page.
 
 ### Changes
 
-**1. `src/components/questionnaire/QuestionnaireForm.tsx`**
-- Add `phone: z.string().min(10, "Phone number is required")` to the schema
-- Add a phone input field to Step 1 (Financial Qualification)
-- On submit, update the user's profile with the phone number via `supabase.from("profiles").update({ phone })` alongside the existing questionnaire submission
+**1. Create `src/components/auth/PhoneNumberPrompt.tsx`**
+- A dialog/modal component that checks if the logged-in user has a phone number in their profile
+- If phone is missing, show a non-dismissible `AlertDialog` with urgent messaging ("We need your phone number to proceed") and a phone input + save button
+- On save, update `profiles.phone` and close the dialog
+- Only renders for authenticated users who have completed the questionnaire (investors)
 
-**2. `src/pages/Dashboard.tsx`** (or relevant dashboard component)
-- After loading the user profile, check if `phone` is null
-- If missing, show a prominent banner/dialog asking them to add their phone number
-- The banner includes a phone input and a save button that updates their profile
-- Until they add a phone, the banner persists at the top of the dashboard
+**2. Update `src/App.tsx`**
+- Add `<PhoneNumberPrompt />` inside the `AuthProvider` so it renders globally on every page
 
-**3. `src/components/auth/AuthForm.tsx`**
-- Add a phone field to the registration form schema (`registerSchema`)
-- Save phone to user metadata on signup, which gets written to profiles via the `handle_new_user` trigger (or update profile after signup)
+**3. Update `src/pages/Dashboard.tsx`**
+- Remove the phone-missing banner, `phoneMissing` state, `phoneInput` state, `savingPhone` state, and the related profile fetch/save logic (since it's now handled globally)
 
-No database schema changes needed — the `profiles.phone` column already exists as nullable text.
+### Result
+- Every page (including `/properties`, `/dashboard`, property detail pages) will show the blocking phone prompt for investors without a phone number
+- Users cannot dismiss it without entering their number
+- Once saved, the dialog disappears and doesn't return
 
-### Summary
-- New investors: phone collected at registration + questionnaire
-- Existing investors: prompted via dashboard banner until they add their number
