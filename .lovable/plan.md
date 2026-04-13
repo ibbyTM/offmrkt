@@ -1,29 +1,17 @@
 
 
-## Mask Property Address in Investor Alert Emails
+## Add "Notify Investors" Button to Admin Property Toolbar
 
-The `notify-matching-investors` edge function currently sends `property.property_address` (full street address including door number) in the email. This needs to be masked to show only the street name and city — consistent with how the rest of the site handles property privacy.
+Add a button to the existing `AdminPropertyToolbar` that lets admins manually trigger the `notify-matching-investors` edge function for the current property.
 
 ### Changes
 
-**`supabase/functions/notify-matching-investors/index.ts`** (line ~122)
-- Before passing `propertyAddress` to the template, strip the house/flat number from the address
-- Add a helper function that removes leading numbers and unit prefixes (e.g. "42 High Street" → "High Street", "Flat 3, 10 Oak Lane" → "Oak Lane")
-- Pass the masked address as `propertyAddress` in the template data
+**`src/components/property-detail/AdminPropertyToolbar.tsx`**
+- Add a `isNotifying` state and a `handleNotifyInvestors` handler that calls `supabase.functions.invoke("notify-matching-investors", { body: { propertyId: property.id } })`
+- On success, show a toast with the match counts returned (e.g. "Notified 3 investors (2 full, 1 partial)")
+- On error, show an error toast
+- Add a confirmation `AlertDialog` before sending (to prevent accidental mass emails)
+- Add a `Mail` icon button in the toolbar row alongside the existing buttons
 
-**`supabase/functions/_shared/transactional-email-templates/new-property-alert.tsx`**
-- No structural changes needed — it already just renders `propertyAddress` and `city`
-- Update the preview data to reflect the masked format (e.g. "High Street, Manchester")
-
-**Redeploy**: `notify-matching-investors` edge function
-
-### Masking logic
-```text
-"42 High Street"         → "High Street"
-"Flat 3, 10 Oak Lane"    → "Oak Lane"
-"10a Victoria Road"      → "Victoria Road"
-"Unit 5, 22 Park Avenue" → "Park Avenue"
-```
-
-Simple regex: strip leading flat/unit prefix if present, then strip leading numbers from the remaining string.
+No database or edge function changes needed — the function already exists and works.
 
