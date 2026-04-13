@@ -52,6 +52,8 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     highlights: string[];
   } | null>(null);
   const [isDetectingFocus, setIsDetectingFocus] = useState(false);
+  const [isNotifying, setIsNotifying] = useState(false);
+  const [showNotifyConfirm, setShowNotifyConfirm] = useState(false);
 
   const enhanceMutation = useEnhancePropertyContent();
   const updateMutation = useUpdatePropertyContent();
