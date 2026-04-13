@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Phone } from "lucide-react";
 import { lovable } from "@/integrations/lovable/index";
 import { Separator } from "@/components/ui/separator";
 
@@ -26,6 +27,7 @@ const loginSchema = z.object({
 
 const registerSchema = loginSchema.extend({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
+  phone: z.string().min(10, "Please enter a valid phone number").max(20),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -58,6 +60,7 @@ export const AuthForm = ({ mode, returnTo }: AuthFormProps) => {
       email: "",
       password: "",
       fullName: "",
+      phone: "",
       confirmPassword: "",
     },
   });
@@ -100,6 +103,16 @@ export const AuthForm = ({ mode, returnTo }: AuthFormProps) => {
         }
       } else {
         const { error } = await signUp(data.email, data.password, data.fullName);
+        if (!error && data.phone) {
+          // Save phone to profile after signup
+          const { data: { user: newUser } } = await supabase.auth.getUser();
+          if (newUser) {
+            await supabase
+              .from("profiles")
+              .update({ phone: data.phone })
+              .eq("user_id", newUser.id);
+          }
+        }
         if (error) {
           if (error.message.includes("User already registered")) {
             toast({
@@ -199,6 +212,25 @@ export const AuthForm = ({ mode, returnTo }: AuthFormProps) => {
                   <FormLabel>Full Name</FormLabel>
                   <FormControl>
                     <Input placeholder="John Smith" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {mode === "register" && (
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone Number</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="07123 456789" className="pl-10" {...field} />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

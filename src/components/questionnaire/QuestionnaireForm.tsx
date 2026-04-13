@@ -25,11 +25,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Check, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const questionnaireSchema = z.object({
   // Step 1: Financial Qualification
+  phone: z.string().min(10, "Please enter a valid phone number").max(20),
   cashAvailable: z.string().min(1, "Please select your available cash"),
   mortgageApproved: z.boolean(),
   fundingSource: z.string().min(1, "Please select your funding source"),
@@ -136,6 +137,7 @@ export const QuestionnaireForm = () => {
   const form = useForm<QuestionnaireFormData>({
     resolver: zodResolver(questionnaireSchema),
     defaultValues: {
+      phone: "",
       cashAvailable: "",
       mortgageApproved: false,
       fundingSource: "",
@@ -161,7 +163,7 @@ export const QuestionnaireForm = () => {
 
   const validateCurrentStep = async () => {
     const fieldsToValidate: (keyof QuestionnaireFormData)[][] = [
-      ["cashAvailable", "mortgageApproved", "fundingSource"],
+      ["phone", "cashAvailable", "mortgageApproved", "fundingSource"],
       ["preferredStrategies", "preferredLocations", "minBudget", "maxBudget"],
       ["purchaseTimeline", "propertiesToAcquire", "decisionMaker"],
       ["needsMortgageBroker", "needsSolicitor", "needsPropertyManagement", "needsRefurbTeam"],
@@ -215,6 +217,12 @@ export const QuestionnaireForm = () => {
       });
 
       if (error) throw error;
+
+      // Save phone number to profile
+      await supabase
+        .from("profiles")
+        .update({ phone: data.phone })
+        .eq("user_id", user.id);
 
       // Send welcome email
       const { data: profile } = await supabase
@@ -307,6 +315,23 @@ export const QuestionnaireForm = () => {
 
               <FormField
                 control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="07123 456789" className="pl-10" {...field} />
+                      </div>
+                    </FormControl>
+                    <FormDescription>We'll use this to contact you about matching deals</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
                 name="cashAvailable"
                 render={({ field }) => (
                   <FormItem>
