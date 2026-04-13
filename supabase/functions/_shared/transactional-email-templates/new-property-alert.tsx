@@ -107,7 +107,7 @@ export const template = {
   displayName: 'New property alert',
   previewData: {
     name: 'Jane',
-    propertyAddress: '42 High Street, Manchester',
+    propertyAddress: 'High Street, Manchester',
     city: 'Manchester',
     askingPrice: 125000,
     grossYield: 8.5,

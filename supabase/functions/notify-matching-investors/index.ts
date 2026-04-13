@@ -12,6 +12,14 @@ interface MatchResult {
   matchedCriteria: string[];
 }
 
+function maskAddress(address: string): string {
+  // Strip leading unit/flat prefix (e.g. "Flat 3, ", "Unit 5, ")
+  let masked = address.replace(/^(flat|unit|apt|apartment)\s+\S+[,\s]+/i, "");
+  // Strip leading house number (e.g. "42 ", "10a ")
+  masked = masked.replace(/^\d+\w?\s+/, "");
+  return masked || address;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -119,7 +127,7 @@ Deno.serve(async (req) => {
           idempotencyKey: `property-alert-${propertyId}-${match.investorId}`,
           templateData: {
             name: match.name,
-            propertyAddress: property.property_address,
+            propertyAddress: maskAddress(property.property_address),
             city: property.property_city,
             askingPrice: property.asking_price,
             grossYield: property.gross_yield_percentage,
