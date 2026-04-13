@@ -325,7 +325,7 @@ export const QuestionnaireForm = () => {
                 )}
               />
 
-                control={form.control}
+              <FormField
                 name="cashAvailable"
                 render={({ field }) => (
                   <FormItem>
