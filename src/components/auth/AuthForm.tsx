@@ -102,6 +102,16 @@ export const AuthForm = ({ mode, returnTo }: AuthFormProps) => {
         }
       } else {
         const { error } = await signUp(data.email, data.password, data.fullName);
+        if (!error && data.phone) {
+          // Save phone to profile after signup
+          const { data: { user: newUser } } = await supabase.auth.getUser();
+          if (newUser) {
+            await supabase
+              .from("profiles")
+              .update({ phone: data.phone })
+              .eq("user_id", newUser.id);
+          }
+        }
         if (error) {
           if (error.message.includes("User already registered")) {
             toast({
