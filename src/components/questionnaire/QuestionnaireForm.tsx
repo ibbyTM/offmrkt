@@ -218,6 +218,12 @@ export const QuestionnaireForm = () => {
 
       if (error) throw error;
 
+      // Save phone number to profile
+      await supabase
+        .from("profiles")
+        .update({ phone: data.phone })
+        .eq("user_id", user.id);
+
       // Send welcome email
       const { data: profile } = await supabase
         .from("profiles")
