@@ -70,7 +70,7 @@ const defaultFields: FieldConfig[] = [
     label: 'Phone',
     type: 'phone',
     placeholder: '07xxx xxx xxx',
-    required: false,
+    required: true,
   },
 ];
 
@@ -88,7 +88,7 @@ function buildSchema(fields: FieldConfig[]) {
         validator = z.string().email('Please enter a valid email');
         break;
       case 'phone':
-        validator = z.string();
+        validator = z.string().min(10, 'Please enter a valid phone number');
         break;
       default:
         validator = z.string();

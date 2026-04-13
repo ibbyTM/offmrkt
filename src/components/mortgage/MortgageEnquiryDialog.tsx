@@ -38,7 +38,7 @@ import { formatPrice } from "@/lib/propertyUtils";
 const formSchema = z.object({
   full_name: z.string().min(2, "Name is required").max(100),
   email: z.string().email("Valid email required").max(255),
-  phone: z.string().max(20).optional(),
+  phone: z.string().min(10, "Phone number is required").max(20),
   enquiry_type: z.enum(["purchase", "remortgage"]),
   annual_income: z.string().optional(),
   has_aip: z.boolean(),

@@ -28,7 +28,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const leadSchema = z.object({
   full_name: z.string().min(2, "Name is required"),
   email: z.string().email("Valid email required"),
-  phone: z.string().optional(),
+  phone: z.string().min(10, "Phone number is required"),
   interest_type: z.enum(["investor", "seller", "both", "not_sure"]).optional(),
 });
 
@@ -162,7 +162,7 @@ export function FloatingLeadCapture() {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <Input type="tel" placeholder="Phone Number (optional)" {...field} />
+                            <Input type="tel" placeholder="Phone Number" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
