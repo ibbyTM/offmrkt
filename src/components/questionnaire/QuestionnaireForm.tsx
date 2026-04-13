@@ -25,11 +25,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Check, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const questionnaireSchema = z.object({
   // Step 1: Financial Qualification
+  phone: z.string().min(10, "Please enter a valid phone number").max(20),
   cashAvailable: z.string().min(1, "Please select your available cash"),
   mortgageApproved: z.boolean(),
   fundingSource: z.string().min(1, "Please select your funding source"),
@@ -136,6 +137,7 @@ export const QuestionnaireForm = () => {
   const form = useForm<QuestionnaireFormData>({
     resolver: zodResolver(questionnaireSchema),
     defaultValues: {
+      phone: "",
       cashAvailable: "",
       mortgageApproved: false,
       fundingSource: "",
@@ -161,7 +163,7 @@ export const QuestionnaireForm = () => {
 
   const validateCurrentStep = async () => {
     const fieldsToValidate: (keyof QuestionnaireFormData)[][] = [
-      ["cashAvailable", "mortgageApproved", "fundingSource"],
+      ["phone", "cashAvailable", "mortgageApproved", "fundingSource"],
       ["preferredStrategies", "preferredLocations", "minBudget", "maxBudget"],
       ["purchaseTimeline", "propertiesToAcquire", "decisionMaker"],
       ["needsMortgageBroker", "needsSolicitor", "needsPropertyManagement", "needsRefurbTeam"],
