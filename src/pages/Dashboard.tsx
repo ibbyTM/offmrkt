@@ -447,6 +447,52 @@ const Dashboard = () => {
       }
     >
       <div className="p-6 bg-background-secondary min-h-full space-y-8">
+        {phoneMissing && (
+          <Card className="border-primary/30 bg-primary/5 shadow-sm">
+            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-5">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="rounded-full bg-primary/10 p-2">
+                  <Phone className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground">Phone number required</p>
+                  <p className="text-sm text-muted-foreground">Please add your phone number so we can contact you about matching deals.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Input
+                  placeholder="07123 456789"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  className="w-full sm:w-48"
+                />
+                <Button
+                  size="sm"
+                  disabled={savingPhone || phoneInput.length < 10}
+                  onClick={async () => {
+                    setSavingPhone(true);
+                    try {
+                      const { error } = await supabase
+                        .from("profiles")
+                        .update({ phone: phoneInput })
+                        .eq("user_id", user!.id);
+                      if (error) throw error;
+                      setPhoneMissing(false);
+                      setProfile(prev => prev ? { ...prev, phone: phoneInput } : prev);
+                      toast({ title: "Phone saved", description: "Your phone number has been added." });
+                    } catch {
+                      toast({ title: "Error", description: "Failed to save phone number.", variant: "destructive" });
+                    } finally {
+                      setSavingPhone(false);
+                    }
+                  }}
+                >
+                  {savingPhone ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         {renderContent()}
       </div>
     </AppLayout>
