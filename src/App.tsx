@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import ScrollToTop from "@/components/ScrollToTop";
+import { PhoneNumberPrompt } from "@/components/auth/PhoneNumberPrompt";
 import Index from "./pages/Index";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
@@ -38,6 +39,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <PhoneNumberPrompt />
             <BrowserRouter>
               <ScrollToTop />
               <Routes>
