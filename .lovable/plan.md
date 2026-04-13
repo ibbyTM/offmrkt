@@ -1,22 +1,29 @@
 
 
-## Make Phone Numbers Required Across All Forms
+## Mask Property Address in Investor Alert Emails
 
-Phone is currently optional in 3 places. The seller form already requires it. Here's what needs to change:
+The `notify-matching-investors` edge function currently sends `property.property_address` (full street address including door number) in the email. This needs to be masked to show only the street name and city — consistent with how the rest of the site handles property privacy.
 
 ### Changes
 
-**1. `src/components/landing/FloatingLeadCapture.tsx`**
-- Change `phone: z.string().optional()` to `phone: z.string().min(10, "Phone number is required")`
-- Update placeholder from `"Phone Number (optional)"` to `"Phone Number"`
+**`supabase/functions/notify-matching-investors/index.ts`** (line ~122)
+- Before passing `propertyAddress` to the template, strip the house/flat number from the address
+- Add a helper function that removes leading numbers and unit prefixes (e.g. "42 High Street" → "High Street", "Flat 3, 10 Oak Lane" → "Oak Lane")
+- Pass the masked address as `propertyAddress` in the template data
 
-**2. `src/components/mortgage/MortgageEnquiryDialog.tsx`**
-- Change `phone: z.string().max(20).optional()` to `phone: z.string().min(10, "Phone number is required").max(20)`
-- Update any placeholder text if it says "optional"
+**`supabase/functions/_shared/transactional-email-templates/new-property-alert.tsx`**
+- No structural changes needed — it already just renders `propertyAddress` and `city`
+- Update the preview data to reflect the masked format (e.g. "High Street, Manchester")
 
-**3. `src/components/funnels/FunnelLeadForm.tsx`**
-- Change `required: false` to `required: true` for the phone field
-- Update the phone case in the schema builder to add `.min(10, 'Please enter a valid phone number')` when required
+**Redeploy**: `notify-matching-investors` edge function
 
-No database changes needed -- the `phone` columns already accept text values.
+### Masking logic
+```text
+"42 High Street"         → "High Street"
+"Flat 3, 10 Oak Lane"    → "Oak Lane"
+"10a Victoria Road"      → "Victoria Road"
+"Unit 5, 22 Park Avenue" → "Park Avenue"
+```
+
+Simple regex: strip leading flat/unit prefix if present, then strip leading numbers from the remaining string.
 
