@@ -129,6 +129,29 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     }
   };
 
+  const handleNotifyInvestors = async () => {
+    setIsNotifying(true);
+    setShowNotifyConfirm(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("notify-matching-investors", {
+        body: { propertyId: property.id },
+      });
+      if (error) throw error;
+      const full = data?.fullMatches ?? 0;
+      const partial = data?.partialMatches ?? 0;
+      const total = full + partial;
+      if (total === 0) {
+        toast.info("No matching investors found for this property");
+      } else {
+        toast.success(`Notified ${total} investor${total !== 1 ? "s" : ""} (${full} full, ${partial} partial)`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to notify investors");
+    } finally {
+      setIsNotifying(false);
+    }
+  };
+
   const originalContent = {
     title: property.title,
     description: property.property_description || "",
