@@ -60,8 +60,16 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/admin/ad-creatives" element={<AdCreatives />} />
+                <Route path="/admin" element={
+                  <ProtectedRoute requireAdmin>
+                    <Admin />
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/ad-creatives" element={
+                  <ProtectedRoute requireAdmin>
+                    <AdCreatives />
+                  </ProtectedRoute>
+                } />
                 <Route path="/mortgage" element={<Mortgage />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
