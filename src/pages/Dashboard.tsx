@@ -58,11 +58,14 @@ const Dashboard = () => {
       try {
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("full_name, email")
+          .select("full_name, email, phone")
           .eq("user_id", user.id)
           .single();
 
-        if (profileData) setProfile(profileData);
+        if (profileData) {
+          setProfile(profileData);
+          setPhoneMissing(!profileData.phone);
+        }
 
         const { data: savedData } = await supabase
           .from("saved_properties")
