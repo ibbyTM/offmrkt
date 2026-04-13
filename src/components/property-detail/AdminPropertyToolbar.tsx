@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Shield, Sparkles, Focus, Crosshair, Mail } from "lucide-react";
+import { Shield, Sparkles, Focus, Crosshair } from "lucide-react";
 import { FocalPointEditor } from "@/components/admin/FocalPointEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -52,8 +52,6 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     highlights: string[];
   } | null>(null);
   const [isDetectingFocus, setIsDetectingFocus] = useState(false);
-  const [isNotifying, setIsNotifying] = useState(false);
-  const [showNotifyConfirm, setShowNotifyConfirm] = useState(false);
 
   const enhanceMutation = useEnhancePropertyContent();
   const updateMutation = useUpdatePropertyContent();
@@ -129,28 +127,6 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
     }
   };
 
-  const handleNotifyInvestors = async () => {
-    setIsNotifying(true);
-    setShowNotifyConfirm(false);
-    try {
-      const { data, error } = await supabase.functions.invoke("notify-matching-investors", {
-        body: { propertyId: property.id },
-      });
-      if (error) throw error;
-      const full = data?.fullMatches ?? 0;
-      const partial = data?.partialMatches ?? 0;
-      const total = full + partial;
-      if (total === 0) {
-        toast.info("No matching investors found for this property");
-      } else {
-        toast.success(`Notified ${total} investor${total !== 1 ? "s" : ""} (${full} full, ${partial} partial)`);
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed to notify investors");
-    } finally {
-      setIsNotifying(false);
-    }
-  };
 
   const originalContent = {
     title: property.title,
@@ -222,38 +198,9 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
               <Sparkles className="h-4 w-4 mr-2" />
               {enhanceMutation.isPending ? "Enhancing..." : "Enhance with AI"}
             </Button>
-            {/* Notify Investors Button */}
-            <Button
-              onClick={() => setShowNotifyConfirm(true)}
-              disabled={isNotifying}
-              variant="outline"
-              className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              {isNotifying ? "Notifying..." : "Notify Investors"}
-            </Button>
           </div>
         </div>
       </div>
-
-      {/* Notify Investors Confirmation Dialog */}
-      <AlertDialog open={showNotifyConfirm} onOpenChange={setShowNotifyConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Notify Matching Investors?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will send email notifications to all investors whose criteria match this property. 
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleNotifyInvestors}>
-              Send Notifications
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Sold Confirmation Dialog */}
       <AlertDialog open={showSoldConfirm} onOpenChange={setShowSoldConfirm}>
