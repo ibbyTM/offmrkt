@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Shield, Sparkles, Focus, Crosshair } from "lucide-react";
+import { Shield, Sparkles, Focus, Crosshair, Mail } from "lucide-react";
 import { FocalPointEditor } from "@/components/admin/FocalPointEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
