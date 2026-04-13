@@ -222,15 +222,38 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
               <Sparkles className="h-4 w-4 mr-2" />
               {enhanceMutation.isPending ? "Enhancing..." : "Enhance with AI"}
             </Button>
+            {/* Notify Investors Button */}
+            <Button
+              onClick={() => setShowNotifyConfirm(true)}
+              disabled={isNotifying}
+              variant="outline"
+              className="border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              {isNotifying ? "Notifying..." : "Notify Investors"}
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Sold Confirmation Dialog */}
-      <AlertDialog open={showSoldConfirm} onOpenChange={setShowSoldConfirm}>
+      {/* Notify Investors Confirmation Dialog */}
+      <AlertDialog open={showNotifyConfirm} onOpenChange={setShowNotifyConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Mark Property as Sold?</AlertDialogTitle>
+            <AlertDialogTitle>Notify Matching Investors?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will send email notifications to all investors whose criteria match this property. 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleNotifyInvestors}>
+              Send Notifications
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
             <AlertDialogDescription>
               This will mark the property as sold and record today's date as the sale date. 
               The property will no longer appear in public listings.
