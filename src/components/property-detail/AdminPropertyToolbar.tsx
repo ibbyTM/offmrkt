@@ -254,6 +254,12 @@ export function AdminPropertyToolbar({ property }: AdminPropertyToolbarProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Sold Confirmation Dialog */}
+      <AlertDialog open={showSoldConfirm} onOpenChange={setShowSoldConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark Property as Sold?</AlertDialogTitle>
             <AlertDialogDescription>
               This will mark the property as sold and record today's date as the sale date. 
               The property will no longer appear in public listings.
