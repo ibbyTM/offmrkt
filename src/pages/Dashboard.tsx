@@ -44,7 +44,11 @@ const Dashboard = () => {
   const [savedProperties, setSavedProperties] = useState<SavedProperty[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<{ full_name: string; email: string } | null>(null);
+  const [profile, setProfile] = useState<{ full_name: string; email: string; phone: string | null } | null>(null);
+  const [phoneMissing, setPhoneMissing] = useState(false);
+  const [phoneInput, setPhoneInput] = useState("");
+  const [savingPhone, setSavingPhone] = useState(false);
+  const { toast } = useToast();
   const { submissions } = useUserSubmissions();
 
   useEffect(() => {
