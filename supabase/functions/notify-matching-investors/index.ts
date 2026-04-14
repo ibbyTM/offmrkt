@@ -13,9 +13,7 @@ interface MatchResult {
 }
 
 function maskAddress(address: string): string {
-  // Strip leading unit/flat prefix (e.g. "Flat 3, ", "Unit 5, ")
   let masked = address.replace(/^(flat|unit|apt|apartment)\s+\S+[,\s]+/i, "");
-  // Strip leading house number (e.g. "42 ", "10a ")
   masked = masked.replace(/^\d+\w?\s+/, "");
   return masked || address;
 }
@@ -26,6 +24,44 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // --- Auth: require admin role ---
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+
+    const { data: isAdmin } = await authClient.rpc("has_role", {
+      _user_id: userId,
+      _role: "admin",
+    });
+
+    if (!isAdmin) {
+      return new Response(JSON.stringify({ error: "Admin access required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // --- End auth ---
+
     const { propertyId } = await req.json();
     if (!propertyId) {
       return new Response(JSON.stringify({ error: "propertyId required" }), {
@@ -83,20 +119,17 @@ Deno.serve(async (req) => {
 
       const matchedCriteria: string[] = [];
 
-      // Budget match
       const price = property.asking_price;
       if (price >= investor.min_budget && price <= investor.max_budget) {
         matchedCriteria.push("budget");
       }
 
-      // Location match (case-insensitive)
       const propertyCity = (property.property_city || "").toLowerCase();
       const prefLocations = (investor.preferred_locations || []).map((l: string) => l.toLowerCase());
       if (prefLocations.some((loc: string) => propertyCity.includes(loc) || loc.includes(propertyCity))) {
         matchedCriteria.push("location");
       }
 
-      // Strategy match
       const propertyStrategies = property.strategies || [];
       const prefStrategies = investor.preferred_strategies || [];
       if (prefStrategies.some((s: string) => propertyStrategies.includes(s))) {
@@ -156,7 +189,7 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     console.error("notify-matching-investors error:", err);
-    return new Response(JSON.stringify({ error: String(err) }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
